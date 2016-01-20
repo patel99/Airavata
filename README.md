@@ -4,3 +4,4 @@ Name[SPACE](Github User ID)[SPACE](IU username)
 -------------------------------------------------------------------------------
 Ajinkya Dhamnaskar (ajinkya-dhamnaskar)(adhamnas)
 Pratik Patel (patel99) (patelprv)
+Amruta Kamat (amrutakamat16) (arkamat)
