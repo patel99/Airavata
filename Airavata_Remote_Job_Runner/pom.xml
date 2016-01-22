@@ -5,7 +5,7 @@
 	<groupId>com.airavata.teamAlpha</groupId>
 	<artifactId>Airavata_Remote_Job_Runner</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>jar</packaging>
+	<!-- <packaging>jar</packaging> -->
 
 	<name>Airavata_Remote_Job_Runner</name>
 	<url>http://maven.apache.org</url>
@@ -15,6 +15,54 @@
 		<spring.framework.version>4.2.0.RELEASE</spring.framework.version>
 	</properties>
 
+	<!-- Configure Build -->
+	
+	<build>
+		<finalName>Airavata_Remote_Job_Runner</finalName>
+		<plugins>
+			<plugin>
+				<!-- create an all-in-one executable jar with maven-shade-plugin bound 
+					to phase:package special handling for spring.handlers/spring.schemas files 
+					to prevent overwriting (maven-shade-plugin joins them to one file) usage: 
+					cd to <project>/target java -jar hello-world-java-1.0-executable.jar spring/batch/job/hello-world-job.xml 
+					helloWorldJob -->
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>1.5</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<transformers>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>com.teamAlpha.airavata.facade.Main</mainClass>
+								</transformer>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+									<resource>META-INF/spring.handlers</resource>
+								</transformer>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+									<resource>META-INF/spring.schemas</resource>
+								</transformer>
+							</transformers>
+							<shadedArtifactAttached>false</shadedArtifactAttached>
+							<!-- configures the suffix name for the executable jar here it will 
+								be '<project.artifact>-<project.version>-executable.jar' -->
+							<shadedClassifierName>executable</shadedClassifierName>
+							<finalName>Airavata_Remote_Job_Runner</finalName>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	
+	
+	<!--  -->
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
