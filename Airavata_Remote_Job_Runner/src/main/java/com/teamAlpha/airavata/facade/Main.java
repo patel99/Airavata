@@ -30,7 +30,7 @@ public class Main {
 	String hostId;
 	
 	@Value ("${host.port}")
-	String hostPort;
+	int hostPort;
 	
 	@Autowired
 	Connection connection;
@@ -49,7 +49,7 @@ public class Main {
 		ConnectionEssential ce = new ConnectionEssential();
 		ce.setHost(hostId);
 		ce.setUser(userName);
-		ce.setPort(22);
+		ce.setPort(hostPort);
 		ce.setPkFilePath(privateKeyPath);
 		ce.setPkPassphrase(privateKeyPassphrase);
 		ChannelExec execChannel = null;
