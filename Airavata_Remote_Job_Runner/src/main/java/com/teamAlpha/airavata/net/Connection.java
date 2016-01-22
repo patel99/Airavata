@@ -9,6 +9,7 @@ import com.teamAlpha.airavata.exception.ConnectionException;
 public interface Connection {
 
 	/**
+	 * Get server session
 	 * @param connectionEssential
 	 * @return session object
 	 * @throws ConnectionException
@@ -16,8 +17,20 @@ public interface Connection {
 	Session getSession(ConnectionEssential connectionEssential) throws ConnectionException;
 	
 	
-	ChannelExec getExecChannel(Session session);
+	/**
+	 * Get exec channel
+	 * @param session
+	 * @return
+	 * @throws ConnectionException
+	 */
+	ChannelExec getExecChannel(Session session) throws ConnectionException;
 	
 	
-	ChannelSftp getSftpChannel(Session session);
+	/**
+	 * Get sftp channel
+	 * @param session
+	 * @return
+	 * @throws ConnectionException 
+	 */
+	ChannelSftp getSftpChannel(Session session) throws ConnectionException;
 }

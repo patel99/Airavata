@@ -65,27 +65,35 @@ public class ConnectionImpl implements Connection {
 	}
 
 	
+	/* (non-Javadoc)
+	 * @see com.teamAlpha.airavata.net.Connection#getExecChannel(com.jcraft.jsch.Session)
+	 */
 	@Override
-	public ChannelExec getExecChannel(Session session) {
+	public ChannelExec getExecChannel(Session session) throws ConnectionException {
 		if(LOGGER.isInfoEnabled()){LOGGER.info("getExecChannel -> Get exec channel.");}
 		try {
 			execChannel = (ChannelExec) session.openChannel(channelTypeExec);
 			if(LOGGER.isDebugEnabled()){LOGGER.debug("getExecChannel -> Exec Channel created successfully");}
 		} catch (JSchException e) {
 			LOGGER.error("getExecChannel() -> Error creating exec channel.", e);
+			throw new ConnectionException("Error creating exec channel");
 		}		
 		return execChannel;
 	}
 
 	
+	/* (non-Javadoc)
+	 * @see com.teamAlpha.airavata.net.Connection#getSftpChannel(com.jcraft.jsch.Session)
+	 */
 	@Override
-	public ChannelSftp getSftpChannel(Session session) {
+	public ChannelSftp getSftpChannel(Session session) throws ConnectionException {
 		if(LOGGER.isInfoEnabled()){LOGGER.info("getSftpChannel -> Get sftp channel.");}
 		try {
 			sftpChannel = (ChannelSftp) session.openChannel(channelTypeSftp);
 			if(LOGGER.isDebugEnabled()){LOGGER.debug("getSftpChannel -> SFTP Channel created successfully");}
 		} catch (JSchException e) {
 			LOGGER.error("getSftpChannel() -> Error creating SFTP channel.", e);
+			throw new ConnectionException("Error creating exec channel");
 		}		
 		return sftpChannel;
 	}
