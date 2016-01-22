@@ -116,21 +116,7 @@ public class Sample {
 					Thread.sleep(1000);
 				} catch (Exception ee) {
 				}
-			}
-			
-			
-			
-			// sftpChannel.put("/N/u/adhamnas/Karst/index.html", "E:/index.html"
-			// );
-			// InputStream inp =
-			// sftpChannel.get("/N/u/adhamnas/Karst/test.txt");
-			// int c;
-			// while ( (c= inp.read()) != -1 ) {
-			// targetFile.write(c);
-			// }
-			//
-			// inp.close();
-			// targetFile.close();
+			}			
 			channel.disconnect();
 
 			session.disconnect();
