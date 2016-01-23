@@ -1,83 +1,69 @@
 package com.teamAlpha.airavata.facade;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Component;
 
-import com.jcraft.jsch.ChannelExec;
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
-import com.teamAlpha.airavata.domain.ConnectionEssential;
 import com.teamAlpha.airavata.exception.ConnectionException;
-import com.teamAlpha.airavata.net.Connection;
+import com.teamAlpha.airavata.exception.FileException;
+import com.teamAlpha.airavata.exception.JobException;
+import com.teamAlpha.airavata.service.JobManagement;
 
 @Component
+
 public class Main {
 
-	@Value ("${private.key.path}")
+	@Value("${private.key.path}")
 	String privateKeyPath;
-	
-	@Value ("${private.key.passphrase}")
+
+	@Value("${private.key.passphrase}")
 	String privateKeyPassphrase;
-	
-	@Value ("${user.name}")
+
+	@Value("${user.name}")
 	String userName;
-	
-	@Value ("${host.id}")
+
+	@Value("${host.id}")
 	String hostId;
-	
-	@Value ("${host.port}")
+
+	@Value("${host.port}")
 	int hostPort;
-	
+
 	@Autowired
-	Connection connection;
-	
-	public static void main(String[] args) {
+	JobManagement jobManagement;
+
+	private static final Logger LOGGER = LogManager.getLogger(Main.class);
+
+	public static void main(String[] args) throws ConnectionException {
 		AbstractApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
-		Main main = (Main)context.getBean(Main.class);
+		Main main = (Main) context.getBean(Main.class);
 		context.close();
 		main.monitor();
 	}
-	
+
 	/*
 	 * Demonstrate how to use Connection interface
 	 */
-	boolean monitor(){
-		ConnectionEssential ce = new ConnectionEssential();
-		ce.setHost(hostId);
-		ce.setUser(userName);
-		ce.setPort(hostPort);
-		ce.setPkFilePath(privateKeyPath);
-		ce.setPkPassphrase(privateKeyPassphrase);
-		ChannelExec execChannel = null;
-		ChannelSftp sftpChannel = null;
-		Session s = null;
-		try {
-			s = connection.getSession(ce);
-			execChannel = connection.getExecChannel(s);
-			execChannel.connect();
-			sftpChannel = connection.getSftpChannel(s);
-			sftpChannel.connect();
-		} catch (ConnectionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JSchException e) {
-			// TODO: handle exception
-		}finally {
-			if(null != execChannel && execChannel.isConnected()){
-				execChannel.disconnect();
-			}
-			if(null != sftpChannel && sftpChannel.isConnected()){
-				sftpChannel.disconnect();
-			}
-			if(null != s && s.isConnected()){
-				s.disconnect();
-			}
+	boolean monitor() throws ConnectionException {
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("monitor() -> Submit and monitor job.");
 		}
-		return true;		
+		try {
+
+			String data = jobManagement.submitJob();
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("monitor() -> Received result from server. Output : " + data);
+			}
+			System.out.println(data);
+		} catch (FileException e) {
+			LOGGER.error(e.getMessage());
+		} catch (JobException e) {
+			LOGGER.error(e.getMessage());
+		}
+		return true;
 	}
 
 }

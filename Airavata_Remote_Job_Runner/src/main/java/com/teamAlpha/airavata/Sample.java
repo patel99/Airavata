@@ -43,7 +43,7 @@ public class Sample {
 			System.out.println("Connected");
 
 			Channel channel = session.openChannel("exec");
-
+			
 			((ChannelExec) channel).setCommand(command1);
 			channel.setInputStream(null);
 			((ChannelExec) channel).setErrStream(System.err);
@@ -87,7 +87,6 @@ public class Sample {
 			System.out.println("File uploaded");
 			channel.disconnect();
 			channel = session.openChannel("exec");
-			
 			((ChannelExec) channel).setCommand(
 					" cd /N/dc2/scratch/adhamnas/job-submission \n mpicc hello.c -o hello.out \n dos2unix pbs.sh");
 			channel.setInputStream(null);

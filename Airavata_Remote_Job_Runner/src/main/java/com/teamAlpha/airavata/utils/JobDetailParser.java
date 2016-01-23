@@ -1,93 +1,90 @@
 package com.teamAlpha.airavata.utils;
 
-import com.teamAlpha.airavata.domain.JobDetails;
-
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-public class JobDetailParser{
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
+import com.teamAlpha.airavata.domain.JobDetails;
+
+public class JobDetailParser {
+
+	private static final Logger LOGGER = LogManager.getLogger(JobDetailParser.class);
+
 	private static ArrayList<JobDetails> jobs = new ArrayList<JobDetails>();
-	public static void main(String[] args) throws IOException{
-		BufferedReader fileReader;
-		int lineCount=0,objectCount=0;
-		try {
-			fileReader = new BufferedReader(new FileReader("/home/pratik/test.txt"));
-		    String line = fileReader.readLine();
-		    while(line !=null){
-		    	lineCount++;
-		    	if(line.startsWith("---")){
-		    		line = fileReader.readLine();
-		    		break;
-		    	}
-	        	line = fileReader.readLine();
-		    }
-		    while (line != null) {
-		        lineCount++;
-		        objectCount++;
-		        // Calling function to parse data using string tokenizer, which will return a object of type JobDetails
-		        jobs.add(parseDetails(line));
-		        line = fileReader.readLine();
-		    }
-		    fileReader.close();
-		} 
-		catch (FileNotFoundException e) {
-			e.printStackTrace();
+
+	public ArrayList<JobDetails> jobDataParser(String parseData) {
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("jobDetailParser() -> Parsing status details of submitted job. Job details : " + parseData);
 		}
-		catch (Exception e){
-			e.printStackTrace();
+		if (parseData != null) {
+			if (parseData.lastIndexOf("-----") > 0) {
+				parseData = parseData.substring(parseData.lastIndexOf("-----") + 5);
+
+			}
 		}
+		if (parseData != null) {
+			jobs.add(parseDetails(parseData));
+		}
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("jobDetailParser() -> Successfully parsed status details of submitted job. Job details : "
+					+ parseData);
+		}
+		return jobs;
 	}
-	
-	private static JobDetails parseDetails(String temp){
-		//System.out.println(temp);
+
+	private static JobDetails parseDetails(String temp) {
 		JobDetails job = new JobDetails();
-		int index=0;
+		int index = 0;
 		StringTokenizer st = new StringTokenizer(temp);
-		while(st.hasMoreTokens()){
-			switch(index){
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("parseDetails() -> Parsing status details of submitted job. Job details : " + temp);
+		}
+		while (st.hasMoreTokens()) {
+			switch (index) {
 			case 0:
 				job.setId(st.nextToken());
 				break;
 			case 1:
-				job.setUserName(st.nextToken());
-				break;
-			case 2:
-				job.setQueueType(st.nextToken());
-				break;
-			case 3:
 				job.setJobName(st.nextToken());
 				break;
-			case 4:
-				job.setSessionId(st.nextToken());
+			case 2:
+				job.setUserName(st.nextToken());
 				break;
-			case 5:
-				job.setNodes(st.nextToken());
-				break;
-			case 6:
-				job.setNoOfTasks(st.nextToken());
-				break;
-			case 7:
-				job.setMemory(st.nextToken());
-				break;
-			case 8:
+			case 3:
 				job.setTime(st.nextToken());
 				break;
-			case 9:
+			case 4:
 				job.setStatus(st.nextToken());
 				break;
-			case 10:
-				job.setElapTime(st.nextToken());
+			case 5:
+				job.setQueueType(st.nextToken());
 				break;
+//			case 6:
+//				job.setNoOfTasks(st.nextToken());
+//				break;
+//			case 7:
+//				job.setMemory(st.nextToken());
+//				break;
+//			case 8:
+//				job.setTime(st.nextToken());
+//				break;
+//			case 9:
+//				job.setStatus(st.nextToken());
+//				break;
+//			case 10:
+//				job.setElapTime(st.nextToken());
+//				break;
 			default:
 				break;
 			}
 			index++;
 		}
-		//System.out.println(job.toString());
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("parseDetails() -> Successfully parsed status details of submitted job. Job details : " + job.toString());
+		}
 		return job;
 	}
 }

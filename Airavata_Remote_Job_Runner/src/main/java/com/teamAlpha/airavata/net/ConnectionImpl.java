@@ -19,9 +19,12 @@ import com.teamAlpha.airavata.exception.ConnectionException;
 public class ConnectionImpl implements Connection {
 
 	private static final Logger LOGGER = LogManager.getLogger(ConnectionImpl.class);
+	
 	JSch jsch = new JSch();
+	
 	Properties config = null;
 	Session session = null;
+	
 	ChannelExec execChannel = null;
 	ChannelSftp sftpChannel = null;
 	
@@ -97,4 +100,6 @@ public class ConnectionImpl implements Connection {
 		}		
 		return sftpChannel;
 	}
+	
+	
 }
