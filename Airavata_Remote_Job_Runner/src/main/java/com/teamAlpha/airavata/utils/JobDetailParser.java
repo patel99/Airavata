@@ -5,11 +5,18 @@ import java.util.StringTokenizer;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import com.teamAlpha.airavata.domain.JobDetails;
 
+@Component
 public class JobDetailParser {
 
+	
+	@Value("${status.last.header}")
+	String lastHeader;
+	
 	private static final Logger LOGGER = LogManager.getLogger(JobDetailParser.class);
 
 	private static ArrayList<JobDetails> jobs = new ArrayList<JobDetails>();
@@ -20,8 +27,8 @@ public class JobDetailParser {
 			LOGGER.info("jobDetailParser() -> Parsing status details of submitted job. Job details : " + parseData);
 		}
 		if (parseData != null) {
-			if (parseData.lastIndexOf("-----") > 0) {
-				parseData = parseData.substring(parseData.lastIndexOf("-----") + 5);
+			if (parseData.lastIndexOf(lastHeader) > 0) {
+				parseData = parseData.substring(parseData.lastIndexOf(lastHeader) + 9);
 
 			}
 		}
@@ -48,35 +55,35 @@ public class JobDetailParser {
 				job.setId(st.nextToken());
 				break;
 			case 1:
-				job.setJobName(st.nextToken());
-				break;
-			case 2:
 				job.setUserName(st.nextToken());
 				break;
-			case 3:
-				job.setTime(st.nextToken());
-				break;
-			case 4:
-				job.setStatus(st.nextToken());
-				break;
-			case 5:
+			case 2:
 				job.setQueueType(st.nextToken());
 				break;
-//			case 6:
-//				job.setNoOfTasks(st.nextToken());
-//				break;
-//			case 7:
-//				job.setMemory(st.nextToken());
-//				break;
-//			case 8:
-//				job.setTime(st.nextToken());
-//				break;
-//			case 9:
-//				job.setStatus(st.nextToken());
-//				break;
-//			case 10:
-//				job.setElapTime(st.nextToken());
-//				break;
+			case 3:
+				job.setJobName(st.nextToken());
+				break;
+			case 4:
+				job.setSessionId(st.nextToken());
+				break;
+			case 5:
+				job.setNodes(st.nextToken());
+				break;
+			case 6:
+				job.setNoOfTasks(st.nextToken());
+				break;
+			case 7:
+				job.setMemory(st.nextToken());
+				break;
+			case 8:
+				job.setTime(st.nextToken());
+				break;
+			case 9:
+				job.setStatus(st.nextToken());
+				break;
+			case 10:
+				job.setElapTime(st.nextToken());
+				break;
 			default:
 				break;
 			}

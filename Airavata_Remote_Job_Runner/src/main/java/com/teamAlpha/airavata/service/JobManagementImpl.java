@@ -1,5 +1,7 @@
 package com.teamAlpha.airavata.service;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -20,6 +22,7 @@ import com.teamAlpha.airavata.exception.ConnectionException;
 import com.teamAlpha.airavata.exception.FileException;
 import com.teamAlpha.airavata.exception.JobException;
 import com.teamAlpha.airavata.net.Connection;
+import com.teamAlpha.airavata.utils.Constants;
 import com.teamAlpha.airavata.utils.JobDetailParser;
 import com.teamAlpha.airavata.utils.Utilities;
 
@@ -56,13 +59,29 @@ public class JobManagementImpl implements JobManagement {
 	@Value("${retry.time.interval}")
 	int retryTimeInterval;
 
-	@Value("${max.retry.attempts}")
-	int maxRetryAttempts;
-
+	@Value("${default.retry.attempts}")
+	int defaultRetryAttempts;
+	
+	@Value("${no.of.nodes}")
+	String noOfNodes;
+	
+	@Value("${no.of.proc.per.node}")
+	String noOfProcesses;
+	
+	@Value("${no.of.jobs}")
+	String noOfJobs;
+	
+	@Value("${job.walltime}")
+	String jobWalltime;
+	
 	@Autowired
 	FileManagement fileManagement;
+	
 	@Autowired
 	Connection connection;
+	
+	@Autowired
+	JobDetailParser jobDetails;
 
 	private static final Logger LOGGER = LogManager.getLogger(JobManagementImpl.class);
 
@@ -82,6 +101,7 @@ public class JobManagementImpl implements JobManagement {
 		
 		Session s = null;
 		String dataFromServer = null;
+		File pbsSh = null;
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("submitJob() -> Submit job to server queue.");
@@ -93,14 +113,26 @@ public class JobManagementImpl implements JobManagement {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("getSftpChannel() -> Channel created successfully.");
 			}
-
+			String pbsContent = String.format(Constants.PBS_CONTENT, noOfNodes, noOfProcesses, 
+					jobWalltime, remoteFilePath, noOfJobs, "./"+ fileName.substring(0,fileName.length()-2) + ".out");
+			pbsSh = new File(filePath + "pbs.sh");
+			FileWriter fileWriter = new FileWriter(pbsSh);
+			fileWriter.write(pbsContent);
+			fileWriter.flush();
+			fileWriter.close();
 			fileManagement.putFile(filePath + fileName, remoteFilePath, sftpChannel);
+			sftpChannel = connection.getSftpChannel(s);
+			fileManagement.putFile(filePath + "pbs.sh", remoteFilePath, sftpChannel);
 			sftpChannel.disconnect();
 
 			execChannel = connection.getExecChannel(s);
-
+				
+			execChannel = connection.getExecChannel(s);
 			execChannel.setCommand(
-					" cd /N/dc2/scratch/adhamnas/job-submission \n mpicc hello.c -o hello.out \n dos2unix pbs.sh \n qsub pbs.sh");
+					Constants.CMD_CD + " " + remoteFilePath + "\n" +  
+			Constants.CMD_MPICC + " " + fileName + " -o "+ fileName.substring(0,fileName.length()-2) + ".out \n "
+					+ Constants.CMD_D2U + " " + "pbs.sh \n "
+							+ Constants.CMD_QSUB + " " + "pbs.sh");
 
 			execChannel.setInputStream(null);
 			execChannel.setErrStream(System.err);
@@ -122,7 +154,11 @@ public class JobManagementImpl implements JobManagement {
 
 			if (null != jobStatus && jobStatus.equalsIgnoreCase(completedStatus)) {
 				execChannel = connection.getExecChannel(s);
-				execChannel.setCommand(" cd /N/dc2/scratch/adhamnas/job-submission \n cat pbs.sh.o"
+				if (LOGGER.isInfoEnabled()) {
+					LOGGER.info("submitJob() -> Checking if error generated in error file. Job Id : "+ jobId);
+				}
+				execChannel.setCommand(Constants.CMD_CD + " " + remoteFilePath + "\n "
+						+ Constants.CMD_CAT + " " + "pbs.sh.e"
 						+ jobId.substring(0, jobId.length() - 3));
 
 				execChannel.setInputStream(null);
@@ -131,6 +167,29 @@ public class JobManagementImpl implements JobManagement {
 				in = execChannel.getInputStream();
 				execChannel.connect();
 				dataFromServer = Utilities.getStringFromIS(in);
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("submitJob() -> Error file content : " + dataFromServer + ", JobId : " + jobId);
+				}
+				if(dataFromServer.trim().equals("")){
+					
+					if (LOGGER.isInfoEnabled()) {
+						LOGGER.info("submitJob() -> Fetching output file content. Job Id : "+ jobId);
+					}
+					execChannel = connection.getExecChannel(s);
+					execChannel.setCommand(Constants.CMD_CD + " " + remoteFilePath + "\n "
+							+ Constants.CMD_CAT + " " + "pbs.sh.o"
+							+ jobId.substring(0, jobId.length() - 3));
+	
+					execChannel.setInputStream(null);
+					execChannel.setErrStream(System.err);
+	
+					in = execChannel.getInputStream();
+					execChannel.connect();
+					dataFromServer = Utilities.getStringFromIS(in);
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug("submitJob() -> Output file content : " + dataFromServer + ", JobId : " + jobId);
+					}
+				}
 			} else {
 				throw new JobException("Job not yet completed.");
 			}
@@ -161,26 +220,26 @@ public class JobManagementImpl implements JobManagement {
 	private String getJobStatus(String jobId, ChannelExec execChannel, Session session)
 			throws IOException, InterruptedException, JSchException, ConnectionException {
 		
-		int attemptCount = 0;
+		int attemptCount = 1;
 		InputStream in = null;
 		
 		String jobData = null;
-		JobDetailParser jobDetails = new JobDetailParser();
 		ArrayList<JobDetails> jobs = new ArrayList<JobDetails>();
-		
+		double requiredTime = 0;
 		String jobStatus = null;
+		
+		boolean attemptSet = false;
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("getJobStatus() -> Get job status. Job Id : " + jobId);
 		}
 		
-		while (attemptCount != maxRetryAttempts) {
-			
+		do{
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("getJobStatus() -> Get job status. Job Id : " + jobId + ", Attempt : " + attemptCount);
 			}
 			
 			execChannel = connection.getExecChannel(session);
-			execChannel.setCommand("qstat " + jobId);
+			execChannel.setCommand(Constants.CMD_QSTAT + " -u " + userName);
 			
 			in = execChannel.getInputStream();
 			
@@ -200,17 +259,24 @@ public class JobManagementImpl implements JobManagement {
 						}
 						jobStatus = job.getStatus();
 						break;
+					}else{
+						if(!attemptSet){
+							requiredTime = Utilities.getMilliseconds(job.getTime());
+							defaultRetryAttempts = (int) (requiredTime/retryTimeInterval);
+							if(LOGGER.isDebugEnabled()){LOGGER.debug("getJobStatus() -> Required time for job : " + job.getTime() + ", Required Attempts : " + defaultRetryAttempts);}
+						}
 					}
 				}
 			}
 			if (null != jobStatus && jobStatus.equalsIgnoreCase(completedStatus))
 				break;
 			
-			execChannel.disconnect();
 			attemptCount++;
 			
 			Thread.sleep(retryTimeInterval);
 		}
+		while (attemptCount <= defaultRetryAttempts);
+		
 		return jobStatus;
 
 	}
