@@ -20,8 +20,8 @@
     <property name="locations">
       <list>
         <!-- <value>classpath:test.properties</value> -->
-        <value>file:props\server.properties</value> 
-        <value>file:props\user_input.properties</value>
+        <value>file:props/server.properties</value> 
+        <value>file:props/user_input.properties</value>
       </list>
     </property>
   </bean>
