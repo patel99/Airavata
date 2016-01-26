@@ -85,6 +85,9 @@ public class JobManagementImpl implements JobManagement {
 
 	private static final Logger LOGGER = LogManager.getLogger(JobManagementImpl.class);
 
+	/* (non-Javadoc)
+	 * @see com.teamAlpha.airavata.service.JobManagement#submitJob()
+	 */
 	@Override
 	public String submitJob() throws FileException, ConnectionException, JobException {
 		
@@ -217,6 +220,20 @@ public class JobManagementImpl implements JobManagement {
 		}
 	}
 
+	/**
+	 * Get job status
+	 * Poll for the job status for the required time
+	 * Return job status when completed
+	 * @param jobId
+	 * @param execChannel
+	 * @param session
+	 * @return
+	 * 		job status
+	 * @throws IOException
+	 * @throws InterruptedException
+	 * @throws JSchException
+	 * @throws ConnectionException
+	 */
 	private String getJobStatus(String jobId, ChannelExec execChannel, Session session)
 			throws IOException, InterruptedException, JSchException, ConnectionException {
 		

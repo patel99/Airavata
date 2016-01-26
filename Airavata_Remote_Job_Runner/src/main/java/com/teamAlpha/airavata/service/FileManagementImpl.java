@@ -20,8 +20,12 @@ import com.teamAlpha.airavata.exception.FileException;
 
 @Component
 public class FileManagementImpl implements FileManagement {
+	
 	private static final Logger LOGGER = LogManager.getLogger(FileManagementImpl.class);
 
+	/* (non-Javadoc)
+	 * @see com.teamAlpha.airavata.service.FileManagement#putFile(java.lang.String, java.lang.String, com.jcraft.jsch.Channel)
+	 */
 	public boolean putFile(String localFilePath, String remoteFilePath, Channel sftpChannel)
 			throws FileException, ConnectionException {
 		if (LOGGER.isInfoEnabled()) {
@@ -59,45 +63,9 @@ public class FileManagementImpl implements FileManagement {
 		return true;
 	}
 	
-	public boolean putFile(FileInputStream fileInputStream, String remoteFilePath, Channel sftpChannel)
-			throws FileException, ConnectionException {
-//		if (LOGGER.isInfoEnabled()) {
-//			LOGGER.info("putFile() -> Copying file to the server. Local file path : " + localFilePath
-//					+ ", Remote file path : " + remoteFilePath);
-//		}
-
-		try {
-//			File file = new File(localFilePath);
-
-			sftpChannel.connect();
-			System.out.println("Connected");
-
-			((ChannelSftp) sftpChannel).cd(remoteFilePath);
-			((ChannelSftp) sftpChannel).put(fileInputStream, "pbs.sh");
-			System.out.println("File uploaded");
-			sftpChannel.disconnect();
-//			if (LOGGER.isDebugEnabled()) {
-//				LOGGER.debug("putFile() -> File copied to server successfully. Local file path : " + localFilePath
-//						+ ", Remote file path : " + remoteFilePath);
-//			}
-
-//		} catch (FileNotFoundException e) {
-//			LOGGER.error(
-//					"putFile() -> Error copying file to server. File not found on local file path : " + localFilePath,
-//					e);
-//			throw new FileException("Error uploading file.");
-
-		}
-		catch (JSchException e) {
-			LOGGER.error("putFile() -> Error creating SFTP channel.", e);
-			throw new ConnectionException("Error uploading file.");
-		} catch (SftpException e) {
-			LOGGER.error("putFile() -> Error creating SFTP channel.", e);
-			throw new ConnectionException("Error uploading file.");
-		}
-		return true;
-	}
-
+	/* (non-Javadoc)
+	 * @see com.teamAlpha.airavata.service.FileManagement#getFile(java.lang.String, java.lang.String, com.jcraft.jsch.Channel)
+	 */
 	@Override
 	public FileOutputStream getFile(String localFilePath, String remoteFilePath, Channel sftpChannel)
 			throws ConnectionException, FileException {
