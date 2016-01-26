@@ -1,0 +1,5 @@
+Planning on separating job monitor module from job submit module.
+1) Keep record of all the jobs that are submitted by user
+2) The monitor module will let user chose which of the jobs they want to monitor from the list
+
+This will allow user to run the job, then check status whenever they want.
