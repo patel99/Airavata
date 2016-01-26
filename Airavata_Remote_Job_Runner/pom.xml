@@ -27,7 +27,7 @@
 					cd to <project>/target java -jar hello-world-java-1.0-executable.jar spring/batch/job/hello-world-job.xml 
 					helloWorldJob -->
 				<artifactId>maven-shade-plugin</artifactId>
-				<version>1.5</version>
+				<version>1.7</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
