@@ -5,6 +5,7 @@
 	<groupId>com.airavata.teamAlpha</groupId>
 	<artifactId>Airavata_Remote_Job_Runner</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>war</packaging>
 	<!-- <packaging>jar</packaging> -->
 
 	<name>Airavata_Remote_Job_Runner</name>
@@ -16,53 +17,51 @@
 	</properties>
 
 	<!-- Configure Build -->
-	
+
 	<build>
 		<finalName>Airavata_Remote_Job_Runner</finalName>
+
+
 		<plugins>
 			<plugin>
-				<!-- create an all-in-one executable jar with maven-shade-plugin bound 
-					to phase:package special handling for spring.handlers/spring.schemas files 
-					to prevent overwriting (maven-shade-plugin joins them to one file) usage: 
-					cd to <project>/target java -jar hello-world-java-1.0-executable.jar spring/batch/job/hello-world-job.xml 
-					helloWorldJob -->
-				<artifactId>maven-shade-plugin</artifactId>
-				<version>1.7</version>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-						<configuration>
-							<transformers>
-								<transformer
-									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>com.teamAlpha.airavata.facade.Main</mainClass>
-								</transformer>
-								<transformer
-									implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-									<resource>META-INF/spring.handlers</resource>
-								</transformer>
-								<transformer
-									implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-									<resource>META-INF/spring.schemas</resource>
-								</transformer>
-							</transformers>
-							<shadedArtifactAttached>false</shadedArtifactAttached>
-							<!-- configures the suffix name for the executable jar here it will 
-								be '<project.artifact>-<project.version>-executable.jar' -->
-							<shadedClassifierName>executable</shadedClassifierName>
-							<finalName>Airavata_Remote_Job_Runner</finalName>
-						</configuration>
-					</execution>
-				</executions>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.3</version>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.6</version>
+				<configuration>
+					<warSourceDirectory>WebContent</warSourceDirectory>
+					<failOnMissingWebXml>false</failOnMissingWebXml>
+				</configuration>
 			</plugin>
 		</plugins>
+		<!-- <plugins> <plugin> <artifactId>maven-war-plugin</artifactId> <version>2.6</version> 
+			<configuration> <warSourceDirectory>WebContent</warSourceDirectory> <failOnMissingWebXml>false</failOnMissingWebXml> 
+			</configuration> </plugin> <plugin> create an all-in-one executable jar with 
+			maven-shade-plugin bound to phase:package special handling for spring.handlers/spring.schemas 
+			files to prevent overwriting (maven-shade-plugin joins them to one file) 
+			usage: cd to <project>/target java -jar hello-world-java-1.0-executable.jar 
+			spring/batch/job/hello-world-job.xml helloWorldJob <artifactId>maven-shade-plugin</artifactId> 
+			<version>1.7</version> <executions> <execution> <phase>package</phase> <goals> 
+			<goal>shade</goal> </goals> <configuration> <transformers> <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer"> 
+			<mainClass>com.teamAlpha.airavata.facade.Main</mainClass> </transformer> 
+			<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer"> 
+			<resource>META-INF/spring.handlers</resource> </transformer> <transformer 
+			implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer"> 
+			<resource>META-INF/spring.schemas</resource> </transformer> </transformers> 
+			<shadedArtifactAttached>false</shadedArtifactAttached> configures the suffix 
+			name for the executable jar here it will be '<project.artifact>-<project.version>-executable.jar' 
+			<shadedClassifierName>executable</shadedClassifierName> <finalName>Airavata_Remote_Job_Runner</finalName> 
+			</configuration> </execution> </executions> </plugin> </plugins> -->
 	</build>
-	
-	
-	<!--  -->
+
+
+	<!-- -->
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -73,9 +72,27 @@
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
-			<version>1.2.14</version>
-			<optional>true</optional>
+			<version>1.2.17</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<version>2.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>2.3</version>
+		</dependency>
+		<!-- <dependency> <groupId>org.slf4j</groupId> <artifactId>slf4j-log4j12</artifactId> 
+			<version>1.5.10</version> <scope>runtime</scope> </dependency> -->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-web</artifactId>
+			<version>2.5</version>
+		</dependency>
+
 		<dependency>
 			<groupId>com.jcraft</groupId>
 			<artifactId>jsch</artifactId>
@@ -103,7 +120,21 @@
 			<artifactId>spring-beans</artifactId>
 			<version>${spring.framework.version}</version>
 		</dependency>
-
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>${spring.framework.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>${spring.framework.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-tx</artifactId>
+			<version>3.2.2.RELEASE</version>
+		</dependency>
 
 		<!-- -->
 	</dependencies>
