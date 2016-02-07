@@ -39,7 +39,7 @@
 
 	<servlet-mapping>
 		<servlet-name>airavataJobRunnerApplicationServlet</servlet-name>
-		<url-pattern>/rest/*</url-pattern>
+		<url-pattern>*.htm</url-pattern>
 	</servlet-mapping>
 
 
