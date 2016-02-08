@@ -298,6 +298,127 @@ public class JobManagementImpl implements JobManagement {
 		return jobStatus;
 
 	}
+	
+ public String cancelJob(String jobID)  throws FileException, ConnectionException, JobException{
+		
+		ConnectionEssential connectionParameters = new ConnectionEssential();
+		connectionParameters.setHost(hostId);
+		connectionParameters.setUser(userName);
+		connectionParameters.setPort(hostPort);
+		
+		connectionParameters.setPkFilePath(privateKeyPath);
+		connectionParameters.setPkPassphrase(privateKeyPassphrase);
+		
+		ChannelExec execChannel = null;
+		ChannelSftp sftpChannel = null;
+		
+		Session s = null;
+		String cancelStatus;
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("cancelJob() -> Cancel waiting or running job from server queue.");
+		}
+
+		try {
+			s = connection.getSession(connectionParameters);
+			execChannel = connection.getExecChannel(s);
+			cancelStatus = cancelJobImpl(jobID, execChannel,s);
+			
+			
+		}catch (JSchException e) {
+			LOGGER.error("cancelJob() ->  Error creating session", e);
+			throw new ConnectionException("Error canceling job from remote server.");
+		} 
+		catch (IOException e) {
+			LOGGER.error("cancelJob() ->  Error in I/O operations", e);
+			throw new FileException("Error canceling job from remote server.");
+		} catch (InterruptedException e) {
+			LOGGER.error("cancelJob() ->  Error in interrupt operations", e);
+			throw new FileException("Error canceling job from remote server.");
+		} finally {
+			if (null != execChannel && execChannel.isConnected()) {
+				execChannel.disconnect();
+			}
+			if (null != sftpChannel && sftpChannel.isConnected()) {
+				sftpChannel.disconnect();
+			}
+			if (null != s && s.isConnected()) {
+				s.disconnect();
+			}
+		}
+
+		return cancelStatus;
+	}	
+
+	private String cancelJobImpl(String jobId, ChannelExec execChannel, Session session)
+			throws IOException, InterruptedException, JSchException, ConnectionException {
+		
+		
+		InputStream in = null;
+		
+		final String jobNotFound = "Job Not Found"; 
+		final String jobCompleted = "Job Completed";
+		final String jobDeleted = "Job Deleted Successfully";
+		
+		String jobData = null;
+		ArrayList<JobDetails> jobs = new ArrayList<JobDetails>();
+		
+		
+		
+		
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("cancelJob() -> Cancel Job. Job Id : " + jobId);
+		}
+		
+		
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("cancelJob() -> Cancel Job. Job Id : " + jobId );
+			}
+			
+			execChannel = connection.getExecChannel(session);
+			execChannel.setCommand(Constants.CMD_QSTAT + jobId);
+			
+			in = execChannel.getInputStream();
+			
+			execChannel.setInputStream(null);
+			execChannel.setErrStream(System.err);
+			execChannel.connect();
+			
+			jobData = Utilities.getStringFromIS(in);
+			
+			// Return if job is not present
+			if(jobData.contains("qstat: Unknown Job Id Error")) {
+				
+					LOGGER.error("cancelJob() -> Job not found. Job Id : " + jobId );
+					
+				return jobNotFound;
+			}
+			
+			jobs.clear();
+			jobs = jobDetails.jobDataParser(jobData);
+			JobDetails job = jobs.get(0);
+			if (job.getStatus().equalsIgnoreCase(completedStatus)) {
+				
+					LOGGER.error("cancelJob() -> Job Completed error. Job Id : " + jobId + ", Status : "
+							+ job.getStatus());
+					
+			return jobCompleted;
+			}
+			
+		
+			else{
+				execChannel.setCommand(Constants.CMD_QDEL + jobId);
+				
+				in = execChannel.getInputStream();
+				
+				execChannel.setInputStream(null);
+				execChannel.setErrStream(System.err);
+				execChannel.connect();
+			}
+			
+		return jobDeleted;
+
+	}
 
 	@Override
 	public String submitJob(File file, String pk, String passPhr)

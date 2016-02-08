@@ -18,4 +18,6 @@ public interface JobManagement {
 
 	List<JobDetails> monitorJob(String jobId, String pk, String passPhr)
 			throws FileException, ConnectionException, JobException;
+	
+	String cancelJob(String jobID) throws FileException, ConnectionException, JobException;
 }
