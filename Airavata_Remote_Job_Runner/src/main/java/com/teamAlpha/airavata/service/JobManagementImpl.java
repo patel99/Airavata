@@ -5,6 +5,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -61,47 +63,49 @@ public class JobManagementImpl implements JobManagement {
 
 	@Value("${default.retry.attempts}")
 	int defaultRetryAttempts;
-	
+
 	@Value("${no.of.nodes}")
 	String noOfNodes;
-	
+
 	@Value("${no.of.proc.per.node}")
 	String noOfProcesses;
-	
+
 	@Value("${no.of.jobs}")
 	String noOfJobs;
-	
+
 	@Value("${job.walltime}")
 	String jobWalltime;
-	
+
 	@Autowired
 	FileManagement fileManagement;
-	
+
 	@Autowired
 	Connection connection;
-	
+
 	@Autowired
 	JobDetailParser jobDetails;
 
 	private static final Logger LOGGER = LogManager.getLogger(JobManagementImpl.class);
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.teamAlpha.airavata.service.JobManagement#submitJob()
 	 */
 	@Override
 	public String submitJob() throws FileException, ConnectionException, JobException {
-		
+
 		ConnectionEssential connectionParameters = new ConnectionEssential();
 		connectionParameters.setHost(hostId);
 		connectionParameters.setUser(userName);
 		connectionParameters.setPort(hostPort);
-		
+
 		connectionParameters.setPkFilePath(privateKeyPath);
 		connectionParameters.setPkPassphrase(privateKeyPassphrase);
-		
+
 		ChannelExec execChannel = null;
 		ChannelSftp sftpChannel = null;
-		
+
 		Session s = null;
 		String dataFromServer = null;
 		File pbsSh = null;
@@ -116,8 +120,8 @@ public class JobManagementImpl implements JobManagement {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("getSftpChannel() -> Channel created successfully.");
 			}
-			String pbsContent = String.format(Constants.PBS_CONTENT, noOfNodes, noOfProcesses, 
-					jobWalltime, remoteFilePath, noOfJobs, "./"+ fileName.substring(0,fileName.length()-2) + ".out");
+			String pbsContent = String.format(Constants.PBS_CONTENT, noOfNodes, noOfProcesses, jobWalltime,
+					remoteFilePath, noOfJobs, "./" + fileName.substring(0, fileName.length() - 2) + ".out");
 			pbsSh = new File(filePath + "pbs.sh");
 			FileWriter fileWriter = new FileWriter(pbsSh);
 			fileWriter.write(pbsContent);
@@ -129,13 +133,11 @@ public class JobManagementImpl implements JobManagement {
 			sftpChannel.disconnect();
 
 			execChannel = connection.getExecChannel(s);
-				
+
 			execChannel = connection.getExecChannel(s);
-			execChannel.setCommand(
-					Constants.CMD_CD + " " + remoteFilePath + "\n" +  
-			Constants.CMD_MPICC + " " + fileName + " -o "+ fileName.substring(0,fileName.length()-2) + ".out \n "
-					+ Constants.CMD_D2U + " " + "pbs.sh \n "
-							+ Constants.CMD_QSUB + " " + "pbs.sh");
+			execChannel.setCommand(Constants.CMD_CD + " " + remoteFilePath + "\n" + Constants.CMD_MPICC + " " + fileName
+					+ " -o " + fileName.substring(0, fileName.length() - 2) + ".out \n " + Constants.CMD_D2U + " "
+					+ "pbs.sh \n " + Constants.CMD_QSUB + " " + "pbs.sh");
 
 			execChannel.setInputStream(null);
 			execChannel.setErrStream(System.err);
@@ -158,11 +160,10 @@ public class JobManagementImpl implements JobManagement {
 			if (null != jobStatus && jobStatus.equalsIgnoreCase(completedStatus)) {
 				execChannel = connection.getExecChannel(s);
 				if (LOGGER.isInfoEnabled()) {
-					LOGGER.info("submitJob() -> Checking if error generated in error file. Job Id : "+ jobId);
+					LOGGER.info("submitJob() -> Checking if error generated in error file. Job Id : " + jobId);
 				}
-				execChannel.setCommand(Constants.CMD_CD + " " + remoteFilePath + "\n "
-						+ Constants.CMD_CAT + " " + "pbs.sh.e"
-						+ jobId.substring(0, jobId.length() - 3));
+				execChannel.setCommand(Constants.CMD_CD + " " + remoteFilePath + "\n " + Constants.CMD_CAT + " "
+						+ "pbs.sh.e" + jobId.substring(0, jobId.length() - 3));
 
 				execChannel.setInputStream(null);
 				execChannel.setErrStream(System.err);
@@ -173,19 +174,18 @@ public class JobManagementImpl implements JobManagement {
 				if (LOGGER.isDebugEnabled()) {
 					LOGGER.debug("submitJob() -> Error file content : " + dataFromServer + ", JobId : " + jobId);
 				}
-				if(dataFromServer.trim().equals("")){
-					
+				if (dataFromServer.trim().equals("")) {
+
 					if (LOGGER.isInfoEnabled()) {
-						LOGGER.info("submitJob() -> Fetching output file content. Job Id : "+ jobId);
+						LOGGER.info("submitJob() -> Fetching output file content. Job Id : " + jobId);
 					}
 					execChannel = connection.getExecChannel(s);
-					execChannel.setCommand(Constants.CMD_CD + " " + remoteFilePath + "\n "
-							+ Constants.CMD_CAT + " " + "pbs.sh.o"
-							+ jobId.substring(0, jobId.length() - 3));
-	
+					execChannel.setCommand(Constants.CMD_CD + " " + remoteFilePath + "\n " + Constants.CMD_CAT + " "
+							+ "pbs.sh.o" + jobId.substring(0, jobId.length() - 3));
+
 					execChannel.setInputStream(null);
 					execChannel.setErrStream(System.err);
-	
+
 					in = execChannel.getInputStream();
 					execChannel.connect();
 					dataFromServer = Utilities.getStringFromIS(in);
@@ -221,14 +221,13 @@ public class JobManagementImpl implements JobManagement {
 	}
 
 	/**
-	 * Get job status
-	 * Poll for the job status for the required time
-	 * Return job status when completed
+	 * Get job status Poll for the job status for the required time Return job
+	 * status when completed
+	 * 
 	 * @param jobId
 	 * @param execChannel
 	 * @param session
-	 * @return
-	 * 		job status
+	 * @return job status
 	 * @throws IOException
 	 * @throws InterruptedException
 	 * @throws JSchException
@@ -236,34 +235,34 @@ public class JobManagementImpl implements JobManagement {
 	 */
 	private String getJobStatus(String jobId, ChannelExec execChannel, Session session)
 			throws IOException, InterruptedException, JSchException, ConnectionException {
-		
+
 		int attemptCount = 1;
 		InputStream in = null;
-		
+
 		String jobData = null;
 		ArrayList<JobDetails> jobs = new ArrayList<JobDetails>();
 		double requiredTime = 0;
 		String jobStatus = null;
-		
+
 		boolean attemptSet = false;
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("getJobStatus() -> Get job status. Job Id : " + jobId);
 		}
-		
-		do{
+
+		do {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("getJobStatus() -> Get job status. Job Id : " + jobId + ", Attempt : " + attemptCount);
 			}
-			
+
 			execChannel = connection.getExecChannel(session);
 			execChannel.setCommand(Constants.CMD_QSTAT + " -u " + userName);
-			
+
 			in = execChannel.getInputStream();
-			
+
 			execChannel.setInputStream(null);
 			execChannel.setErrStream(System.err);
 			execChannel.connect();
-			
+
 			jobData = Utilities.getStringFromIS(in);
 			jobs.clear();
 			jobs = jobDetails.jobDataParser(jobData);
@@ -276,25 +275,184 @@ public class JobManagementImpl implements JobManagement {
 						}
 						jobStatus = job.getStatus();
 						break;
-					}else{
-						if(!attemptSet){
+					} else {
+						if (!attemptSet) {
 							requiredTime = Utilities.getMilliseconds(job.getTime());
-							defaultRetryAttempts = (int) (requiredTime/retryTimeInterval);
-							if(LOGGER.isDebugEnabled()){LOGGER.debug("getJobStatus() -> Required time for job : " + job.getTime() + ", Required Attempts : " + defaultRetryAttempts);}
+							defaultRetryAttempts = (int) (requiredTime / retryTimeInterval);
+							if (LOGGER.isDebugEnabled()) {
+								LOGGER.debug("getJobStatus() -> Required time for job : " + job.getTime()
+										+ ", Required Attempts : " + defaultRetryAttempts);
+							}
 						}
 					}
 				}
 			}
 			if (null != jobStatus && jobStatus.equalsIgnoreCase(completedStatus))
 				break;
-			
+
 			attemptCount++;
-			
+
 			Thread.sleep(retryTimeInterval);
-		}
-		while (attemptCount <= defaultRetryAttempts);
-		
+		} while (attemptCount <= defaultRetryAttempts);
+
 		return jobStatus;
+
+	}
+
+	@Override
+	public String submitJob(File file, String pk, String passPhr)
+			throws FileException, ConnectionException, JobException {
+		ConnectionEssential connectionParameters = new ConnectionEssential();
+		connectionParameters.setHost(hostId);
+		connectionParameters.setUser(userName);
+		connectionParameters.setPort(hostPort);
+
+		/*
+		 * Need to give the private key
+		 */
+		connectionParameters.setPkFilePath(pk);
+		connectionParameters.setPkPassphrase(passPhr);
+
+		ChannelExec execChannel = null;
+		ChannelSftp sftpChannel = null;
+
+		Session s = null;
+
+		File pbsSh = null;
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("submitJob() -> Submit job to server queue.");
+		}
+
+		try {
+			s = connection.getSession(connectionParameters);
+			sftpChannel = connection.getSftpChannel(s);
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("getSftpChannel() -> Channel created successfully.");
+			}
+			String pbsContent = String.format(Constants.PBS_CONTENT, noOfNodes, noOfProcesses, jobWalltime,
+					remoteFilePath, noOfJobs, "./" + file.getName().substring(0, file.getName().length() - 2) + ".out");
+			pbsSh = File.createTempFile("pbs", ".sh");
+			FileWriter fileWriter = new FileWriter(pbsSh);
+			fileWriter.write(pbsContent);
+			fileWriter.flush();
+			fileWriter.close();
+			fileManagement.putFile(file, remoteFilePath, sftpChannel);
+			sftpChannel = connection.getSftpChannel(s);
+			fileManagement.putFile(pbsSh, remoteFilePath, sftpChannel);
+			sftpChannel.disconnect();
+
+			execChannel = connection.getExecChannel(s);
+
+			execChannel = connection.getExecChannel(s);
+			execChannel.setCommand(Constants.CMD_CD + " " + remoteFilePath + "\n" + Constants.CMD_MPICC + " "
+					+ file.getName() + " -o " + file.getName().substring(0, file.getName().length() - 2) + ".out \n "
+					+ Constants.CMD_D2U + " " + "pbs.sh \n " + Constants.CMD_QSUB + " " + "pbs.sh");
+
+			execChannel.setInputStream(null);
+			execChannel.setErrStream(System.err);
+
+			InputStream in = execChannel.getInputStream();
+			execChannel.connect();
+
+			String jobId = Utilities.getStringFromIS(in);
+			execChannel.disconnect();
+
+			return jobId;
+
+		} catch (JSchException e) {
+			LOGGER.error("submitJob() ->  Error creating session", e);
+			throw new ConnectionException("Error submitting job to remote server.");
+		} catch (IOException e) {
+			LOGGER.error("submitJob() ->  Error in I/O operations", e);
+			throw new FileException("Error submitting job to remote server.");
+		} finally {
+			if (null != execChannel && execChannel.isConnected()) {
+				execChannel.disconnect();
+			}
+			if (null != sftpChannel && sftpChannel.isConnected()) {
+				sftpChannel.disconnect();
+			}
+			if (null != s && s.isConnected()) {
+				s.disconnect();
+			}
+		}
+
+	}
+
+	@Override
+	public List<JobDetails> monitorJob(String jobId, String pk, String passPhr)
+			throws FileException, ConnectionException, JobException {
+		// TODO Auto-generated method stub
+
+		ConnectionEssential connectionParameters = new ConnectionEssential();
+		connectionParameters.setHost(hostId);
+		connectionParameters.setUser(userName);
+		connectionParameters.setPort(hostPort);
+
+		/*
+		 * Need to give the private key
+		 */
+		connectionParameters.setPkFilePath(pk);
+		connectionParameters.setPkPassphrase(passPhr);
+
+		ChannelExec execChannel = null;
+		ChannelSftp sftpChannel = null;
+
+		Session session = null;
+
+		int attemptCount = 1;
+		InputStream in = null;
+
+		String jobData = null;
+		ArrayList<JobDetails> jobs = new ArrayList<JobDetails>();
+		double requiredTime = 0;
+		String jobStatus = null;
+
+		boolean attemptSet = false;
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("getJobStatus() -> Get job status. Job Id : " + jobId);
+		}
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("getJobStatus() -> Get job status. Job Id : " + jobId + ", Attempt : " + attemptCount);
+		}
+
+		try {
+			execChannel = connection.getExecChannel(session);
+			execChannel.setCommand(Constants.CMD_QSTAT + " -u " + userName);
+
+			in = execChannel.getInputStream();
+
+			execChannel.setInputStream(null);
+			execChannel.setErrStream(System.err);
+			execChannel.connect();
+
+			session = connection.getSession(connectionParameters);
+			sftpChannel = connection.getSftpChannel(session);
+
+			jobData = Utilities.getStringFromIS(in);
+			jobs.clear();
+			jobs = jobDetails.jobDataParser(jobData);
+		} catch (JSchException e) {
+			LOGGER.error("submitJob() ->  Error creating session", e);
+			throw new ConnectionException("Error submitting job to remote server.");
+		} catch (IOException e) {
+			LOGGER.error("submitJob() ->  Error in I/O operations", e);
+			throw new FileException("Error submitting job to remote server.");
+		} finally {
+			if (null != execChannel && execChannel.isConnected()) {
+				execChannel.disconnect();
+			}
+			if (null != sftpChannel && sftpChannel.isConnected()) {
+				sftpChannel.disconnect();
+			}
+			if (null != session && session.isConnected()) {
+				session.disconnect();
+			}
+		}
+
+		return jobs;
 
 	}
 

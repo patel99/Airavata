@@ -51,6 +51,7 @@ public class ConnectionImpl implements Connection {
 			config.put("StrictHostKeyChecking", "no");
 			jsch.addIdentity(connectionEssential.getPkFilePath(), connectionEssential.getPkPassphrase());
 			
+			
 			session = jsch.getSession(connectionEssential.getUser(), connectionEssential.getHost(),
 					connectionEssential.getPort());
 			session.setConfig(config);

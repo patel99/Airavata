@@ -101,4 +101,42 @@ public class FileManagementImpl implements FileManagement {
 		return targetFile;
 
 	}
+
+	@Override
+	public boolean putFile(File file, String remoteFilePath, Channel sftpChannel)
+			throws FileException, ConnectionException {
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("putFile() -> Copying file to the server.: " + file.getName()
+					+ ", Remote file path : " + remoteFilePath);
+		}
+
+		try {			
+
+			sftpChannel.connect();
+
+			((ChannelSftp) sftpChannel).cd(remoteFilePath);
+			((ChannelSftp) sftpChannel).put(new FileInputStream(file), file.getName());
+			
+			sftpChannel.disconnect();
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("putFile() -> File copied to server successfully." + file.getName()
+						+ ", Remote file path : " + remoteFilePath);
+			}
+
+		} catch (FileNotFoundException e) {
+			LOGGER.error(
+					"putFile() -> Error copying file to server.: "+file.getName(),
+					e);
+			throw new FileException("Error uploading file.");
+
+		} catch (JSchException e) {
+			LOGGER.error("putFile() -> Error creating SFTP channel.", e);
+			throw new ConnectionException("Error uploading file.");
+		} catch (SftpException e) {
+			LOGGER.error("putFile() -> Error creating SFTP channel.", e);
+			throw new ConnectionException("Error uploading file.");
+		}
+		return true;
+
+	}
 }

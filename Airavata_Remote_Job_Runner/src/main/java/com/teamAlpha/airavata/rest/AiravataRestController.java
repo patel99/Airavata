@@ -1,138 +1,116 @@
 package com.teamAlpha.airavata.rest;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.ws.WebServiceException;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.teamAlpha.airavata.domain.JobDetails;
+import com.teamAlpha.airavata.exception.ConnectionException;
+import com.teamAlpha.airavata.exception.FileException;
+import com.teamAlpha.airavata.exception.JobException;
+import com.teamAlpha.airavata.service.JobManagement;
+import com.teamAlpha.airavata.utils.FileUtils;
 
 @Controller
 public class AiravataRestController {
-	
+
 	private static final Logger LOGGER = Logger.getLogger(AiravataRestController.class);
 
-	
-	@RequestMapping(value = {"applet.htm"}, method = RequestMethod.GET)
-	  public ModelAndView showApplet(){
+	private static String PK = "PuTTY-User-Key-File-2: ssh-rsa\n" + 
+			"Encryption: none\n" 
+			+ "Comment: rsa-key-20160118\n"
+			+ "Public-Lines: 4\n" 
+			+ "AAAAB3NzaC1yc2EAAAABJQAAAIEAgv/GLY+fde18owLclyUy3izCBiKBYGyJqfZZ\n"
+			+ "F6nCLvBVlJjHyOEvnXOBcA2Jb0PT/T8TlJmAnHtZ1nCONcQH3ZTz64ns+NwKq11F\n"
+			+ "N0k1BHjFclK/tRbU6URS91sjyOq70VS/l4tDuISNcIQ+3cFrLG0vsooHouLnyZCs\n" 
+			+ "xynUPRE=\n" 
+			+ "Private-Lines: 8\n"
+			+ "AAAAgHhgqEWK5Y716CcXYuvBUVaJ/maAko/1COFe6hW+lsNZY2X0LTUh9Gcr3rn+\n"
+			+ "mfeKb8YeSVgeWoH0zxgUZwD5U1SqN63abfjhPLrJCAW4mGB9na2Ww2m69GCppw4d\n"
+			+ "DA9koBJR4h9cjuywKOgpwzlg67vqSQUGBPK659iGaQMFc67VAAAAQQDUdQEKNFrS\n"
+			+ "Xc7fu364vsMrQou38WCCZg9QDiycEkbTqwflHV8GMF4hUjxHYEqaClg0aWzxwIr1\n"
+			+ "pJPBxaTl9YQfAAAAQQCd2OmKfS1QzKfP8e6S333x/PT+RPgbzlKlDv8m/NrAJlsl\n"
+			+ "lY7cle9nSuxLqD4fybTm/la3X9OLRuhLsRdypJjPAAAAQQDR4XxSajhT1crnXhv8\n"
+			+ "5TUPKt3FCuKOngdbgtKvvFCxuKNwvBzU3psOk+xm1b57N+p8PkngCMDAmKWi5mYf" 
+			+ "sA1z\n"
+			+ "Private-MAC: 0ca92a2f5890fa775a277837aa26ef6e3dff8f2e";
 
-	    ModelAndView modelAndView = new ModelAndView("applet"); 
-	    
-	    return modelAndView;
-	  }
-	
-	
-	@RequestMapping(value = {"login.htm"}, method = RequestMethod.GET)
-	  public ModelAndView showLogin(){
+	@Autowired
+	private JobManagement jobManagementService;
 
-	    ModelAndView modelAndView = new ModelAndView("login"); 
-	    
-	    return modelAndView;
-	  }
-	
-	@RequestMapping(value = {"test.htm"}, method = RequestMethod.GET)
-	  public ModelAndView showAuthorizationMatrix(){
+	@RequestMapping(value = { "applet.htm" }, method = RequestMethod.GET)
+	public ModelAndView showApplet() {
 
-	    ModelAndView modelAndView = new ModelAndView("monitorJob"); 
-	    
-	    return modelAndView;
-	  }
-	
-	@RequestMapping(value = { "uploadJob.htm" }, method = RequestMethod.POST)
-	public void uploadUsersFile(
-			HttpServletRequest request, 
-			HttpServletResponse response, 
-			@RequestParam("file") MultipartFile file) {
-		
-		long displayedFileSize = file.getSize();
-		
-		boolean isChunkFile = false;
-		long fileSize = 0;
-		String fileName = "";
-		int chunkIndex = 0; 
-		
-		if(request.getHeader("X-File-Size") != null)
-		{
-			isChunkFile = true;
-			fileSize = Long.parseLong(request.getHeader("X-File-Size").toString());
-			fileName = request.getHeader("X-File-Name").toString();
-			displayedFileSize = fileSize;
-			chunkIndex = Integer.parseInt(request.getHeader("X-File-ChunkIndex"));
-		}
-		
-		CommonsMultipartFile uploadedFile = null;
-		PrintWriter writer = null;
-		JsonArray json = null;
-		JsonObject jsono = new JsonObject();
-		
-		String errorMessage = null;
-		try {
-			
-			writer = response.getWriter();
-			
-			if (request.getHeader("accept").indexOf("application/json") != -1) {
-				response.setContentType("application/json");
-			} else {
-				// IE workaround
-				response.setContentType("text/html");
-			}
-			json = new JsonArray();
+		ModelAndView modelAndView = new ModelAndView("applet");
 
-			
-			uploadedFile = (CommonsMultipartFile) file;
-			
-			if(isChunkFile){
-				jsono.addProperty("name", fileName);
-				jsono.addProperty("size", fileSize);
-			}else{
-				jsono.addProperty("name", file.getOriginalFilename());
-				jsono.addProperty("size", file.getSize());
-			}
-			jsono.addProperty("isFileErrored", false);
-			json.add(jsono);
-
-		} catch (WebServiceException e) {
-		    errorMessage = e.getMessage();
-            LOGGER.error("uploadUsersFile - > " + e.getMessage(), e);
-	      
-	    } catch (IOException e) {
-			LOGGER.error("uploadUsersFile - > " + e.getMessage(), e);
-		} finally {
-			if(null == json || json.size()==0){
-				jsono.addProperty("name", file.getOriginalFilename());
-				jsono.addProperty("size", displayedFileSize);
-				jsono.addProperty("isFileErrored", true);
-				if(null == errorMessage){
-					jsono.addProperty("errorMessage", "File upload failed.");
-				}else{
-					jsono.addProperty("errorMessage", errorMessage);
-				}
-				if(null == json){
-					json = new JsonArray();
-				}
-				json.add(jsono);
-			}
-			writer.close();
-		}
+		return modelAndView;
 	}
-	
+
+	@RequestMapping(value = { "login.htm" }, method = RequestMethod.GET)
+	public ModelAndView showLogin() {
+
+		ModelAndView modelAndView = new ModelAndView("login");
+
+		return modelAndView;
+	}
+
+	@RequestMapping(value = { "test.htm" }, method = RequestMethod.GET)
+	public ModelAndView showAuthorizationMatrix() {
+
+		ModelAndView modelAndView = new ModelAndView("monitorJob");
+
+		return modelAndView;
+	}
+
+	@RequestMapping(value = { "uploadJob.htm" }, method = RequestMethod.POST)
+	public @ResponseBody String uploadUsersFile(HttpServletRequest request, HttpServletResponse response,
+			@RequestParam("file") MultipartFile multipartFile) {
+
+		String resp = "";
+		try {
+			File file = FileUtils.getFileFromMultipartFile(multipartFile);
+			File pkfile = File.createTempFile("temp_pk", ".ppk");
+			FileWriter fileWriter = new FileWriter(pkfile);
+			fileWriter.write(PK);
+			fileWriter.flush();
+			fileWriter.close();
+			String jobId = jobManagementService.submitJob(file, "E:\\DEV\\putty\\SGA\\putty_private_key.ppk", "");
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (FileException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ConnectionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JobException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return null;
+
+	}
+
 	@RequestMapping(value = { "getJobs.htm" }, method = RequestMethod.GET)
 	public @ResponseBody String getAuthorizationMatrix(HttpServletResponse response) {
 
