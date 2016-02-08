@@ -183,7 +183,7 @@ function fileLisingDataTable(){
 //            if (!(aData.status == "c")) {
 			var jobId = $("td:first", nRow).closest("tr").attr("id");
 			var jobStatus = $(".job-status", nRow).html();
-                buttonHtml += "<a onclick=dwn('" + $('td:first', nRow).closest('tr').attr('id') + "','" + $(".job-status", nRow).html() + "')><button type='button' class='btn btn-primary info btn-action-margin-left' title='Download'><i class='fa  fa-cloud-download'></i></button></a>";
+			buttonHtml +='<a target="blank" href="getFile.htm?jobId='+ $('td:first', nRow).closest('tr').attr('id') + ',status='+$(".job-status", nRow).html()+'"><button type="button" class="btn btn-primary info btn-action-margin-left" title="Download"><i class="fa fa-cloud-download"></i></button></a>' ;
 //            }
 //            else {
                 buttonHtml += "<a onclick=cancel('" + $('td:first', nRow).closest('tr').attr('id') + "')><button type='button' class='btn btn-danger info btn-action-margin-left' title='Cancel'><i class='fa fa-ban'></i></button></a>";
@@ -216,10 +216,22 @@ function fileLisingDataTable(){
 	
 }
 
-function dwn(jobId,jobStatus){
-	console.log(jobId + jobStatus)	
-}
 
 function cancel(jobId){
 	console.log(jobId)	
+	$.ajax({
+		url: 'cancelJob.htm',
+		type: 'POST',
+		data: {jobId : jobId},
+		dataType: 'json',
+		contentType: 'application/x-www-form-urlencoded; charset=utf-8',
+	    mimeType: 'application/json',
+		error: function(xhr, textStatus, thrownError) {
+			unblockUI();
+		},
+		success : function(data) {
+			unblockUI();			
+		}
+
+	});
 }
