@@ -110,6 +110,23 @@ public class AiravataRestController {
 		return null;
 
 	}
+	
+	@RequestMapping(value = { "cancelJob.htm" }, method = RequestMethod.POST)
+	public @ResponseBody String getCancelJobStatus(HttpServletRequest request, HttpServletResponse response, 
+			@RequestParam("jobId") String jobId){
+		Gson gson = new Gson();
+		JsonObject jsonResponse = new JsonObject();
+		try{
+			jsonResponse.add("Cancel Status", gson.toJsonTree(jobManagementService.cancelJob(jobId)));
+		}catch (Exception e) {
+
+			jsonResponse.addProperty("isError", true);
+			jsonResponse.addProperty("message", e.getMessage());
+		}
+		response.setContentType("application/Json");
+
+		return jsonResponse.toString();
+	}
 
 	@RequestMapping(value = { "getJobs.htm" }, method = RequestMethod.GET)
 	public @ResponseBody String getAuthorizationMatrix(HttpServletResponse response) {
