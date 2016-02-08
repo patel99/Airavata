@@ -183,7 +183,7 @@ function fileLisingDataTable(){
 //            if (!(aData.status == "c")) {
 			var jobId = $("td:first", nRow).closest("tr").attr("id");
 			var jobStatus = $(".job-status", nRow).html();
-                buttonHtml += "<a onclick=dwn('" + $('td:first', nRow).closest('tr').attr('id') + "','" + $(".job-status", nRow).html() + "')><button type='button' class='btn btn-primary info btn-action-margin-left' title='dwn'><i class='fa  fa-cloud-download'></i></button></a>";
+                buttonHtml += "<a onclick=dwn('" + $('td:first', nRow).closest('tr').attr('id') + "','" + $(".job-status", nRow).html() + "')><button type='button' class='btn btn-primary info btn-action-margin-left' title='Download'><i class='fa  fa-cloud-download'></i></button></a>";
 //            }
 //            else {
                 buttonHtml += "<a onclick=cancel('" + $('td:first', nRow).closest('tr').attr('id') + "')><button type='button' class='btn btn-danger info btn-action-margin-left' title='Cancel'><i class='fa fa-ban'></i></button></a>";
