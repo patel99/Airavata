@@ -45,7 +45,7 @@ $(function () {
         maxFileSize: 50000000,  // 50 MB max file size
         //maxNumberOfFiles: 1,
         sequentialUploads: true,
-        acceptFileTypes: /(\.|\/)(csv|CSV)$/i,
+        acceptFileTypes: /(\.|\/)(*)$/i,
         process: [
             {
                 action: 'load',

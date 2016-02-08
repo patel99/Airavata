@@ -16,7 +16,7 @@ window.locale = {
         "errors": {
             "maxFileSize": "File size exceeded. Max file size is 100MB",
             "minFileSize": "File is too small",
-            "acceptFileTypes": "Invalid filetype. Only csv files are allowed.",
+            "acceptFileTypes": "Invalid filetype.",
             "maxNumberOfFiles": "Max number of files exceeded",
             "uploadedBytes": "Uploaded bytes exceed file size",
             "emptyResult": "Empty file upload result"
