@@ -184,7 +184,7 @@ public class JobDetails {
 		List<JobDetails> jobs = new ArrayList<JobDetails>();
 		for(int i=1; i<=15; i++){
 			JobDetails j = new JobDetails();
-			j.setId("id "+i);
+			j.setId("id"+i);
 			j.setUserName("User Name " + i);
 			j.setQueueType("Queue " + i);
 			j.setJobName("Job name " + i);
@@ -193,7 +193,7 @@ public class JobDetails {
 			j.setNoOfTasks("NO " + i);
 			j.setMemory("Memory " + i);
 			j.setTime("Time " + i);
-			j.setStatus("Status " + i);
+			j.setStatus("Status" + i);
 			j.setElapTime("Elap time " + i);
 			jobs.add(j);
 		}

@@ -27,7 +27,7 @@ var pdfViewTag='<object id="object-pdf" standby="LOADING....." class="pdf-view h
 
 
 var tblColumns = [{"mDataProp": null, sDefaultContent: "", "bSortable": false, "sClass": "sr-no all"},		               
-	               {"mDataProp": "id", sDefaultContent: "", "aTargets": [  ], "sClass":"all file-name"},
+	               {"mDataProp": "id", sDefaultContent: "", "aTargets": [  ], "sClass":"all job-id"},
 	               {"mDataProp": "userName", sDefaultContent: "", "sClass":"all user-name"},
 	               {"mDataProp": "queueType", sDefaultContent: "", "sClass":"all queue-type"},
 	               {"mDataProp": "jobName", sDefaultContent: "", "sClass":"all job-name"},
@@ -36,7 +36,7 @@ var tblColumns = [{"mDataProp": null, sDefaultContent: "", "bSortable": false, "
 	               {"mDataProp": "noOfTasks",sDefaultContent: "", "sClass": "no-of-tasks"},		               
 	               {"mDataProp": "memory", sDefaultContent: "","sClass": "memory"},
 	               {"mDataProp": "time", sDefaultContent: "", "bSortable": false, "sClass": "time"},
-	               {"mDataProp": "status", sDefaultContent: "", "sClass": "status"},
+	               {"mDataProp": "status", sDefaultContent: "", "sClass": "job-status"},
 	               {"mDataProp": "elapTime", sDefaultContent: "", "sClass": "elap-time"},
 	               {"mDataProp": null, sDefaultContent: "", "sClass": "action"}
 	               ];
@@ -158,6 +158,8 @@ $(document).ready(function (e) {
     });
 });
 
+
+
 function fileLisingDataTable(){
 
 	 dtTable = $('#jobList').dataTable({
@@ -176,7 +178,18 @@ function fileLisingDataTable(){
 			
 			var oSettings = dtTable.fnSettings();
 			$("td:first", nRow).html(oSettings._iDisplayStart+iDisplayIndex +1);
-			$(".action", nRow).html('<div class="show-records span12"><button class="btn btn-primary">Check</button></div>');
+			$("td:first", nRow).closest("tr").attr("id", aData.id);
+			var buttonHtml = "<div>";
+//            if (!(aData.status == "c")) {
+			var jobId = $("td:first", nRow).closest("tr").attr("id");
+			var jobStatus = $(".job-status", nRow).html();
+                buttonHtml += "<a onclick=dwn('" + $('td:first', nRow).closest('tr').attr('id') + "','" + $(".job-status", nRow).html() + "')><button type='button' class='btn btn-primary info btn-action-margin-left' title='dwn'><i class='fa  fa-cloud-download'></i></button></a>";
+//            }
+//            else {
+                buttonHtml += "<a onclick=cancel('" + $('td:first', nRow).closest('tr').attr('id') + "')><button type='button' class='btn btn-danger info btn-action-margin-left' title='Cancel'><i class='fa fa-ban'></i></button></a>";
+//            }
+            buttonHtml += "</div>";
+            $(".action", nRow).html(buttonHtml);
 			return nRow;		
 		},
 		"fnServerParams": function ( aoData ) {
@@ -201,4 +214,12 @@ function fileLisingDataTable(){
 
 	$("#fileTransmissionLogs").removeAttr("style");
 	
+}
+
+function dwn(jobId,jobStatus){
+	console.log(jobId + jobStatus)	
+}
+
+function cancel(jobId){
+	console.log(jobId)	
 }
