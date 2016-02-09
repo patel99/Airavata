@@ -1,0 +1,23 @@
+
+Project Milestone 2
+(TeamAlpha)
+
+Milestone 2:
+•	For this milestone we have not handled user management and database management as of now.
+•	Since there is no database, user has to provide path to the private key on local server through the user_input.properties file present in 'props' folder.
+•	We have provided APIs for job submit, cancel and monitor.
+•	In job submit, we upload the .c and pbs.sh file on karst and submit the job.
+•	For cancel, we use the qdel command to cancel the job from queue.
+•	GUI has been created for displaying the list of jobs to the user and has buttons to upload, download and cancel jobs. GUI is built using bootstrap and is made responsive.
+•	Job specific output/error files can be downloaded from karst.
+
+
+Future Implementations:
+•	User management would be implemented.  User specific jobs would be displayed upon log in.
+•	Private Key, user and job details will be stored in database.
+•	We would handle the case of file with same filename being uploaded by renaming the file with timestamp before uploading.
+•	We will implement the code to download output files as pdf.
+
+
+
+
