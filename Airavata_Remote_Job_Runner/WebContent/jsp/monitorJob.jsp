@@ -65,12 +65,12 @@
 		</div>
 	<br><br> 	
 		<h1>Jobs</h1>
+		<div id="message" class="error hide"></div>
 		<ol class="breadcrumb">
-				<li><a href="test.htm"<sec:authentication var="principal" property="principal.username"/>"><i class="fa fa-dashboard"></i> Home</a></li>
+				<li><a href="test.htm"<sec:authentication var="principal" property="principal.username"/>><i class="fa fa-dashboard"></i> Home</a></li>
 				<li class="active">Jobs</li>
-			</ol></section> <script type="text/javascript">
-				var userId = '${principal}';
-			</script> <section class="content">
+			</ol></section>			
+			<section class="content">
 		<div class="box box-danger" id="loading-example">
 			<div class="box-body no-padding">
 				<div class="row">

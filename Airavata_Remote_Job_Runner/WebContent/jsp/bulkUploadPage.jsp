@@ -12,12 +12,12 @@
 				<!-- The fileinput-button span is used to style the file input field as button -->
 
 				<span class="btn btn-primary fileinput-button"> <i
-					class="icon-plus icon-white"></i> <span>Add file</span> <input
+					class="icon-plus icon-white"></i> <span>Add Job</span> <input
 					type="file" name="file" id="file">
 				</span>
 
 				<button type="submit" class="btn btn-primary start">
-					<i class="icon-upload icon-white"></i> <span>Start upload</span>
+					<i class="icon-upload icon-white"></i> <span>Submit Job</span>
 				</button>
 
 				<button type="reset" class="btn btn-primary cancel">

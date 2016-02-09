@@ -5,7 +5,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.LogManager;
@@ -349,7 +348,7 @@ public class JobManagementImpl implements JobManagement {
 	}
 
 	private String cancelJobImpl(String jobId, ChannelExec execChannel, Session session)
-			throws IOException, InterruptedException, JSchException, ConnectionException {
+			throws IOException, InterruptedException, JSchException, ConnectionException, JobException {
 
 		InputStream in = null;
 
@@ -390,6 +389,9 @@ public class JobManagementImpl implements JobManagement {
 		jobs.clear();
 		jobs = jobDetails.jobDataParser(jobData);
 		JobDetails job = jobs.get(0);
+		if(job.getStatus()==null){
+			throw new JobException("Job with this id does not exist.");
+		}
 		if (job.getStatus().equalsIgnoreCase(completedStatus)) {
 
 			LOGGER.error("cancelJob() -> Job Completed error. Job Id : " + jobId + ", Status : " + job.getStatus());
@@ -560,6 +562,104 @@ public class JobManagementImpl implements JobManagement {
 		}
 
 		return jobs;
+
+	}
+
+	public InputStream downloadFile(String jobId, String status)
+			throws FileException, ConnectionException, JobException {
+
+		ConnectionEssential connectionParameters = new ConnectionEssential();
+		connectionParameters.setHost(hostId);
+		connectionParameters.setUser(userName);
+		connectionParameters.setPort(hostPort);
+
+		connectionParameters.setPkFilePath(privateKeyPath);
+		connectionParameters.setPkPassphrase(privateKeyPassphrase);
+
+		ChannelExec execChannel = null;
+		ChannelSftp sftpChannel = null;
+
+		Session s = null;
+		InputStream in = null;
+		String dataFromServer = null;
+		InputStream inputFile;
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("downloadFile() -> Fetching output file. Job Id : " + jobId);
+		}
+		try {
+
+			if (null != status && status.equalsIgnoreCase(completedStatus)) {
+				if (LOGGER.isInfoEnabled()) {
+					LOGGER.info("downloadFile() -> Checking if error generated in error file. Job Id : " + jobId);
+				}
+
+				s = connection.getSession(connectionParameters);
+				execChannel = connection.getExecChannel(s);
+				((ChannelExec) execChannel).setCommand(
+						Constants.CMD_CD + " " + remoteFilePath + "\n " + Constants.CMD_CAT + " " + "pbs.sh.e" + jobId);
+
+				in = execChannel.getInputStream();
+
+				execChannel.setInputStream(null);
+				execChannel.setErrStream(System.err);
+				execChannel.connect();
+
+				dataFromServer = Utilities.getStringFromIS(in);
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("downloadFile() -> Error file content : " + dataFromServer + ", JobId : " + jobId.substring(0, jobId.length()-3));
+				}
+				sftpChannel = connection.getSftpChannel(s);
+				if (dataFromServer.trim().equals("a")) {
+
+					if (LOGGER.isInfoEnabled()) {
+						LOGGER.info("downloadFile() -> Fetching output file. Job Id : " + jobId);
+					}
+
+					inputFile = fileManagement.getFile(filePath, remoteFilePath + "/pbs.sh.o" + jobId.substring(0, jobId.length()-3), sftpChannel);
+
+					// sftpChannel.disconnect();
+
+					// ((ChannelExec) execChannel).setCommand(Constants.CMD_CD +
+					// " " + remoteFilePath + "\n "
+					// + Constants.CMD_CAT + " " + "pbs.sh.o"
+					// + jobId);
+					//
+					// execChannel.setInputStream(null);
+					//
+					// in = execChannel.getInputStream();
+					// execChannel.connect();
+					// dataFromServer = Utilities.getStringFromIS(in);
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug(
+								"downloadFile() -> Output file content : " + dataFromServer + ", JobId : " + jobId);
+					}
+					return inputFile;
+
+				} else {
+
+					if (LOGGER.isInfoEnabled()) {
+						LOGGER.info("downloadFile() -> Fetching error file. Job Id : " + jobId);
+					}
+					// inputFile = ((ChannelSftp)
+					// sftpChannel).get(remoteFilePath + "/pbs.sh.e"+
+					// jobId.substring(0, jobId.length() - 3));
+					inputFile = fileManagement.getFile(filePath, remoteFilePath + "/pbs.sh.e" + jobId.substring(0, jobId.length()-3), sftpChannel);
+					return inputFile;
+
+				}
+			}
+		} catch (IOException e) {
+
+			LOGGER.error("downloadFile() -> Error in I/O operations", e);
+			throw new FileException("Error downloading file.");
+
+		} catch (JSchException e) {
+			LOGGER.error("downloadFile() ->  Error creating connection.", e);
+			throw new ConnectionException("Error downloading file.");
+		}
+
+		return null;
 
 	}
 

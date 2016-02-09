@@ -1,6 +1,7 @@
 package com.teamAlpha.airavata.service;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 
 import com.jcraft.jsch.Channel;
 import com.teamAlpha.airavata.exception.ConnectionException;
@@ -10,7 +11,7 @@ public interface FileManagement {
 	
 	boolean putFile(String localFilePath, String remoteFilePath, Channel sftpChannel) throws FileException, ConnectionException;
 	
-	FileOutputStream getFile(String localFilePath, String remoteFilePath, Channel sftpChannel)  throws ConnectionException, FileException;
+	InputStream getFile(String localFilePath, String remoteFilePath, Channel sftpChannel)  throws ConnectionException, FileException;
 	
 	boolean putFile(File file, String remoteFilePath, Channel sftpChannel) throws FileException, ConnectionException;
 

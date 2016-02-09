@@ -1,14 +1,15 @@
 package com.teamAlpha.airavata.rest;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -43,7 +44,7 @@ public class AiravataRestController {
 
 	@Value("${private.key.passphrase}")
 	String privateKeyPassphrase;
-
+	
 	@Autowired
 	private JobManagement jobManagementService;
 
@@ -100,15 +101,34 @@ public class AiravataRestController {
 
 	}
 
+
 	@RequestMapping(value = { "cancelJob.htm" }, method = RequestMethod.POST)
 	public @ResponseBody String getCancelJobStatus(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam("jobId") String jobId) {
-		Gson gson = new Gson();
-		JsonObject jsonResponse = new JsonObject();
-		try {
-			jsonResponse.add("Cancel Status", gson.toJsonTree(jobManagementService.cancelJob(jobId)));
-		} catch (Exception e) {
 
+		JsonObject jsonResponse = new JsonObject();
+		String message = null;
+		try {
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("cancelJob() -> Cancelling Job. Job Id : " + jobId);
+			}
+
+			message = jobManagementService.cancelJob(jobId);
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("cancelJob() ->Job cancelled. Job Id : " + jobId);
+			}
+			jsonResponse.addProperty("message", message);
+		} catch (JobException e) {
+			LOGGER.error("getCancelJobStatus() -> Error cancelling job. Job Id : " + jobId, e);
+			jsonResponse.addProperty("isError", true);
+			jsonResponse.addProperty("message", e.getMessage());
+		} catch (FileException e) {
+			LOGGER.error("getCancelJobStatus() -> Error cancelling job. Job Id : " + jobId, e);
+			jsonResponse.addProperty("isError", true);
+			jsonResponse.addProperty("message", e.getMessage());
+		} catch (ConnectionException e) {
+			LOGGER.error("getCancelJobStatus() -> Error cancelling job. Job Id : " + jobId, e);
 			jsonResponse.addProperty("isError", true);
 			jsonResponse.addProperty("message", e.getMessage());
 		}
@@ -117,6 +137,7 @@ public class AiravataRestController {
 		return jsonResponse.toString();
 	}
 
+	
 	/*
 	 * @RequestMapping(value = { "getJobs.htm" }, method = RequestMethod.GET)
 	 * public @ResponseBody String getAuthorizationMatrix(HttpServletResponse
@@ -152,6 +173,50 @@ public class AiravataRestController {
 			e.printStackTrace();
 		}
 		return jsonResponse.toString();
+
+	}
+
+
+	@RequestMapping(value = { "getFile.htm" }, method = RequestMethod.GET)
+	public @ResponseBody void getFile(HttpServletRequest request, HttpServletResponse response,
+			@RequestParam(value = "jobId", required = true) String jobId,
+			@RequestParam(value = "status", required = true) String status){
+
+		InputStream fis = null;
+		ByteArrayOutputStream bos = null;
+		bos = new ByteArrayOutputStream();
+		int readNum;
+		byte[] buf = new byte[1024];
+		if(LOGGER.isInfoEnabled()){LOGGER.info("getFile() -> Fetching output file. Job Id : " + jobId);}
+		try {
+			fis = jobManagementService.downloadFile(jobId, status);
+			for (; (readNum = fis.read(buf)) != -1;) {
+				bos.write(buf, 0, readNum);
+			}
+			ServletOutputStream out = response.getOutputStream();
+			bos.writeTo(out);
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("getFile() -> File downlaoded. JobId : " + jobId + ", Status : " + status);
+			}
+		} catch (IOException e) {
+			LOGGER.error("getFile() ->  Error downloading file", e);
+		} catch (FileException e) {
+			LOGGER.error("getFile() ->  Error downloading file", e);
+		} catch (ConnectionException e) {
+			LOGGER.error("getFile() ->  Error downloading file", e);
+		} catch (JobException e) {
+			LOGGER.error("getFile() ->  Error downloading file", e);
+		} finally {
+
+			response.setHeader("Content-Disposition", "attachment;filename=output." + jobId + ".txt");
+			try {
+				bos.flush();
+				bos.close();
+			} catch (IOException e) {
+				LOGGER.error("getFile() ->  Error downloading file", e);
+			}
+			
+		}
 
 	}
 

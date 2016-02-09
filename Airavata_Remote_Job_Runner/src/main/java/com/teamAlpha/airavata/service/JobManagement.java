@@ -1,6 +1,11 @@
 package com.teamAlpha.airavata.service;
 
 import java.io.File;
+import java.io.InputStream;
+import java.util.List;
+
+import com.teamAlpha.airavata.domain.JobDetails;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -20,4 +25,6 @@ public interface JobManagement {
 			throws FileException, ConnectionException, JobException;
 	
 	String cancelJob(String jobID) throws FileException, ConnectionException, JobException;
+	
+	public InputStream downloadFile(String jobId, String status)  throws FileException, ConnectionException, JobException;
 }

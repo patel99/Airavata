@@ -19,10 +19,10 @@ public class JobDetailParser {
 	
 	private static final Logger LOGGER = LogManager.getLogger(JobDetailParser.class);
 
-	private static ArrayList<JobDetails> jobs = new ArrayList<JobDetails>();
-
 	public ArrayList<JobDetails> jobDataParser(String parseData) {
 
+		ArrayList<JobDetails> jobs = new ArrayList<JobDetails>();
+		
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("jobDetailParser() -> Parsing status details of submitted job. Job details : " + parseData);
 		}
@@ -32,8 +32,12 @@ public class JobDetailParser {
 
 			}
 		}
+		JobDetails jobDetails = null;
 		if (parseData != null) {
-			jobs.add(parseDetails(parseData));
+			jobDetails = parseDetails(parseData);
+			if(jobDetails.getId() != null){
+				jobs.add(jobDetails);
+			}			
 		}
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("jobDetailParser() -> Successfully parsed status details of submitted job. Job details : "

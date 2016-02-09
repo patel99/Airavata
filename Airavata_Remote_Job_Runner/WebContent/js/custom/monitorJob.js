@@ -183,7 +183,7 @@ function fileLisingDataTable(){
 //            if (!(aData.status == "c")) {
 			var jobId = $("td:first", nRow).closest("tr").attr("id");
 			var jobStatus = $(".job-status", nRow).html();
-			buttonHtml +='<a target="blank" href="getFile.htm?jobId='+ $('td:first', nRow).closest('tr').attr('id') + '&status='+$(".job-status", nRow).html()+'"><button type="button" class="btn btn-primary info btn-action-margin-left" title="Download"><i class="fa fa-cloud-download"></i></button></a>' ;
+			buttonHtml +='<a href="getFile.htm?jobId='+ $('td:first', nRow).closest('tr').attr('id') + '&status='+$(".job-status", nRow).html()+'"><button type="button" class="btn btn-primary info btn-action-margin-left" title="Download"><i class="fa fa-cloud-download"></i></button></a>' ;
 //            }
 //            else {
                 buttonHtml += "<a onclick=cancel('" + $('td:first', nRow).closest('tr').attr('id') + "')><button type='button' class='btn btn-danger info btn-action-margin-left' title='Cancel'><i class='fa fa-ban'></i></button></a>";
@@ -230,8 +230,25 @@ function cancel(jobId){
 			unblockUI();
 		},
 		success : function(data) {
-			unblockUI();			
+			unblockUI();	
+			showMessage(data.message,data.isError);
 		}
 
 	});
+}
+
+function showMessage(message,isError){
+	if(isError){
+		$('#message').addClass("error");
+		$('#message').removeClass("success");
+	}else{
+		$('#message').addClass("success");
+		$('#message').removeClass("error");
+	}
+	$('#message').removeClass("hide");
+	setTimeout(function(){
+		  $('#message').addClass("hide");
+		}, 5000);
+	
+	$('#message').html(message);
 }

@@ -67,38 +67,37 @@ public class FileManagementImpl implements FileManagement {
 	 * @see com.teamAlpha.airavata.service.FileManagement#getFile(java.lang.String, java.lang.String, com.jcraft.jsch.Channel)
 	 */
 	@Override
-	public FileOutputStream getFile(String localFilePath, String remoteFilePath, Channel sftpChannel)
+	public InputStream getFile(String localFilePath, String remoteFilePath, Channel sftpChannel)
 			throws ConnectionException, FileException {
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("getFile() -> Downloading file from server. Local file path : " + localFilePath
 					+ ", Remote file path : " + remoteFilePath);
 		}
-		FileOutputStream targetFile = null;
+		InputStream inputFile = null;
 		try {
-			InputStream inputFile = ((ChannelSftp) sftpChannel).get(remoteFilePath);
-			targetFile = new FileOutputStream(localFilePath);
-			int c;
-			while ((c = inputFile.read()) != -1) {
-				targetFile.write(c);
-			}
+			sftpChannel.connect();
+			inputFile = ((ChannelSftp) sftpChannel).get(remoteFilePath);
+//			targetFile = new FileOutputStream(localFilePath);
+//			int c;
+//			while ((c = inputFile.read()) != -1) {
+//				targetFile.write(c);
+//			}
 
-			inputFile.close();
+//			inputFile.close();
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("getFile() -> File downloaded from server successfully. Local file path : " + localFilePath
 						+ ", Remote file path : " + remoteFilePath);
 
 			}
-		} catch (IOException e) {
-
-			LOGGER.error("getFile() -> Error in I/O operations", e);
-			throw new FileException("Error downloading file.");
-
 		} catch (SftpException e) {
 			LOGGER.error("getFile() ->  Error creating SFTP channel.", e);
 			throw new ConnectionException("Error downloading file.");
+		} catch (JSchException e) {
+			LOGGER.error("getFile() -> Error creating SFTP channel.", e);
+			throw new ConnectionException("Error downloading file.");
 		}
-		return targetFile;
+		return inputFile;
 
 	}
 
