@@ -16,7 +16,7 @@ public interface JobManagement {
 
 	String submitJob(File file, String pk, String passPhr) throws FileException, ConnectionException, JobException;
 
-	List<JobDetails> monitorJob(String jobId, String pk, String passPhr)
+	List<JobDetails> monitorJob(String pk, String passPhr)
 			throws FileException, ConnectionException, JobException;
 	
 	String cancelJob(String jobID) throws FileException, ConnectionException, JobException;

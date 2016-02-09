@@ -298,20 +298,20 @@ public class JobManagementImpl implements JobManagement {
 		return jobStatus;
 
 	}
-	
- public String cancelJob(String jobID)  throws FileException, ConnectionException, JobException{
-		
+
+	public String cancelJob(String jobID) throws FileException, ConnectionException, JobException {
+
 		ConnectionEssential connectionParameters = new ConnectionEssential();
 		connectionParameters.setHost(hostId);
 		connectionParameters.setUser(userName);
 		connectionParameters.setPort(hostPort);
-		
+
 		connectionParameters.setPkFilePath(privateKeyPath);
 		connectionParameters.setPkPassphrase(privateKeyPassphrase);
-		
+
 		ChannelExec execChannel = null;
 		ChannelSftp sftpChannel = null;
-		
+
 		Session s = null;
 		String cancelStatus;
 
@@ -322,14 +322,12 @@ public class JobManagementImpl implements JobManagement {
 		try {
 			s = connection.getSession(connectionParameters);
 			execChannel = connection.getExecChannel(s);
-			cancelStatus = cancelJobImpl(jobID, execChannel,s);
-			
-			
-		}catch (JSchException e) {
+			cancelStatus = cancelJobImpl(jobID, execChannel, s);
+
+		} catch (JSchException e) {
 			LOGGER.error("cancelJob() ->  Error creating session", e);
 			throw new ConnectionException("Error canceling job from remote server.");
-		} 
-		catch (IOException e) {
+		} catch (IOException e) {
 			LOGGER.error("cancelJob() ->  Error in I/O operations", e);
 			throw new FileException("Error canceling job from remote server.");
 		} catch (InterruptedException e) {
@@ -348,74 +346,67 @@ public class JobManagementImpl implements JobManagement {
 		}
 
 		return cancelStatus;
-	}	
+	}
 
 	private String cancelJobImpl(String jobId, ChannelExec execChannel, Session session)
 			throws IOException, InterruptedException, JSchException, ConnectionException {
-		
-		
+
 		InputStream in = null;
-		
-		final String jobNotFound = "Job Not Found"; 
+
+		final String jobNotFound = "Job Not Found";
 		final String jobCompleted = "Job Completed";
 		final String jobDeleted = "Job Deleted Successfully";
-		
+
 		String jobData = null;
 		ArrayList<JobDetails> jobs = new ArrayList<JobDetails>();
-		
-		
-		
-		
+
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("cancelJob() -> Cancel Job. Job Id : " + jobId);
 		}
-		
-		
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("cancelJob() -> Cancel Job. Job Id : " + jobId );
-			}
-			
-			execChannel = connection.getExecChannel(session);
-			execChannel.setCommand(Constants.CMD_QSTAT + jobId);
-			
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("cancelJob() -> Cancel Job. Job Id : " + jobId);
+		}
+
+		execChannel = connection.getExecChannel(session);
+		execChannel.setCommand(Constants.CMD_QSTAT + jobId);
+
+		in = execChannel.getInputStream();
+
+		execChannel.setInputStream(null);
+		execChannel.setErrStream(System.err);
+		execChannel.connect();
+
+		jobData = Utilities.getStringFromIS(in);
+
+		// Return if job is not present
+		if (jobData.contains("qstat: Unknown Job Id Error")) {
+
+			LOGGER.error("cancelJob() -> Job not found. Job Id : " + jobId);
+
+			return jobNotFound;
+		}
+
+		jobs.clear();
+		jobs = jobDetails.jobDataParser(jobData);
+		JobDetails job = jobs.get(0);
+		if (job.getStatus().equalsIgnoreCase(completedStatus)) {
+
+			LOGGER.error("cancelJob() -> Job Completed error. Job Id : " + jobId + ", Status : " + job.getStatus());
+
+			return jobCompleted;
+		}
+
+		else {
+			execChannel.setCommand(Constants.CMD_QDEL + jobId);
+
 			in = execChannel.getInputStream();
-			
+
 			execChannel.setInputStream(null);
 			execChannel.setErrStream(System.err);
 			execChannel.connect();
-			
-			jobData = Utilities.getStringFromIS(in);
-			
-			// Return if job is not present
-			if(jobData.contains("qstat: Unknown Job Id Error")) {
-				
-					LOGGER.error("cancelJob() -> Job not found. Job Id : " + jobId );
-					
-				return jobNotFound;
-			}
-			
-			jobs.clear();
-			jobs = jobDetails.jobDataParser(jobData);
-			JobDetails job = jobs.get(0);
-			if (job.getStatus().equalsIgnoreCase(completedStatus)) {
-				
-					LOGGER.error("cancelJob() -> Job Completed error. Job Id : " + jobId + ", Status : "
-							+ job.getStatus());
-					
-			return jobCompleted;
-			}
-			
-		
-			else{
-				execChannel.setCommand(Constants.CMD_QDEL + jobId);
-				
-				in = execChannel.getInputStream();
-				
-				execChannel.setInputStream(null);
-				execChannel.setErrStream(System.err);
-				execChannel.connect();
-			}
-			
+		}
+
 		return jobDeleted;
 
 	}
@@ -502,7 +493,7 @@ public class JobManagementImpl implements JobManagement {
 	}
 
 	@Override
-	public List<JobDetails> monitorJob(String jobId, String pk, String passPhr)
+	public List<JobDetails> monitorJob(String pk, String passPhr)
 			throws FileException, ConnectionException, JobException {
 		// TODO Auto-generated method stub
 
@@ -527,19 +518,17 @@ public class JobManagementImpl implements JobManagement {
 
 		String jobData = null;
 		ArrayList<JobDetails> jobs = new ArrayList<JobDetails>();
-		double requiredTime = 0;
-		String jobStatus = null;
 
-		boolean attemptSet = false;
 		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("getJobStatus() -> Get job status. Job Id : " + jobId);
+			LOGGER.info("getJobStatus() -> Get job status.");
 		}
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("getJobStatus() -> Get job status. Job Id : " + jobId + ", Attempt : " + attemptCount);
+			LOGGER.debug("getJobStatus() -> Get job status., Attempt : " + attemptCount);
 		}
 
 		try {
+			session = connection.getSession(connectionParameters);
 			execChannel = connection.getExecChannel(session);
 			execChannel.setCommand(Constants.CMD_QSTAT + " -u " + userName);
 
@@ -549,11 +538,8 @@ public class JobManagementImpl implements JobManagement {
 			execChannel.setErrStream(System.err);
 			execChannel.connect();
 
-			session = connection.getSession(connectionParameters);
-			sftpChannel = connection.getSftpChannel(session);
-
 			jobData = Utilities.getStringFromIS(in);
-			jobs.clear();
+
 			jobs = jobDetails.jobDataParser(jobData);
 		} catch (JSchException e) {
 			LOGGER.error("submitJob() ->  Error creating session", e);
