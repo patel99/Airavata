@@ -1,6 +1,7 @@
 package com.teamAlpha.airavata.utils;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.apache.log4j.LogManager;
@@ -13,16 +14,15 @@ import com.teamAlpha.airavata.domain.JobDetails;
 @Component
 public class JobDetailParser {
 
-	
 	@Value("${status.last.header}")
 	String lastHeader;
-	
+
 	private static final Logger LOGGER = LogManager.getLogger(JobDetailParser.class);
 
-	public ArrayList<JobDetails> jobDataParser(String parseData) {
+	public List<JobDetails> jobDataParser(String parseData) {
 
-		ArrayList<JobDetails> jobs = new ArrayList<JobDetails>();
-		
+		List<JobDetails> jobs = new ArrayList<JobDetails>();
+
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("jobDetailParser() -> Parsing status details of submitted job. Job details : " + parseData);
 		}
@@ -34,10 +34,11 @@ public class JobDetailParser {
 		}
 		JobDetails jobDetails = null;
 		if (parseData != null) {
-			jobDetails = parseDetails(parseData);
-			if(jobDetails.getId() != null){
-				jobs.add(jobDetails);
-			}			
+			/*
+			 * jobDetails = parseDetails(parseData); if(jobDetails.getId() !=
+			 * null){ jobs.add(jobDetails); }
+			 */
+			jobs = parseDetails(parseData);
 		}
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("jobDetailParser() -> Successfully parsed status details of submitted job. Job details : "
@@ -46,14 +47,17 @@ public class JobDetailParser {
 		return jobs;
 	}
 
-	private static JobDetails parseDetails(String temp) {
+	private static List<JobDetails> parseDetails(String temp) {
 		JobDetails job = new JobDetails();
+		List<JobDetails> jobDetails = new ArrayList<JobDetails>();
 		int index = 0;
 		StringTokenizer st = new StringTokenizer(temp);
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("parseDetails() -> Parsing status details of submitted job. Job details : " + temp);
 		}
+		System.out.println(st.countTokens());
 		while (st.hasMoreTokens()) {
+
 			switch (index) {
 			case 0:
 				job.setId(st.nextToken());
@@ -89,13 +93,22 @@ public class JobDetailParser {
 				job.setElapTime(st.nextToken());
 				break;
 			default:
+				// System.out.println(st.nextToken());
 				break;
 			}
 			index++;
+			if (index == 11) {
+				if (null != job && job.getId() != null) {
+					jobDetails.add(job);
+				}
+				job = new JobDetails();
+				index = 0;
+			}
 		}
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("parseDetails() -> Successfully parsed status details of submitted job. Job details : " + job.toString());
+			LOGGER.debug("parseDetails() -> Successfully parsed status details of submitted job. Job details : "
+					+ job.toString());
 		}
-		return job;
+		return jobDetails;
 	}
 }

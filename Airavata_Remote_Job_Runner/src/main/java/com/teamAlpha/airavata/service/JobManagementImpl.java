@@ -239,7 +239,7 @@ public class JobManagementImpl implements JobManagement {
 		InputStream in = null;
 
 		String jobData = null;
-		ArrayList<JobDetails> jobs = new ArrayList<JobDetails>();
+		List<JobDetails> jobs = new ArrayList<JobDetails>();
 		double requiredTime = 0;
 		String jobStatus = null;
 
@@ -357,7 +357,7 @@ public class JobManagementImpl implements JobManagement {
 		final String jobDeleted = "Job Deleted Successfully";
 
 		String jobData = null;
-		ArrayList<JobDetails> jobs = new ArrayList<JobDetails>();
+		List<JobDetails> jobs = new ArrayList<JobDetails>();
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("cancelJob() -> Cancel Job. Job Id : " + jobId);
@@ -522,7 +522,7 @@ public class JobManagementImpl implements JobManagement {
 		InputStream in = null;
 
 		String jobData = null;
-		ArrayList<JobDetails> jobs = new ArrayList<JobDetails>();
+		List<JobDetails> jobs = new ArrayList<JobDetails>();
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("getJobStatus() -> Get job status.");
