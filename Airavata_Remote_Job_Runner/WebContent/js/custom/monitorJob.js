@@ -180,14 +180,17 @@ function fileLisingDataTable(){
 			$("td:first", nRow).html(oSettings._iDisplayStart+iDisplayIndex +1);
 			$("td:first", nRow).closest("tr").attr("id", aData.id);
 			var buttonHtml = "<div>";
-//            if (!(aData.status == "c")) {
 			var jobId = $("td:first", nRow).closest("tr").attr("id");
 			var jobStatus = $(".job-status", nRow).html();
-			buttonHtml +='<a href="getFile.htm?jobId='+ $('td:first', nRow).closest('tr').attr('id') + '&status='+$(".job-status", nRow).html()+'"><button type="button" class="btn btn-primary info btn-action-margin-left" title="Download"><i class="fa fa-cloud-download"></i></button></a>' ;
-//            }
-//            else {
+            if (aData.status!=null && aData.status.toLowerCase() == "c" && aData.sessionId != "--") {
+            	$(".job-status", nRow).html("Completed");
+            	buttonHtml +='<a href="getFile.htm?jobId='+ $('td:first', nRow).closest('tr').attr('id') + '&status='+$(".job-status", nRow).html()+'"><button type="button" class="btn btn-primary info btn-action-margin-left" title="Download"><i class="fa fa-cloud-download"></i></button></a>' ;
+            }if (aData.status!=null && aData.status.toLowerCase() == "c" && aData.sessionId == "--"){
+            	$(".job-status", nRow).html("Cancelled");
+            }
+            if (aData.status!=null && aData.status.toLowerCase() == "q"){
                 buttonHtml += "<a onclick=cancel('" + $('td:first', nRow).closest('tr').attr('id') + "')><button type='button' class='btn btn-danger info btn-action-margin-left' title='Cancel'><i class='fa fa-ban'></i></button></a>";
-//            }
+            }
             buttonHtml += "</div>";
             $(".action", nRow).html(buttonHtml);
 			return nRow;		
@@ -232,6 +235,7 @@ function cancel(jobId){
 		success : function(data) {
 			unblockUI();	
 			showMessage(data.message,data.isError);
+			window.location.reload();
 		}
 
 	});

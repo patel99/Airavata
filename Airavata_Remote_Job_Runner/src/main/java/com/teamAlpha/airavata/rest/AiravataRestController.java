@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.teamAlpha.airavata.domain.JobDetails;
 import com.teamAlpha.airavata.exception.ConnectionException;
@@ -74,31 +76,48 @@ public class AiravataRestController {
 
 	@RequestMapping(value = { "uploadJob.htm" }, method = RequestMethod.POST)
 	@Produces(MediaType.APPLICATION_JSON)
-	public @ResponseBody String uploadUsersFile(HttpServletRequest request, HttpServletResponse response,
+	public @ResponseBody void uploadUsersFile(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam("file") MultipartFile multipartFile) {
 
-		String resp = "";
+		PrintWriter writer = null;
+		JsonArray json = null;
+		JsonObject jsono = new JsonObject();
 		try {
+			writer = response.getWriter();
 			File file = FileUtils.getFileFromMultipartFile(multipartFile);
 			String jobId = jobManagementService.submitJob(file, privateKeyPath, privateKeyPassphrase);
-			resp = jobId;
-
+			jsono.addProperty("name", file.getName());
+			jsono.addProperty("size", multipartFile.getSize());
+			jsono.addProperty("isFileErrored", false);
+			json = new JsonArray();
+			json.add(jsono);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error("Error uploading file");
 		} catch (FileException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error("Error uploading file");
 		} catch (ConnectionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error("Error uploading file");
 		} catch (JobException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error("Error uploading file");
+		}finally {
+			if(null == json || json.size()==0){
+				jsono.addProperty("name", multipartFile.getOriginalFilename());
+				jsono.addProperty("size", multipartFile.getSize());
+				jsono.addProperty("isFileErrored", true);
+				jsono.addProperty("errorMessage", "File upload failed.");
+				if(null == json){
+					json = new JsonArray();
+				}
+				json.add(jsono);
+			}
+			if (request.getHeader("accept").indexOf("application/json") == -1){
+//				writer.write(StringEscapeUtils.escapeHtml(json.toString()));
+				response.setHeader("X-Frame-Options", "SAMEORIGIN");
+			}else{
+				writer.write(json.toString());	
+			}
+			writer.close();
 		}
-
-		return resp;
-
 	}
 
 
@@ -163,14 +182,12 @@ public class AiravataRestController {
 		List<JobDetails> jobDetailsList = new ArrayList<JobDetails>();
 		Gson gson = new Gson();
 		JsonObject jsonResponse = new JsonObject();
-		JobDetails jobDetails = new JobDetails();
 		try {
 			jobDetailsList = jobManagementService.monitorJob(privateKeyPath, privateKeyPassphrase);
 
 			jsonResponse.add("aaData", gson.toJsonTree(jobDetailsList));
 		} catch (FileException | ConnectionException | JobException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error("Error monitoring job.", e);
 		}
 		return jsonResponse.toString();
 
@@ -190,6 +207,9 @@ public class AiravataRestController {
 		if(LOGGER.isInfoEnabled()){LOGGER.info("getFile() -> Fetching output file. Job Id : " + jobId);}
 		try {
 			fis = jobManagementService.downloadFile(jobId, status);
+			if(fis == null){
+				throw new JobException("Null stream");
+			}
 			for (; (readNum = fis.read(buf)) != -1;) {
 				bos.write(buf, 0, readNum);
 			}

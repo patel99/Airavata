@@ -368,7 +368,7 @@ public class JobManagementImpl implements JobManagement {
 		}
 
 		execChannel = connection.getExecChannel(session);
-		execChannel.setCommand(Constants.CMD_QSTAT + jobId);
+		execChannel.setCommand(Constants.CMD_QSTAT + " -u " + userName);
 
 		in = execChannel.getInputStream();
 
@@ -386,11 +386,13 @@ public class JobManagementImpl implements JobManagement {
 			return jobNotFound;
 		}
 
-		jobs.clear();
 		jobs = jobDetails.jobDataParser(jobData);
-		JobDetails job = jobs.get(0);
-		if(job.getStatus()==null){
-			throw new JobException("Job with this id does not exist.");
+		JobDetails job = null;
+		for (JobDetails jobDetails : jobs) {
+			if(jobDetails.getId().equalsIgnoreCase(jobId)){
+				job = jobDetails;
+				break;
+			}			
 		}
 		if (job.getStatus().equalsIgnoreCase(completedStatus)) {
 
@@ -400,7 +402,7 @@ public class JobManagementImpl implements JobManagement {
 		}
 
 		else {
-			execChannel.setCommand(Constants.CMD_QDEL + jobId);
+			execChannel.setCommand(Constants.CMD_QDEL + " " + jobId);
 
 			in = execChannel.getInputStream();
 
@@ -592,7 +594,7 @@ public class JobManagementImpl implements JobManagement {
 		}
 		try {
 
-			if (null != status && status.equalsIgnoreCase(completedStatus)) {
+			if (null != status && status.equalsIgnoreCase("Completed")) {
 				if (LOGGER.isInfoEnabled()) {
 					LOGGER.info("downloadFile() -> Checking if error generated in error file. Job Id : " + jobId);
 				}
@@ -613,7 +615,7 @@ public class JobManagementImpl implements JobManagement {
 					LOGGER.debug("downloadFile() -> Error file content : " + dataFromServer + ", JobId : " + jobId.substring(0, jobId.length()-3));
 				}
 				sftpChannel = connection.getSftpChannel(s);
-				if (dataFromServer.trim().equals("a")) {
+				if (dataFromServer.trim().equals("")) {
 
 					if (LOGGER.isInfoEnabled()) {
 						LOGGER.info("downloadFile() -> Fetching output file. Job Id : " + jobId);

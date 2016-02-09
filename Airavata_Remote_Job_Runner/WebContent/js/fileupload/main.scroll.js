@@ -69,6 +69,7 @@ $(function () {
     	$('#closeButton').removeAttr("disabled","disabled");
     	$("#downloadLink").attr("onClick","");
     	dtTable.fnStandingRedraw();    	
+    	window.location.reload();
    	});
     
     $('#fileupload')
