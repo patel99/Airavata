@@ -461,7 +461,7 @@ public class JobManagementImpl implements JobManagement {
 			execChannel = connection.getExecChannel(s);
 			execChannel.setCommand(Constants.CMD_CD + " " + remoteFilePath + "\n" + Constants.CMD_MPICC + " "
 					+ file.getName() + " -o " + file.getName().substring(0, file.getName().length() - 2) + ".out \n "
-					+ Constants.CMD_D2U + " " + "pbs.sh \n " + Constants.CMD_QSUB + " " + "pbs.sh");
+					+ Constants.CMD_D2U + " " + pbsSh.getName()+" \n " + Constants.CMD_QSUB + " " + pbsSh.getName());
 
 			execChannel.setInputStream(null);
 			execChannel.setErrStream(System.err);
