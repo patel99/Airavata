@@ -446,7 +446,10 @@ public class JobManagementImpl implements JobManagement {
 			}
 			String pbsContent = String.format(Constants.PBS_CONTENT, noOfNodes, noOfProcesses, jobWalltime,
 					remoteFilePath, noOfJobs, "./" + file.getName().substring(0, file.getName().length() - 2) + ".out");
-			pbsSh = File.createTempFile("pbs", ".sh");
+			String tDir = System.getProperty("java.io.tmpdir");
+			
+			
+			pbsSh = new File(tDir+"/pbs.sh");
 			FileWriter fileWriter = new FileWriter(pbsSh);
 			fileWriter.write(pbsContent);
 			fileWriter.flush();

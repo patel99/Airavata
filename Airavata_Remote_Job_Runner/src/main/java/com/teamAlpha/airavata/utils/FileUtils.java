@@ -10,9 +10,8 @@ public class FileUtils {
 
 	public static File getFileFromMultipartFile(MultipartFile multipartFile) throws IOException {
 
-		File convFile = File.createTempFile(multipartFile.getOriginalFilename().split("\\.")[0],
-				"."+multipartFile.getOriginalFilename().split("\\.")[1]);
-		convFile.createNewFile();
+		String tDir = System.getProperty("java.io.tmpdir");		
+		File convFile = new File(tDir+"/"+multipartFile.getOriginalFilename());
 		FileOutputStream fos = new FileOutputStream(convFile);
 		fos.write(multipartFile.getBytes());
 		fos.close();
