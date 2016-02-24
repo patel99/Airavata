@@ -19,6 +19,7 @@ public class Main {
 	JobManagement jobManagement;
 
 	private static final Logger LOGGER = LogManager.getLogger(Main.class);
+	
 
 	/**
 	 * Entry point

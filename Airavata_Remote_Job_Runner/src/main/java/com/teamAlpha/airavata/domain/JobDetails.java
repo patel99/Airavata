@@ -1,5 +1,8 @@
 package com.teamAlpha.airavata.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class JobDetails {
 	
 	private String id;
@@ -177,4 +180,24 @@ public class JobDetails {
 		return builder.toString();
 	}
 	
+	public List<JobDetails> get(){
+		List<JobDetails> jobs = new ArrayList<JobDetails>();
+		for(int i=1; i<=15; i++){
+			JobDetails j = new JobDetails();
+			j.setId("id"+i);
+			j.setUserName("User Name " + i);
+			j.setQueueType("Queue " + i);
+			j.setJobName("Job name " + i);
+			j.setSessionId("Session Id " + i);
+			j.setNodes("Node " + i);
+			j.setNoOfTasks("NO " + i);
+			j.setMemory("Memory " + i);
+			j.setTime("Time " + i);
+			j.setStatus("Status" + i);
+			j.setElapTime("Elap time " + i);
+			jobs.add(j);
+		}
+		return jobs;
+		
+	}
 }

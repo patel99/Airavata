@@ -7,6 +7,7 @@ public class Constants {
 	public final static String CMD_CD="cd";
 	public final static String CMD_QSUB="qsub";
 	public final static String CMD_QSTAT="qstat";
+	public final static String CMD_QDEL="qdel";
 	public final static String CMD_D2U="dos2unix";
 	public final static String CMD_MPICC="mpicc";
 	public final static String CMD_CAT="cat";
