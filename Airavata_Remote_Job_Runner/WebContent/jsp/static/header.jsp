@@ -32,10 +32,9 @@
 						<li class="user-header bg-maroon">
 <!-- 						<img src="img/avatar6.jpg" class="img-circle" alt="User Image" /> -->
 							<p>
-								<sec:authentication property="principal.username" /> - <sec:authentication property="principal.roles.roleName" /> 
+								<sec:authentication property="principal.username" /> - <sec:authentication property="principal.authorities" /> 
 							</p>
 						</li>
-						<sec:authorize access="hasAnyRole('ROLE_ADMIN','ROLE_SUPER_ADMIN')">
 						<li class="user-footer">
 						<c:url var="logoutUrl" value="/logout.htm"/>
 							<form:form action="${logoutUrl}"
@@ -45,7 +44,6 @@
 							</div>
  							</form:form>							
 						</li>
-						</sec:authorize>
 					</ul>
 				</li>
 			</ul>

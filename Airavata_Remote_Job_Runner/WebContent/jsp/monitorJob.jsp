@@ -101,12 +101,9 @@
 		<jsp:include page="static/leftPanel.jsp"></jsp:include>
 
 		<aside class="right-side"> <section class="content-header">
-
-		<br>
-		<br>
-		<button type="button" class="btn btn-primary open-overlay">Create
-			Job</button>
-		<h1>Jobs</h1>
+		<br/>
+		<h1>Jobs &nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-primary open-overlay">Create
+			Job</button></h1>
 		<div id="message" class="error hide"></div>
 		<ol class="breadcrumb">
 			<li><a href="test.htm"

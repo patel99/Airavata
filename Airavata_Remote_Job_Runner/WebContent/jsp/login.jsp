@@ -29,7 +29,7 @@
       </div><!-- /.login-logo -->
       <div class="login-box-body">
         <p class="login-box-msg">Sign in to start your session</p>
-        <form:form name="loginform" action="j_spring_security_check" method="post" id="login-form" commandName="user">        
+        <form:form name="loginform" action="login" method="post" id="login-form">        
 			<div class="body">
 				<div class="form-group has-feedback">
 		            <input type="text" name="j_username" id="j_username" class="form-control" placeholder="User ID" />
