@@ -93,7 +93,6 @@ public class JobDetailParser {
 				job.setElapTime(st.nextToken());
 				break;
 			default:
-				// System.out.println(st.nextToken());
 				break;
 			}
 			index++;

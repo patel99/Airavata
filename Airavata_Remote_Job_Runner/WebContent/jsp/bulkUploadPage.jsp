@@ -1,10 +1,13 @@
+
+<%@ page import="com.teamAlpha.airavata.utils.Constants"%>
+
 <link rel="stylesheet" type="text/css"
 	href="css/bootstrap.progressbar.css" />
 <link rel="stylesheet" type="text/css"
 	href="css/jquery-fileupload/jquery.fileupload-ui.css" />
 
 <form class="navbar-form1" id="fileupload" action="uploadJob.htm"
-	method="POST" enctype="multipart/form-data">
+	method="POST" enctype="multipart/form-data" onsubmit="validate()">
 
 	<input id="fileType" name="fileType" type="hidden" />
 	<div class="box-body">
@@ -16,18 +19,30 @@
 						<div class="form-group">
 
 							<label>No. of Nodes :</label> <input type="text"
-								class="form-control" name="noOfNodes" id="noOfNodes" placeholder="Enter">
+								class="form-control validation-field" name="noOfNodes" id="noOfNodes"
+								placeholder="Enter">
 						</div>
 						<div class="form-group">
 							<label>Wall time :</label> <input type="text"
-								class="form-control" name="wallTime" id="wallTime" placeholder="HH:mm:ss">
+								class="form-control validation-field" name="wallTime" id="wallTime"
+								placeholder="HH:mm:ss">
 						</div>
-						
+
 						<div class="form-group">
-							<label>Type</label> <input type="text"
-								class="form-control" name="jobType" id="jobType" placeholder="Enter">
+							<label>Job Type</label>
+							<!-- <input type="text" -->
+							<!-- class="form-control" name="jobType" id="jobType" placeholder="Enter"> -->
+							<select class="form-control" name="jobType" id="jobType"
+								placeholder="Select JobType">
+								<option value="" disabled selected>Select</option>
+								<option value="${TYPE_PBS}">PBS</option>
+								<option value="${TYPE_LAMMPS}">LAMMPS</option>
+							</select>
 						</div>
-						
+
+						<div class="form-group">
+							<div class="validation-message error hide"></div>
+						</div>
 					</div>
 				</div>
 
@@ -39,7 +54,7 @@
 				</span>
 
 
-				<button type="submit" class="btn btn-primary start">
+				<button type="submit" class="btn btn-primary start" id="submit">
 					<i class="icon-upload icon-white"></i> <span>Submit Job</span>
 				</button>
 

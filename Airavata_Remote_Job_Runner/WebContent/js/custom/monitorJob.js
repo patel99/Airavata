@@ -46,6 +46,7 @@ $(document).ready(function (e) {
 	
 	$(".open-overlay").click(function(){
 		showPopup();
+		$(".validation-message").addClass("hide");
 	});
 	$("#dashboardView").closest('li').addClass("active");
 	

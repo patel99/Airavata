@@ -34,6 +34,7 @@ import com.teamAlpha.airavata.exception.ConnectionException;
 import com.teamAlpha.airavata.exception.FileException;
 import com.teamAlpha.airavata.exception.JobException;
 import com.teamAlpha.airavata.service.JobManagement;
+import com.teamAlpha.airavata.utils.Constants;
 import com.teamAlpha.airavata.utils.FileUtils;
 
 @Controller
@@ -70,7 +71,8 @@ public class AiravataRestController {
 	public ModelAndView showAuthorizationMatrix() {
 
 		ModelAndView modelAndView = new ModelAndView("monitorJob");
-
+		modelAndView.addObject("TYPE_PBS", Constants.PBS_JOB_CODE);
+		modelAndView.addObject("TYPE_LAMMPS", Constants.LAMMPS_JOB_CODE);
 		return modelAndView;
 	}
 
