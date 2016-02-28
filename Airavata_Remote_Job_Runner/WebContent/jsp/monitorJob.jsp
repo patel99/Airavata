@@ -45,40 +45,83 @@
 </head>
 <body class="skin-blue fixed pace-done sidebar-collapse"
 	style="min-height: 588px;" oncontextmenu="return false">
+
 	<script type="text/javascript">
 		var aRole = '${aRole}';
 	</script>
 	<jsp:include page="static/header.jsp"></jsp:include>
+	<div class="overlay connectedSortable hide"></div>
+	<div class="overlay-body connectedSortable hide">
+		<div class="file-name-header adjust-header-text">
+			<!-- <div class="tab-close">
+				<i class="btn-close fa fa-angle-right"></i>
+			</div> -->
+			<div class="row popup-header-text">
+				<div class="col-md-12">
+					<button id="close"
+						class="btn btn-left btn-primary btn-group btn-action-margin-left info"
+						data-placement="bottom" title="Close">
+						<i class="fa fa-long-arrow-right"></i>
+					</button>
+					<label class="vertical-align-bottom ovelay-header">Create
+						Job</label>
+				</div>
+			</div>
+			<span id="message"></span>
+		</div>
+		<br />
 
+		<div class="content">
+<!-- 			<div class="row"> -->
+<!-- 				<div class="col-sm-12"> -->
+<!-- 					<div class="form-group"> -->
+
+<!-- 						<label>No. of Nodes :</label> <input type="text" -->
+<!-- 							class="form-control" id="noOfNodes" placeholder="Enter"> -->
+<!-- 					</div> -->
+<!-- 					<div class="form-group"> -->
+<!-- 						<label>Wall time :</label> <input type="text" class="form-control" -->
+<!-- 							id="wallTime" placeholder="Enter"> -->
+<!-- 					</div> -->
+<!-- 				</div> -->
+<!-- 			</div> -->
+
+			<div class="row-fluid row-content">
+				<div class="row">
+					<div class="col-md-12">
+						<jsp:include page="bulkUploadPage.jsp"></jsp:include>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 	<div class="wrapper row-offcanvas row-offcanvas-left"
 		style="min-height: 268px;">
 
 		<jsp:include page="static/leftPanel.jsp"></jsp:include>
-	
+
 		<aside class="right-side"> <section class="content-header">
-		<div class="row-fluid row-content">
-			<div class="row">
-				<div class="col-md-12">
-					<jsp:include page="bulkUploadPage.jsp"></jsp:include>
-				</div>
-			</div>
-		</div>
-	<br><br> 	
+
+		<br>
+		<br>
+		<button type="button" class="btn btn-primary open-overlay">Create
+			Job</button>
 		<h1>Jobs</h1>
 		<div id="message" class="error hide"></div>
 		<ol class="breadcrumb">
-				<li><a href="test.htm"<sec:authentication var="principal" property="principal.username"/>><i class="fa fa-dashboard"></i> Home</a></li>
-				<li class="active">Jobs</li>
-			</ol></section>			
-			<section class="content">
+			<li><a href="test.htm"
+				<sec:authentication var="principal" property="principal.username"/>><i
+					class="fa fa-dashboard"></i> Home</a></li>
+			<li class="active">Jobs</li>
+		</ol>
+		</section> <section class="content">
 		<div class="box box-danger" id="loading-example">
 			<div class="box-body no-padding">
 				<div class="row">
 					<div class="col-sm-12">
 						<div class="scroll-right hide"></div>
 						<div class="scroll-left hide"></div>
-						<table id="jobList"
-							class="table table-bordered table-hover">
+						<table id="jobList" class="table table-bordered table-hover">
 							<thead>
 								<tr>
 									<th>Sr.</th>
@@ -124,7 +167,7 @@
 	<!-- Alert Modal end  -->
 
 	<jsp:include page="static/footer.jsp"></jsp:include>
-	
+
 	<script id="template-upload" type="text/x-tmpl">
 {% 
 	var cnt = 0;
@@ -197,12 +240,14 @@ for (var i=0, file; file=o.files[i]; i++) {
 	<script type="text/javascript" src="js/common.js"></script>
 	<script type="text/javascript" src="js/custom/monitorJob.js"></script>
 	<script type="text/javascript" src="js/custom/encrypt.js"></script>
-	
-	<script type="text/javascript" src="js/custom/detectmobilebrowser.js"></script>	
+
+	<script type="text/javascript" src="js/custom/detectmobilebrowser.js"></script>
 	<script type="text/javascript" src="js/fileupload/jquery.ui.widget.js"></script>
 	<script type="text/javascript" src="js/fileupload/jquery.fileupload.js"></script>
-	<script type="text/javascript" src="js/fileupload/jquery.fileupload-fp.js"></script>
-	<script type="text/javascript" src="js/fileupload/jquery.fileupload-ui.js"></script>
+	<script type="text/javascript"
+		src="js/fileupload/jquery.fileupload-fp.js"></script>
+	<script type="text/javascript"
+		src="js/fileupload/jquery.fileupload-ui.js"></script>
 	<script type="text/javascript" src="js/fileupload/locale.scroll.js"></script>
 </body>
 </html>

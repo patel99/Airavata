@@ -24,7 +24,7 @@ var id;
 var authBtn;//overlay AUTHORIZE buttons corresponding to action AUTHORIZE buttons of the row
 var rejBtn;//overlay REJECT buttons corresponding to action REJECT buttons of the row
 var pdfViewTag='<object id="object-pdf" standby="LOADING....." class="pdf-view hide" data="" type="application/pdf"></object>';
-
+var dtTable;
 
 var tblColumns = [{"mDataProp": null, sDefaultContent: "", "bSortable": false, "sClass": "sr-no all"},		               
 	               {"mDataProp": "id", sDefaultContent: "", "aTargets": [  ], "sClass":"all job-id"},
@@ -44,7 +44,9 @@ var tblColumns = [{"mDataProp": null, sDefaultContent: "", "bSortable": false, "
 
 $(document).ready(function (e) {
 	
-
+	$(".open-overlay").click(function(){
+		showPopup();
+	});
 	$("#dashboardView").closest('li').addClass("active");
 	
 	if(!jQuery.browser.mobile){
@@ -235,7 +237,7 @@ function cancel(jobId){
 		success : function(data) {
 			unblockUI();	
 			showMessage(data.message,data.isError);
-			window.location.reload();
+			fileLisingDataTable();
 		}
 
 	});

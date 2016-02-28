@@ -1,20 +1,37 @@
-<link rel="stylesheet" type="text/css" href="css/bootstrap.progressbar.css" />
-<link rel="stylesheet" type="text/css" href="css/jquery-fileupload/jquery.fileupload-ui.css" />
+<link rel="stylesheet" type="text/css"
+	href="css/bootstrap.progressbar.css" />
+<link rel="stylesheet" type="text/css"
+	href="css/jquery-fileupload/jquery.fileupload-ui.css" />
 
-<form class="navbar-form1" id="fileupload"
-	action="uploadJob.htm" method="POST" enctype="multipart/form-data">
-	
-	<input id="fileType" name="fileType" type="hidden"/>
+<form class="navbar-form1" id="fileupload" action="uploadJob.htm"
+	method="POST" enctype="multipart/form-data">
+
+	<input id="fileType" name="fileType" type="hidden" />
 	<div class="box-body">
 		<div class="fileupload-buttonbar">
 			<div class="col-sm-12">
 
+				<div class="row">
+					<div class="col-sm-12">
+						<div class="form-group">
+
+							<label>No. of Nodes :</label> <input type="text"
+								class="form-control" name="noOfNodes" id="noOfNodes" placeholder="Enter">
+						</div>
+						<div class="form-group">
+							<label>Wall time :</label> <input type="text"
+								class="form-control" name="wallTime" id="wallTime" placeholder="Enter">
+						</div>
+					</div>
+				</div>
+
 				<!-- The fileinput-button span is used to style the file input field as button -->
 
 				<span class="btn btn-primary fileinput-button"> <i
-					class="icon-plus icon-white"></i> <span>Add Job</span> <input
-					type="file" name="file" id="file">
+					class="icon-plus icon-white"></i><span>Add Job</span> <input
+					type="file" name="file" id="file"> </a>
 				</span>
+
 
 				<button type="submit" class="btn btn-primary start">
 					<i class="icon-upload icon-white"></i> <span>Submit Job</span>
@@ -24,7 +41,7 @@
 					<i class="icon-ban-circle icon-white"></i> <span>Cancel
 						upload</span>
 				</button>
-				
+
 			</div>
 			<br>
 			<div class="fileupload-progress">
@@ -39,8 +56,16 @@
 					</div>
 				</div>
 			</div>
+
+
 		</div>
 	</div>
+
+
+
+
+
+
 </form>
 
 <!-- The template to display files available for upload -->
@@ -135,12 +160,13 @@ for (var i=0, file; file=o.files[i]; i++) {
 {% } %}
 </script>
 
-	<script type="text/javascript" src="js/custom/bulkUpload.js"></script>
-	<script type="text/javascript" src="js/fileupload/tmpl.min.js"></script>
-	<script type="text/javascript" src="js/fileupload/load-image.min.js"></script>
-	<script type="text/javascript" src="js/fileupload/canvas-to-blob.min.js"></script>
+<script type="text/javascript" src="js/custom/bulkUpload.js"></script>
+<script type="text/javascript" src="js/fileupload/tmpl.min.js"></script>
+<script type="text/javascript" src="js/fileupload/load-image.min.js"></script>
+<script type="text/javascript" src="js/fileupload/canvas-to-blob.min.js"></script>
 <!-- 	<script type="text/javascript" src="js/fileupload/bootstrap.min.js"></script> -->
 <!-- 	<script type="text/javascript" src="js/fileupload/bootstrap-image-gallery.min.js"></script> -->
-	<script type="text/javascript" src="js/fileupload/jquery.iframe-transport.js"></script>
-	<script type="text/javascript" src="js/fileupload/main.scroll.js"></script>
+<script type="text/javascript"
+	src="js/fileupload/jquery.iframe-transport.js"></script>
+<script type="text/javascript" src="js/fileupload/main.scroll.js"></script>
 
