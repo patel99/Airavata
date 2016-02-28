@@ -77,7 +77,7 @@ public class AiravataRestController {
 	@RequestMapping(value = { "uploadJob.htm" }, method = RequestMethod.POST)
 	@Produces(MediaType.APPLICATION_JSON)
 	public @ResponseBody void uploadUsersFile(HttpServletRequest request, HttpServletResponse response,
-			@RequestParam("file") MultipartFile multipartFile) {
+			@RequestParam("file") MultipartFile multipartFile, @RequestParam("jobType") int jobType) {
 
 		PrintWriter writer = null;
 		JsonArray json = null;
@@ -85,7 +85,7 @@ public class AiravataRestController {
 		try {
 			writer = response.getWriter();
 			File file = FileUtils.getFileFromMultipartFile(multipartFile);
-			String jobId = jobManagementService.submitJob(file, privateKeyPath, privateKeyPassphrase);
+			String jobId = jobManagementService.submitJob(file, jobType,privateKeyPath, privateKeyPassphrase);
 			jsono.addProperty("name", file.getName());
 			jsono.addProperty("size", multipartFile.getSize());
 			jsono.addProperty("isFileErrored", false);

@@ -107,7 +107,7 @@ public class JobManagementImpl implements JobManagement {
 
 		Session s = null;
 		String dataFromServer = null;
-		File pbsSh = null;
+		File jobFile = null;
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("submitJob() -> Submit job to server queue.");
@@ -119,11 +119,11 @@ public class JobManagementImpl implements JobManagement {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("getSftpChannel() -> Channel created successfully.");
 			}
-			String pbsContent = String.format(Constants.PBS_CONTENT, noOfNodes, noOfProcesses, jobWalltime,
+			String fileContent = String.format(Constants.PBS_CONTENT, noOfNodes, noOfProcesses, jobWalltime,
 					remoteFilePath, noOfJobs, "./" + fileName.substring(0, fileName.length() - 2) + ".out");
-			pbsSh = new File(filePath + "pbs.sh");
-			FileWriter fileWriter = new FileWriter(pbsSh);
-			fileWriter.write(pbsContent);
+			jobFile = new File(filePath + "pbs.sh");
+			FileWriter fileWriter = new FileWriter(jobFile);
+			fileWriter.write(fileContent);
 			fileWriter.flush();
 			fileWriter.close();
 			fileManagement.putFile(filePath + fileName, remoteFilePath, sftpChannel);
@@ -416,7 +416,7 @@ public class JobManagementImpl implements JobManagement {
 	}
 
 	@Override
-	public String submitJob(File file, String pk, String passPhr)
+	public String submitJob(File file, int jobType,String pk, String passPhr)
 			throws FileException, ConnectionException, JobException {
 		ConnectionEssential connectionParameters = new ConnectionEssential();
 		connectionParameters.setHost(hostId);
@@ -434,40 +434,52 @@ public class JobManagementImpl implements JobManagement {
 
 		Session s = null;
 
-		File pbsSh = null;
+		File jobFile = null;
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("submitJob() -> Submit job to server queue.");
 		}
-
+		
 		try {
 			s = connection.getSession(connectionParameters);
 			sftpChannel = connection.getSftpChannel(s);
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("getSftpChannel() -> Channel created successfully.");
 			}
-			String pbsContent = String.format(Constants.PBS_CONTENT, noOfNodes, noOfProcesses, jobWalltime,
-					remoteFilePath, noOfJobs, "./" + file.getName().substring(0, file.getName().length() - 2) + ".out");
+			String fileContent = null;
+			if(jobType == Constants.PBS_JOB_CODE){
+					fileContent = String.format(Constants.PBS_CONTENT, noOfNodes, noOfProcesses, jobWalltime,
+								remoteFilePath, noOfJobs, "./" + file.getName().substring(0, file.getName().length() - 2) + ".out");
+			}
+			else if(jobType == Constants.LAMMPS_JOB_CODE){
+				fileContent = String.format(Constants.LAMMPS_CONTENT, noOfNodes, noOfProcesses, jobWalltime,
+						remoteFilePath, noOfJobs, file.getName());
+			}
 			String tDir = System.getProperty("java.io.tmpdir");
 			
 			
-			pbsSh = new File(tDir+"/pbs.sh");
-			FileWriter fileWriter = new FileWriter(pbsSh);
-			fileWriter.write(pbsContent);
+			jobFile = new File(tDir+"/pbs.sh");
+			FileWriter fileWriter = new FileWriter(jobFile);
+			fileWriter.write(fileContent);
 			fileWriter.flush();
 			fileWriter.close();
 			fileManagement.putFile(file, remoteFilePath, sftpChannel);
 			sftpChannel = connection.getSftpChannel(s);
-			fileManagement.putFile(pbsSh, remoteFilePath, sftpChannel);
+			fileManagement.putFile(jobFile, remoteFilePath, sftpChannel);
 			sftpChannel.disconnect();
 
 			execChannel = connection.getExecChannel(s);
 
 			execChannel = connection.getExecChannel(s);
-			execChannel.setCommand(Constants.CMD_CD + " " + remoteFilePath + "\n" + Constants.CMD_MPICC + " "
+			if(jobType == Constants.PBS_JOB_CODE){
+				execChannel.setCommand(Constants.CMD_CD + " " + remoteFilePath + "\n" + Constants.CMD_MPICC + " "
 					+ file.getName() + " -o " + file.getName().substring(0, file.getName().length() - 2) + ".out \n "
-					+ Constants.CMD_D2U + " " + pbsSh.getName()+" \n " + Constants.CMD_QSUB + " " + pbsSh.getName());
-
+					+ Constants.CMD_D2U + " " + jobFile.getName()+" \n " + Constants.CMD_QSUB + " " + jobFile.getName());
+			}
+			else if(jobType == Constants.LAMMPS_JOB_CODE){
+				execChannel.setCommand(Constants.CMD_CD + " " + remoteFilePath + "\n"
+						+ Constants.CMD_QSUB + " " + jobFile.getName());
+			}
 			execChannel.setInputStream(null);
 			execChannel.setErrStream(System.err);
 
@@ -496,6 +508,7 @@ public class JobManagementImpl implements JobManagement {
 				s.disconnect();
 			}
 		}
+		
 
 	}
 

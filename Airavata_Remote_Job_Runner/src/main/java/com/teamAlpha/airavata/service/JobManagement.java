@@ -19,7 +19,7 @@ public interface JobManagement {
 
 	String submitJob() throws FileException, ConnectionException, JobException;
 
-	String submitJob(File file, String pk, String passPhr) throws FileException, ConnectionException, JobException;
+	String submitJob(File file, int jobType,String pk, String passPhr) throws FileException, ConnectionException, JobException;
 
 	List<JobDetails> monitorJob(String pk, String passPhr)
 			throws FileException, ConnectionException, JobException;
