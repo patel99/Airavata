@@ -5,7 +5,7 @@
 <html oncontextmenu="return false" class="no-copy-paste">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<link rel="shortcut icon" href="img/ybl-favicon.ico">
+<link rel="shortcut icon" href="img/tab_icon.png">
 <title>Airavata</title>
 <meta
 	content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'
