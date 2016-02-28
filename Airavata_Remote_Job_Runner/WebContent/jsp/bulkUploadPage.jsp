@@ -20,8 +20,14 @@
 						</div>
 						<div class="form-group">
 							<label>Wall time :</label> <input type="text"
-								class="form-control" name="wallTime" id="wallTime" placeholder="Enter">
+								class="form-control" name="wallTime" id="wallTime" placeholder="HH:mm:ss">
 						</div>
+						
+						<div class="form-group">
+							<label>Type</label> <input type="text"
+								class="form-control" name="jobType" id="jobType" placeholder="Enter">
+						</div>
+						
 					</div>
 				</div>
 

@@ -46,7 +46,7 @@ public class AiravataRestController {
 
 	@Value("${private.key.passphrase}")
 	String privateKeyPassphrase;
-	
+
 	@Autowired
 	private JobManagement jobManagementService;
 
@@ -77,7 +77,8 @@ public class AiravataRestController {
 	@RequestMapping(value = { "uploadJob.htm" }, method = RequestMethod.POST)
 	@Produces(MediaType.APPLICATION_JSON)
 	public @ResponseBody void uploadUsersFile(HttpServletRequest request, HttpServletResponse response,
-			@RequestParam("file") MultipartFile multipartFile, @RequestParam("jobType") int jobType) {
+			@RequestParam("file") MultipartFile multipartFile, @RequestParam("jobType") int jobType,
+			@RequestParam("noOfNodes") String noOfNodes, @RequestParam("wallTime") String wallTime) {
 
 		PrintWriter writer = null;
 		JsonArray json = null;
@@ -85,7 +86,8 @@ public class AiravataRestController {
 		try {
 			writer = response.getWriter();
 			File file = FileUtils.getFileFromMultipartFile(multipartFile);
-			String jobId = jobManagementService.submitJob(file, jobType,privateKeyPath, privateKeyPassphrase);
+			String jobId = jobManagementService.submitJob(file, jobType, privateKeyPath, privateKeyPassphrase,
+					noOfNodes, wallTime);
 			jsono.addProperty("name", file.getName());
 			jsono.addProperty("size", multipartFile.getSize());
 			jsono.addProperty("isFileErrored", false);
@@ -99,27 +101,26 @@ public class AiravataRestController {
 			LOGGER.error("Error uploading file");
 		} catch (JobException e) {
 			LOGGER.error("Error uploading file");
-		}finally {
-			if(null == json || json.size()==0){
+		} finally {
+			if (null == json || json.size() == 0) {
 				jsono.addProperty("name", multipartFile.getOriginalFilename());
 				jsono.addProperty("size", multipartFile.getSize());
 				jsono.addProperty("isFileErrored", true);
 				jsono.addProperty("errorMessage", "File upload failed.");
-				if(null == json){
+				if (null == json) {
 					json = new JsonArray();
 				}
 				json.add(jsono);
 			}
-			if (request.getHeader("accept").indexOf("application/json") == -1){
-//				writer.write(StringEscapeUtils.escapeHtml(json.toString()));
+			if (request.getHeader("accept").indexOf("application/json") == -1) {
+				// writer.write(StringEscapeUtils.escapeHtml(json.toString()));
 				response.setHeader("X-Frame-Options", "SAMEORIGIN");
-			}else{
-				writer.write(json.toString());	
+			} else {
+				writer.write(json.toString());
 			}
 			writer.close();
 		}
 	}
-
 
 	@RequestMapping(value = { "cancelJob.htm" }, method = RequestMethod.POST)
 	public @ResponseBody String getCancelJobStatus(HttpServletRequest request, HttpServletResponse response,
@@ -156,24 +157,6 @@ public class AiravataRestController {
 		return jsonResponse.toString();
 	}
 
-	
-	/*
-	 * @RequestMapping(value = { "getJobs.htm" }, method = RequestMethod.GET)
-	 * public @ResponseBody String getAuthorizationMatrix(HttpServletResponse
-	 * response) {
-	 * 
-	 * Gson gson = new Gson(); JsonObject jsonResponse = new JsonObject();
-	 * List<JobDetails> jobs = new ArrayList<JobDetails>(); JobDetails b = new
-	 * JobDetails(); try { jobs = b.get(); jsonResponse.add("aaData",
-	 * gson.toJsonTree(jobs)); } catch (Exception e) {
-	 * 
-	 * jsonResponse.addProperty("isError", true);
-	 * jsonResponse.addProperty("message", e.getMessage()); }
-	 * 
-	 * response.setContentType("application/Json");
-	 * 
-	 * return jsonResponse.toString(); }
-	 */
 	@POST
 	@RequestMapping("getJobs.htm")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -193,21 +176,22 @@ public class AiravataRestController {
 
 	}
 
-
 	@RequestMapping(value = { "getFile.htm" }, method = RequestMethod.GET)
 	public @ResponseBody void getFile(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(value = "jobId", required = true) String jobId,
-			@RequestParam(value = "status", required = true) String status){
+			@RequestParam(value = "status", required = true) String status) {
 
 		InputStream fis = null;
 		ByteArrayOutputStream bos = null;
 		bos = new ByteArrayOutputStream();
 		int readNum;
 		byte[] buf = new byte[1024];
-		if(LOGGER.isInfoEnabled()){LOGGER.info("getFile() -> Fetching output file. Job Id : " + jobId);}
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("getFile() -> Fetching output file. Job Id : " + jobId);
+		}
 		try {
 			fis = jobManagementService.downloadFile(jobId, status);
-			if(fis == null){
+			if (fis == null) {
 				throw new JobException("Null stream");
 			}
 			for (; (readNum = fis.read(buf)) != -1;) {
@@ -235,7 +219,7 @@ public class AiravataRestController {
 			} catch (IOException e) {
 				LOGGER.error("getFile() ->  Error downloading file", e);
 			}
-			
+
 		}
 
 	}
