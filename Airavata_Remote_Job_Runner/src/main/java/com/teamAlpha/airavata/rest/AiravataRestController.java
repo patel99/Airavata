@@ -73,6 +73,7 @@ public class AiravataRestController {
 		ModelAndView modelAndView = new ModelAndView("monitorJob");
 		modelAndView.addObject("TYPE_PBS", Constants.PBS_JOB_CODE);
 		modelAndView.addObject("TYPE_LAMMPS", Constants.LAMMPS_JOB_CODE);
+		modelAndView.addObject("TYPE_GROMACS", Constants.GROMACS_JOB_CODE);
 		return modelAndView;
 	}
 
@@ -80,7 +81,7 @@ public class AiravataRestController {
 	@Produces(MediaType.APPLICATION_JSON)
 	public @ResponseBody void uploadUsersFile(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam("file") MultipartFile multipartFile, @RequestParam("jobType") int jobType,
-			@RequestParam("noOfNodes") String noOfNodes, @RequestParam("wallTime") String wallTime) {
+			@RequestParam("noOfNodes") String noOfNodes, @RequestParam("procPerNode") String procPerNode, @RequestParam("wallTime") String wallTime) {
 
 		PrintWriter writer = null;
 		JsonArray json = null;
@@ -89,7 +90,7 @@ public class AiravataRestController {
 			writer = response.getWriter();
 			File file = FileUtils.getFileFromMultipartFile(multipartFile);
 			String jobId = jobManagementService.submitJob(file, jobType, privateKeyPath, privateKeyPassphrase,
-					noOfNodes, wallTime);
+					noOfNodes, procPerNode,wallTime);
 			jsono.addProperty("name", file.getName());
 			jsono.addProperty("size", multipartFile.getSize());
 			jsono.addProperty("isFileErrored", false);

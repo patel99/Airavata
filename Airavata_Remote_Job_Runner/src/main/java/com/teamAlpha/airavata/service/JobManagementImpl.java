@@ -416,13 +416,13 @@ public class JobManagementImpl implements JobManagement {
 	}
 
 	@Override
-	public String submitJob(File file, int jobType, String pk, String passPhr, String noOfNodes, String wallTime)
+	public String submitJob(File file, int jobType, String pk, String passPhr, String noOfNodes, String procPerNode,String wallTime)
 			throws FileException, ConnectionException, JobException {
 		ConnectionEssential connectionParameters = new ConnectionEssential();
 		connectionParameters.setHost(hostId);
 		connectionParameters.setUser(userName);
 		connectionParameters.setPort(hostPort);
-
+		System.out.println(noOfNodes);
 		/*
 		 * Need to give the private key
 		 */
@@ -435,6 +435,8 @@ public class JobManagementImpl implements JobManagement {
 		Session s = null;
 
 		File jobFile = null;
+		
+		int totalProcess = Integer.parseInt(noOfNodes)*Integer.parseInt(procPerNode);
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("submitJob() -> Submit job to server queue.");
@@ -446,13 +448,17 @@ public class JobManagementImpl implements JobManagement {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("getSftpChannel() -> Channel created successfully.");
 			}
+			
 			String fileContent = null;
 			if (jobType == Constants.PBS_JOB_CODE) {
-				fileContent = String.format(Constants.PBS_CONTENT, noOfNodes, noOfProcesses, wallTime, remoteFilePath,
-						noOfJobs, "./" + file.getName().substring(0, file.getName().length() - 2) + ".out");
+				fileContent = String.format(Constants.PBS_CONTENT, noOfNodes, procPerNode, wallTime, remoteFilePath,
+						totalProcess, "./" + file.getName().substring(0, file.getName().length() - 2) + ".out");
 			} else if (jobType == Constants.LAMMPS_JOB_CODE) {
-				fileContent = String.format(Constants.LAMMPS_CONTENT, noOfNodes, noOfProcesses, wallTime,
-						remoteFilePath, noOfJobs, file.getName());
+				fileContent = String.format(Constants.LAMMPS_CONTENT, noOfNodes, procPerNode, wallTime,
+						remoteFilePath, totalProcess, file.getName());
+			}else if(jobType == Constants.GROMACS_JOB_CODE){
+				fileContent = String.format(Constants.GROMACS_CONTENT, noOfNodes, procPerNode, wallTime,
+						remoteFilePath, totalProcess, file.getName(), "test.gro");
 			}
 			String tDir = System.getProperty("java.io.tmpdir");
 
@@ -477,6 +483,10 @@ public class JobManagementImpl implements JobManagement {
 			} else if (jobType == Constants.LAMMPS_JOB_CODE) {
 				execChannel.setCommand(
 						Constants.CMD_CD + " " + remoteFilePath + "\n" + Constants.CMD_QSUB + " " + jobFile.getName());
+			}else if(jobType == Constants.GROMACS_JOB_CODE){
+				execChannel.setCommand(
+						Constants.CMD_CD + " " + remoteFilePath + "\n" + Constants.CMD_QSUB + " " + jobFile.getName());
+		
 			}
 			execChannel.setInputStream(null);
 			execChannel.setErrStream(System.err);

@@ -23,6 +23,12 @@
 								placeholder="Enter">
 						</div>
 						<div class="form-group">
+
+							<label>Processors Per Node :</label> <input type="text"
+								class="form-control validation-field" name="procPerNode" id="procPerNode"
+								placeholder="Enter">
+						</div>
+						<div class="form-group">
 							<label>Wall time :</label> <input type="text"
 								class="form-control validation-field" name="wallTime" id="wallTime"
 								placeholder="HH:mm:ss">
@@ -36,7 +42,8 @@
 								placeholder="Select JobType">
 								<option value="" disabled selected>Select</option>
 								<option value="${TYPE_PBS}">PBS</option>
-								<option value="${TYPE_LAMMPS}">LAMMPS</option>
+								<option value="${YPE_LAMMPS}">LAMMPS</option>
+								<option value="${TYPE_GROMACS}">GROMACS</option> 
 							</select>
 						</div>
 

@@ -34,6 +34,16 @@ $(document).ready(function(){
 		  }
 	});
 	
+	$("#procPerNode").keypress(function(e){
+		  var key = e.keyCode || e.which;
+		  key = String.fromCharCode( key );
+		  
+		  if( !regex.test(key) ) {
+		    e.returnValue = false;
+		    if(e.preventDefault) e.preventDefault();
+		  }
+	});
+	
 	$(".validation-field").keypress(function(e){
 		  $(".validation-message").addClass("hide");
 	});
