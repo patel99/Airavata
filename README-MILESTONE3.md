@@ -49,3 +49,6 @@ Next milestone we will have database for all submitted jobs. As of now only jobs
 Currently we have not added any validations for file upload. Next time we will have validations on type of file to be uploaded.
 The output file names are hardcoded as of now. We will append job ids for the same once we maintain database.
 
+
+Please provide us all the parameters for user input properties mentioned above. We will update the same on github so that you will not need to make any changes and would be convenient for you to just take check out and execute.
+
