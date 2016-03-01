@@ -86,6 +86,9 @@ $(document).ready(function (e) {
 		fileLisingDataTable();
 	});
 	
+	setInterval(function(){
+		fileLisingDataTable();
+	}, 2*60*1000);
 	$("#search-fileLogs").click(function(){
 		if(!isValidSearchCriteria()){
 			return;
