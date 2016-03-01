@@ -103,7 +103,8 @@
 		<aside class="right-side"> <section class="content-header">
 		<br/>
 		<h1>Jobs &nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-primary open-overlay">Create
-			Job</button></h1>
+			Job</button>&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" id = "refreshTable" class="btn btn-primary">Refresh
+			</button></h1>
 		<div id="message" class="error hide"></div>
 		<ol class="breadcrumb">
 			<li><a href="test.htm"

@@ -82,6 +82,10 @@ $(document).ready(function (e) {
 	fileLisingDataTable();
 	$(".loading").hide();
 
+	$("#refreshTable").click(function(){
+		fileLisingDataTable();
+	});
+	
 	$("#search-fileLogs").click(function(){
 		if(!isValidSearchCriteria()){
 			return;
