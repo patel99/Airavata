@@ -11,6 +11,7 @@ public class Constants {
 	public final static String CMD_D2U="dos2unix";
 	public final static String CMD_MPICC="mpicc";
 	public final static String CMD_CAT="cat";
+	public final static String JOB_GROMAC="gromacs.job";	
 	public final static int PBS_JOB_CODE = 0;
 	public final static int LAMMPS_JOB_CODE = 1;
 	public final static int GROMACS_JOB_CODE = 2;
@@ -31,6 +32,7 @@ public class Constants {
 	public static String GROMACS_CONTENT = "#!/bin/bash \n"
 			+ "#PBS -l nodes=%1$s:ppn=%2$s \n"
 			+ "#PBS -l walltime=%3$s \n"
+			+ "#PBS -N gromacs.job \n"
 			+ "module load intel \n"
 			+ "module load openmpi/intel/1.6.3 \n"
 			+ "module load gromacs \n"

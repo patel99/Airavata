@@ -128,7 +128,7 @@
 									<th>Job Name</th>
 									<th>Session Id</th>
 									<th>Nodes</th>
-									<th>#Tasks</th>
+									<th>#Processes</th>
 									<th>Memory</th>
 									<th>Time</th>
 									<th>Status</th>

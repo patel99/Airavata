@@ -20,6 +20,6 @@ public interface JobManagement {
 
 	String cancelJob(String jobID) throws FileException, ConnectionException, JobException;
 
-	public InputStream downloadFile(String jobId, String status)
+	public InputStream downloadFile(String jobId, String status, String jobName)
 			throws FileException, ConnectionException, JobException;
 }

@@ -182,7 +182,8 @@ public class AiravataRestController {
 	@RequestMapping(value = { "getFile.htm" }, method = RequestMethod.GET)
 	public @ResponseBody void getFile(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(value = "jobId", required = true) String jobId,
-			@RequestParam(value = "status", required = true) String status) {
+			@RequestParam(value = "status", required = true) String status,
+			@RequestParam(value = "jobName", required = true) String jobName) {
 
 		InputStream fis = null;
 		ByteArrayOutputStream bos = null;
@@ -193,7 +194,7 @@ public class AiravataRestController {
 			LOGGER.info("getFile() -> Fetching output file. Job Id : " + jobId);
 		}
 		try {
-			fis = jobManagementService.downloadFile(jobId, status);
+			fis = jobManagementService.downloadFile(jobId, status, jobName);
 			if (fis == null) {
 				throw new JobException("Null stream");
 			}
@@ -201,9 +202,12 @@ public class AiravataRestController {
 				bos.write(buf, 0, readNum);
 			}
 			ServletOutputStream out = response.getOutputStream();
+			response.setContentType("application/force-download");
+			response.setHeader("Content-Transfer-Encoding", "binary");
+			response.setHeader("Content-Disposition", "attachment;filename=output." + jobId + ".txt");
 			bos.writeTo(out);
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("getFile() -> File downlaoded. JobId : " + jobId + ", Status : " + status);
+				LOGGER.debug("getFile() -> File downlaoded. JobId : " + jobId + ", Status : " + status + ", Job Name : " + jobName);
 			}
 		} catch (IOException e) {
 			LOGGER.error("getFile() ->  Error downloading file", e);
@@ -214,8 +218,7 @@ public class AiravataRestController {
 		} catch (JobException e) {
 			LOGGER.error("getFile() ->  Error downloading file", e);
 		} finally {
-
-			response.setHeader("Content-Disposition", "attachment;filename=output." + jobId + ".txt");
+			
 			try {
 				bos.flush();
 				bos.close();
