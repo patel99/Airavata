@@ -1,3 +1,5 @@
+Wiki Link - https://github.com/airavata-courses/TeamAlpha/wiki/3.-Project-Milestone-3:-Details-and-Instructions
+
 Instructions for Milestone-3 execution:
 
 PostgreSQL is needed to setup the database. The scripts are provided in db scripts folder. 
