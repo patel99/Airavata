@@ -134,6 +134,8 @@
 									<th>Time</th>
 									<th>Status</th>
 									<th>Elapsed Time</th>
+									<th>Insert TS</th>
+									<th>Update TS</th>
 									<th>Action</th>
 								</tr>
 							</thead>

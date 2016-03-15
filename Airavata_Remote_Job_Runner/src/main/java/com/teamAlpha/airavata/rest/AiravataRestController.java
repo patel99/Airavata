@@ -18,6 +18,7 @@ import javax.ws.rs.core.MediaType;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -30,6 +31,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.teamAlpha.airavata.domain.JobDetails;
+import com.teamAlpha.airavata.domain.User;
 import com.teamAlpha.airavata.exception.ConnectionException;
 import com.teamAlpha.airavata.exception.FileException;
 import com.teamAlpha.airavata.exception.JobException;
@@ -168,6 +170,7 @@ public class AiravataRestController {
 		List<JobDetails> jobDetailsList = new ArrayList<JobDetails>();
 		Gson gson = new Gson();
 		JsonObject jsonResponse = new JsonObject();
+		Object user = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		try {
 			jobDetailsList = jobManagementService.monitorJob(privateKeyPath, privateKeyPassphrase);
 

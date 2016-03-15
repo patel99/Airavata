@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.teamAlpha.airavata.domain.JobDetails;
+import com.teamAlpha.airavata.domain.Status;
+import com.teamAlpha.airavata.domain.User;
 
 @Component
 public class JobDetailParser {
@@ -60,10 +62,12 @@ public class JobDetailParser {
 
 			switch (index) {
 			case 0:
-				job.setId(st.nextToken());
+				job.setJobId(st.nextToken());
 				break;
 			case 1:
-				job.setUserName(st.nextToken());
+				User user = new User();
+				user.setUsername(st.nextToken());
+				job.setUser(user);
 				break;
 			case 2:
 				job.setQueueType(st.nextToken());
@@ -87,7 +91,9 @@ public class JobDetailParser {
 				job.setTime(st.nextToken());
 				break;
 			case 9:
-				job.setStatus(st.nextToken());
+				Status status = new Status();
+				status.setName(st.nextToken());
+				job.setStatus(status);
 				break;
 			case 10:
 				job.setElapTime(st.nextToken());
@@ -97,7 +103,7 @@ public class JobDetailParser {
 			}
 			index++;
 			if (index == 11) {
-				if (null != job && job.getId() != null) {
+				if (null != job && job.getJobId() != null) {
 					jobDetails.add(job);
 				}
 				job = new JobDetails();

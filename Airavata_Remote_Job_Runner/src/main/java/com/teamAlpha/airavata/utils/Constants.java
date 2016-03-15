@@ -1,5 +1,11 @@
 package com.teamAlpha.airavata.utils;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.teamAlpha.airavata.domain.Status;
+import com.teamAlpha.airavata.domain.Type;
+
 public class Constants {
 
 	
@@ -38,4 +44,51 @@ public class Constants {
 			+ "module load gromacs \n"
 			+ "cd %4$s \n"
 			+ "mpirun -np %5$s mdrun_mpi_d -s %6$s -c %7$s\n";
+	
+	public static final Map<Integer, Status> JOB_STATUS_MAP = new HashMap<Integer, Status>();
+	
+	public static final int JOB_STATUS_QUEUED = 1;
+	public static final int JOB_STATUS_RUNNING = 2;
+	public static final int JOB_STATUS_COMPLETED = 3;
+	public static final int JOB_STATUS_CANCELLED = 4;
+	
+	public static final Map<Integer, Type> JOB_TYPE_MAP = new HashMap<Integer, Type>();
+	
+	public static final int JOB_TYPE_PBS = 1;
+	public static final int JOB_TYPE_LAMMPS = 2;
+	public static final int JOB_TYPE_GROMACS = 3;
+	
+	public static final void setStatusMap(){
+		Status s = new Status();
+		s.setName("QUEUED");
+		s.setName("Q");
+		JOB_STATUS_MAP.put(JOB_STATUS_QUEUED, s);
+		s = new Status();
+		s.setName("RUNNING");
+		s.setName("R");
+		JOB_STATUS_MAP.put(JOB_STATUS_RUNNING, s);
+		s = new Status();
+		s.setName("COMPLETED");
+		s.setName("C");
+		JOB_STATUS_MAP.put(JOB_STATUS_COMPLETED, s);
+		s = new Status();
+		s.setName("Cancelled");
+		s.setName("C");
+		JOB_STATUS_MAP.put(JOB_STATUS_CANCELLED, s);
+	}
+	
+	public static final void setTypeMap(){
+		Type t = new Type();
+		t.setName("PBS");
+		t.setName("PBS");
+		JOB_TYPE_MAP.put(JOB_TYPE_PBS, t);
+		t = new Type();
+		t.setName("LAMMPS");
+		t.setName("LAMMPS");
+		JOB_TYPE_MAP.put(JOB_TYPE_LAMMPS, t);
+		t = new Type();
+		t.setName("GROMACS");
+		t.setName("GROMACS");
+		JOB_TYPE_MAP.put(JOB_TYPE_GROMACS, t);
+	}
 }

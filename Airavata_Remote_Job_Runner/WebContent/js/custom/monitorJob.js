@@ -28,7 +28,7 @@ var dtTable;
 
 var tblColumns = [{"mDataProp": null, sDefaultContent: "", "bSortable": false, "sClass": "sr-no all"},		               
 	               {"mDataProp": "id", sDefaultContent: "", "aTargets": [  ], "sClass":"all job-id"},
-	               {"mDataProp": "userName", sDefaultContent: "", "sClass":"all user-name"},
+	               {"mDataProp": "user.username", sDefaultContent: "", "sClass":"all user-name"},
 	               {"mDataProp": "queueType", sDefaultContent: "", "sClass":"all queue-type"},
 	               {"mDataProp": "jobName", sDefaultContent: "", "sClass":"all job-name"},
 	               {"mDataProp": "sessionId", sDefaultContent: "", "sClass": "session-id"},
@@ -36,8 +36,10 @@ var tblColumns = [{"mDataProp": null, sDefaultContent: "", "bSortable": false, "
 	               {"mDataProp": "noOfTasks",sDefaultContent: "", "sClass": "no-of-tasks"},		               
 	               {"mDataProp": "memory", sDefaultContent: "","sClass": "memory"},
 	               {"mDataProp": "time", sDefaultContent: "", "bSortable": false, "sClass": "time"},
-	               {"mDataProp": "status", sDefaultContent: "", "sClass": "job-status"},
+	               {"mDataProp": "status.name", sDefaultContent: "", "sClass": "job-status"},
 	               {"mDataProp": "elapTime", sDefaultContent: "", "sClass": "elap-time"},
+	               {"mDataProp": "insts", sDefaultContent: "", "sClass": "insts"},
+	               {"mDataProp": "updts", sDefaultContent: "", "sClass": "updts"},
 	               {"mDataProp": null, sDefaultContent: "", "sClass": "action"}
 	               ];
 	

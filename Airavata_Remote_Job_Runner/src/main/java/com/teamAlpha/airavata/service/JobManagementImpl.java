@@ -23,6 +23,7 @@ import com.teamAlpha.airavata.exception.ConnectionException;
 import com.teamAlpha.airavata.exception.FileException;
 import com.teamAlpha.airavata.exception.JobException;
 import com.teamAlpha.airavata.net.Connection;
+import com.teamAlpha.airavata.repo.JobRepo;
 import com.teamAlpha.airavata.utils.Constants;
 import com.teamAlpha.airavata.utils.JobDetailParser;
 import com.teamAlpha.airavata.utils.Utilities;
@@ -83,7 +84,10 @@ public class JobManagementImpl implements JobManagement {
 
 	@Autowired
 	JobDetailParser jobDetails;
-
+	
+	@Autowired
+	JobRepo jobRepo;
+	
 	private static final Logger LOGGER = LogManager.getLogger(JobManagementImpl.class);
 
 	/*
@@ -266,13 +270,13 @@ public class JobManagementImpl implements JobManagement {
 			jobs.clear();
 			jobs = jobDetails.jobDataParser(jobData);
 			for (JobDetails job : jobs) {
-				if (job.getId().equalsIgnoreCase(jobId)) {
-					if (job.getStatus().equalsIgnoreCase(completedStatus)) {
+				if (job.getJobId().equalsIgnoreCase(jobId)) {
+					if (job.getStatus().getName().equalsIgnoreCase(completedStatus)) {
 						if (LOGGER.isDebugEnabled()) {
 							LOGGER.debug("getJobStatus() -> Job Completed. Job Id : " + jobId + ", Status : "
 									+ job.getStatus());
 						}
-						jobStatus = job.getStatus();
+						jobStatus = job.getStatus().getName();
 						break;
 					} else {
 						if (!attemptSet) {
@@ -389,12 +393,12 @@ public class JobManagementImpl implements JobManagement {
 		jobs = jobDetails.jobDataParser(jobData);
 		JobDetails job = null;
 		for (JobDetails jobDetails : jobs) {
-			if (jobDetails.getId().equalsIgnoreCase(jobId)) {
+			if (jobDetails.getJobId().equalsIgnoreCase(jobId)) {
 				job = jobDetails;
 				break;
 			}
 		}
-		if (job.getStatus().equalsIgnoreCase(completedStatus)) {
+		if (job.getStatus().getName().equalsIgnoreCase(completedStatus)) {
 
 			LOGGER.error("cancelJob() -> Job Completed error. Job Id : " + jobId + ", Status : " + job.getStatus());
 
@@ -409,6 +413,9 @@ public class JobManagementImpl implements JobManagement {
 			execChannel.setInputStream(null);
 			execChannel.setErrStream(System.err);
 			execChannel.connect();
+			
+			if(LOGGER.isDebugEnabled()){LOGGER.debug("cancelJob() -> Jon cancelled. Updating database record. Job Id : " + jobId);}
+			jobRepo.changeStatus(jobId, Constants.JOB_STATUS_CANCELLED);
 		}
 
 		return jobDeleted;
@@ -522,7 +529,6 @@ public class JobManagementImpl implements JobManagement {
 	@Override
 	public List<JobDetails> monitorJob(String pk, String passPhr)
 			throws FileException, ConnectionException, JobException {
-		// TODO Auto-generated method stub
 
 		ConnectionEssential connectionParameters = new ConnectionEssential();
 		connectionParameters.setHost(hostId);
