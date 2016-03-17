@@ -76,14 +76,17 @@ public class AiravataRestController {
 		modelAndView.addObject("TYPE_PBS", Constants.PBS_JOB_CODE);
 		modelAndView.addObject("TYPE_LAMMPS", Constants.LAMMPS_JOB_CODE);
 		modelAndView.addObject("TYPE_GROMACS", Constants.GROMACS_JOB_CODE);
+		modelAndView.addObject("HOST_KARST", Constants.KARST_HOST_CODE);
+		modelAndView.addObject("HOST_BIGRED2", Constants.BIGRED2_HOST_CODE);
 		return modelAndView;
 	}
 
 	@RequestMapping(value = { "uploadJob.htm" }, method = RequestMethod.POST)
 	@Produces(MediaType.APPLICATION_JSON)
 	public @ResponseBody void uploadUsersFile(HttpServletRequest request, HttpServletResponse response,
-			@RequestParam("file") MultipartFile multipartFile, @RequestParam("jobType") int jobType,
-			@RequestParam("noOfNodes") String noOfNodes, @RequestParam("procPerNode") String procPerNode, @RequestParam("wallTime") String wallTime) {
+			@RequestParam("file") MultipartFile multipartFile, @RequestParam("hostType") int hostType,
+			@RequestParam("jobType") int jobType, @RequestParam("noOfNodes") String noOfNodes, 
+			@RequestParam("procPerNode") String procPerNode, @RequestParam("wallTime") String wallTime) {
 
 		PrintWriter writer = null;
 		JsonArray json = null;
@@ -91,7 +94,7 @@ public class AiravataRestController {
 		try {
 			writer = response.getWriter();
 			File file = FileUtils.getFileFromMultipartFile(multipartFile);
-			String jobId = jobManagementService.submitJob(file, jobType, privateKeyPath, privateKeyPassphrase,
+			String jobId = jobManagementService.submitJob(file, hostType, jobType, privateKeyPath, privateKeyPassphrase,
 					noOfNodes, procPerNode,wallTime);
 			jsono.addProperty("name", file.getName());
 			jsono.addProperty("size", multipartFile.getSize());
@@ -129,7 +132,7 @@ public class AiravataRestController {
 
 	@RequestMapping(value = { "cancelJob.htm" }, method = RequestMethod.POST)
 	public @ResponseBody String getCancelJobStatus(HttpServletRequest request, HttpServletResponse response,
-			@RequestParam("jobId") String jobId) {
+			@RequestParam("jobId") String jobId, @RequestParam("hostType") String hostType) {
 
 		JsonObject jsonResponse = new JsonObject();
 		String message = null;
@@ -138,7 +141,7 @@ public class AiravataRestController {
 				LOGGER.info("cancelJob() -> Cancelling Job. Job Id : " + jobId);
 			}
 
-			message = jobManagementService.cancelJob(jobId);
+			message = jobManagementService.cancelJob(jobId, Integer.parseInt(hostType));
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("cancelJob() ->Job cancelled. Job Id : " + jobId);

@@ -232,12 +232,12 @@ function fileLisingDataTable(){
 }
 
 
-function cancel(jobId){
+function cancel(jobId, hostType){
 	console.log(jobId)	
 	$.ajax({
 		url: 'cancelJob.htm',
 		type: 'POST',
-		data: {jobId : jobId},
+		data: {jobId : jobId , hostType : hostType},
 		dataType: 'json',
 		contentType: 'application/x-www-form-urlencoded; charset=utf-8',
 	    mimeType: 'application/json',

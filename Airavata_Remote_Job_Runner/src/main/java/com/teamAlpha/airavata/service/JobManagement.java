@@ -11,14 +11,13 @@ import com.teamAlpha.airavata.exception.JobException;
 
 public interface JobManagement {
 
-	String submitJob() throws FileException, ConnectionException, JobException;
 
-	String submitJob(File file, int jobType, String pk, String passPhr, String noOfNodes, String procPerNode,String wallTime)
+	String submitJob(File file, int hostType, int jobType, String pk, String passPhr, String noOfNodes, String procPerNode,String wallTime)
 			throws FileException, ConnectionException, JobException;
 
 	List<JobDetails> monitorJob(String pk, String passPhr) throws FileException, ConnectionException, JobException;
 
-	String cancelJob(String jobID) throws FileException, ConnectionException, JobException;
+	String cancelJob(String jobID, int hostType) throws FileException, ConnectionException, JobException;
 
 	public InputStream downloadFile(String jobId, String status, String jobName)
 			throws FileException, ConnectionException, JobException;

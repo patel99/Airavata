@@ -33,6 +33,18 @@
 								class="form-control validation-field" name="wallTime" id="wallTime"
 								placeholder="HH:mm:ss">
 						</div>
+						
+						<div class="form-group">
+							<label>Select Cluster</label>
+							<!-- <input type="text" -->
+							<!-- class="form-control" name="jobType" id="jobType" placeholder="Enter"> -->
+							<select class="form-control" name="hostType" id="hostType"
+								placeholder="Select JobType">
+								<option value="" disabled selected>Select</option>
+								<option value="${HOST_KARST}">Karst</option>
+								<option value="${HOST_BIGRED2}">Big Red 2</option>
+							</select>
+						</div>
 
 						<div class="form-group">
 							<label>Job Type</label>

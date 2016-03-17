@@ -94,5 +94,9 @@ function validate() {
 		  msg = "* Please select job type.";
 		  isValid = false;	
 	  }
+	  else if($("#hostType").val() == null){
+		  msg = "* Please select job type.";
+		  isValid = false;	
+	  }
 	  return isValid;
 }
