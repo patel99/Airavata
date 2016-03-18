@@ -35,7 +35,9 @@ import com.teamAlpha.airavata.domain.User;
 import com.teamAlpha.airavata.exception.ConnectionException;
 import com.teamAlpha.airavata.exception.FileException;
 import com.teamAlpha.airavata.exception.JobException;
+import com.teamAlpha.airavata.exception.UserManagementException;
 import com.teamAlpha.airavata.service.JobManagement;
+import com.teamAlpha.airavata.service.UserManagementService;
 import com.teamAlpha.airavata.utils.Constants;
 import com.teamAlpha.airavata.utils.FileUtils;
 
@@ -52,6 +54,9 @@ public class AiravataRestController {
 
 	@Autowired
 	private JobManagement jobManagementService;
+	
+	@Autowired
+	private UserManagementService userManagementService;
 
 	@RequestMapping(value = { "applet.htm" }, method = RequestMethod.GET)
 	public ModelAndView showApplet() {
@@ -68,7 +73,7 @@ public class AiravataRestController {
 
 		return modelAndView;
 	}
-	
+
 	@RequestMapping(value = { "register.htm" }, method = RequestMethod.GET)
 	public ModelAndView showRegistration() {
 
@@ -93,7 +98,7 @@ public class AiravataRestController {
 	@Produces(MediaType.APPLICATION_JSON)
 	public @ResponseBody void uploadUsersFile(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam("file") MultipartFile multipartFile, @RequestParam("hostType") int hostType,
-			@RequestParam("jobType") int jobType, @RequestParam("noOfNodes") String noOfNodes, 
+			@RequestParam("jobType") int jobType, @RequestParam("noOfNodes") String noOfNodes,
 			@RequestParam("procPerNode") String procPerNode, @RequestParam("wallTime") String wallTime) {
 
 		PrintWriter writer = null;
@@ -103,7 +108,7 @@ public class AiravataRestController {
 			writer = response.getWriter();
 			File file = FileUtils.getFileFromMultipartFile(multipartFile);
 			String jobId = jobManagementService.submitJob(file, hostType, jobType, privateKeyPath, privateKeyPassphrase,
-					noOfNodes, procPerNode,wallTime);
+					noOfNodes, procPerNode, wallTime);
 			jsono.addProperty("name", file.getName());
 			jsono.addProperty("size", multipartFile.getSize());
 			jsono.addProperty("isFileErrored", false);
@@ -223,7 +228,8 @@ public class AiravataRestController {
 			response.setHeader("Content-Disposition", "attachment;filename=output." + jobId + ".tar");
 			bos.writeTo(out);
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("getFile() -> File downlaoded. JobId : " + jobId + ", Status : " + status + ", Job Name : " + jobName);
+				LOGGER.debug("getFile() -> File downlaoded. JobId : " + jobId + ", Status : " + status + ", Job Name : "
+						+ jobName);
 			}
 		} catch (IOException e) {
 			LOGGER.error("getFile() ->  Error downloading file", e);
@@ -234,7 +240,7 @@ public class AiravataRestController {
 		} catch (JobException e) {
 			LOGGER.error("getFile() ->  Error downloading file", e);
 		} finally {
-			
+
 			try {
 				bos.flush();
 				bos.close();
@@ -244,6 +250,44 @@ public class AiravataRestController {
 
 		}
 
+	}
+
+	@RequestMapping(value = { "addUser.htm" }, method = RequestMethod.POST)
+	@Produces(MediaType.APPLICATION_JSON)
+	public @ResponseBody ModelAndView addUser(HttpServletRequest request, HttpServletResponse response,
+			@RequestParam("username") String username, @RequestParam("password") String password,
+			@RequestParam("role") String role) {
+		User user = new User();
+		user.setUsername(username);
+		user.setPassword(password);
+		user.setRole(role);
+		user.setEnabled(true);
+
+		ModelAndView modelAndView;
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("addUser() -> Adding user. User : " + user.toString());
+		}
+
+		int rowsInserted;
+		try {
+			rowsInserted = userManagementService.add(user);
+			if (rowsInserted == 0) {
+				throw new UserManagementException("Error adding user.");
+			}
+			modelAndView = new ModelAndView("login");
+
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("addUser() -> User added. User : " + user.toString());
+			}
+
+		} catch (UserManagementException e) {
+			LOGGER.error("addUser() ->  Error adding user", e);
+			modelAndView = new ModelAndView("registration");
+			modelAndView.addObject("error", e.getMessage());
+		}
+
+		return modelAndView;
 	}
 
 }
