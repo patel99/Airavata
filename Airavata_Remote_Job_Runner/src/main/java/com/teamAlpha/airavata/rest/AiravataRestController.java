@@ -68,6 +68,14 @@ public class AiravataRestController {
 
 		return modelAndView;
 	}
+	
+	@RequestMapping(value = { "register.htm" }, method = RequestMethod.GET)
+	public ModelAndView showRegistration() {
+
+		ModelAndView modelAndView = new ModelAndView("registration");
+
+		return modelAndView;
+	}
 
 	@RequestMapping(value = { "test.htm" }, method = RequestMethod.GET)
 	public ModelAndView showAuthorizationMatrix() {

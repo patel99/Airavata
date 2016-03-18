@@ -4,6 +4,7 @@ public class User {
 	
 	private int id;
 	private String username;
+	private String password;
 	private String role;
 	private boolean enabled;
 	public int getId() {
@@ -30,6 +31,12 @@ public class User {
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
+	public String getPassword() {
+		return password;
+	}
+	public void setPassword(String password) {
+		this.password = password;
+	}
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -37,6 +44,8 @@ public class User {
 		builder.append(id);
 		builder.append(", username=");
 		builder.append(username);
+		builder.append(", password=");
+		builder.append(password);
 		builder.append(", role=");
 		builder.append(role);
 		builder.append(", enabled=");
@@ -44,6 +53,7 @@ public class User {
 		builder.append("]");
 		return builder.toString();
 	}
+	
 	
 	
 }

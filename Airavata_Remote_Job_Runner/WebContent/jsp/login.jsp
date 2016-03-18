@@ -41,8 +41,10 @@
 	          	</div>
 				<p id="error" style="width: 200px;color: red"></p>
 			</div>
+			
 			<div class="footer">
 				<button type="submit" class="btn bg-maroon btn-block" id="loginSubmit">Sign me in</button>
+				<a href="register.htm" class="text-center">Sign Up</a>
 				<div class="footer">
 					<div>Copyright © 2016 The Apache Software Foundation</div>
 				</div>
