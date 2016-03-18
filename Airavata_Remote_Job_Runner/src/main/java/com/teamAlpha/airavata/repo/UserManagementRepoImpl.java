@@ -25,8 +25,8 @@ public class UserManagementRepoImpl implements UserManagementRepo{
 	@Autowired
 	NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-	private static final String INSERT_USER_DETAILS = " INSERT INTO job_details (user_id, username, password, role, enabled"
-			+ " VALUES (:id, :username, :password, :role, :enabled)";
+	private static final String INSERT_USER_DETAILS = " INSERT INTO airavata_user (username, password, role)"
+			+ " VALUES (:username, :password, :role)";
 	
 	@Override
 	public int add(User user) {
@@ -36,12 +36,9 @@ public class UserManagementRepoImpl implements UserManagementRepo{
 
 		Map<String, Object> params = new HashMap<String, Object>();
 
-		params.put("id", user.getId());
 		params.put("username", user.getUsername());
 		params.put("password", user.getPassword());
 		params.put("role", user.getRole());
-		params.put("enabled", user.isEnabled());
-		
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("add() -> Saving user details. User Details : " + user.toString() + ", SQL : "

@@ -252,15 +252,14 @@ public class AiravataRestController {
 
 	}
 
-	@RequestMapping(value = { "addUser.htm" }, method = RequestMethod.POST)
+	@RequestMapping(value = { "register.htm" }, method = RequestMethod.POST)
 	@Produces(MediaType.APPLICATION_JSON)
 	public @ResponseBody ModelAndView addUser(HttpServletRequest request, HttpServletResponse response,
-			@RequestParam("username") String username, @RequestParam("password") String password,
-			@RequestParam("role") String role) {
+			@RequestParam("username") String username, @RequestParam("password") String password) {
 		User user = new User();
 		user.setUsername(username);
 		user.setPassword(password);
-		user.setRole(role);
+		user.setRole("ROLE_USER");
 		user.setEnabled(true);
 
 		ModelAndView modelAndView;

@@ -4,6 +4,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import com.teamAlpha.airavata.domain.User;
@@ -25,7 +26,10 @@ public class UserManagementServiceImpl implements UserManagementService {
 		try{
 			rowInserted = userManagementRepo.add(user);
 		}catch(DataAccessException e){
-			
+			if(e instanceof DuplicateKeyException){
+				LOGGER.error("add() -> Error adding user. User : " + user.toString(), e);
+				throw new UserManagementException("Username already exists.");
+			}
 			LOGGER.error("add() -> Error adding user. User : " + user.toString(), e);
 			throw new UserManagementException("Error adding user.");
 		}

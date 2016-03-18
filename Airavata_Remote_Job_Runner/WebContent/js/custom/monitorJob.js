@@ -27,7 +27,7 @@ var pdfViewTag='<object id="object-pdf" standby="LOADING....." class="pdf-view h
 var dtTable;
 
 var tblColumns = [{"mDataProp": null, sDefaultContent: "", "bSortable": false, "sClass": "sr-no all"},		               
-	               {"mDataProp": "id", sDefaultContent: "", "aTargets": [  ], "sClass":"all job-id"},
+	               {"mDataProp": "jobId", sDefaultContent: "", "aTargets": [  ], "sClass":"all job-id"},
 	               {"mDataProp": "user.username", sDefaultContent: "", "sClass":"all user-name"},
 	               {"mDataProp": "queueType", sDefaultContent: "", "sClass":"all queue-type"},
 	               {"mDataProp": "jobName", sDefaultContent: "", "sClass":"all job-name"},
@@ -180,9 +180,9 @@ function fileLisingDataTable(){
 		//"bServerSide": true,
 		"sAjaxSource": "getJobs.htm",
 		"bPaginate": true,
-		"bLengthChange":false,
+		"bLengthChange":true,
 		"iDisplayLength" : 10,
-		"bFilter":false,
+		"bFilter":true,
 		"aoColumns": tblColumns,
 		
 	

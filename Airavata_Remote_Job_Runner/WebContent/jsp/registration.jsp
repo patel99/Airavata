@@ -33,18 +33,18 @@
 
     <form id="registration-form" name="registration-form" action="register.htm" method="post">
       <div class="form-group has-feedback">
-        <input type="text" id="username" class="form-control" placeholder="User Name">
+        <input type="text" id="username" name="username" class="form-control" placeholder="User Name">
         <span class="glyphicon glyphicon-user form-control-feedback"></span>
       </div>
       <div class="form-group has-feedback">
-        <input type="password" id="password" class="form-control" placeholder="Password">
+        <input type="password" id="password" name="password" class="form-control" placeholder="Password">
         <span class="glyphicon glyphicon-lock form-control-feedback"></span>
       </div>
       <div class="form-group has-feedback">
         <input type="password" id="passwordR" class="form-control" placeholder="Retype password">
         <span class="glyphicon glyphicon-log-in form-control-feedback"></span>
       </div>
-      <p id="error" style="width: 200px;color: red"></p>
+      <p id="error" style="width: 200px;color: red">${error}</p>
       <div class="row">
         <!-- /.col -->
         <div class="col-xs-12">

@@ -36,8 +36,8 @@
 	<authentication-manager>
 		<authentication-provider>
 			<jdbc-user-service data-source-ref="dataSource"
-				users-by-username-query="select username,password,id,enabled from airavata_user where username=?"
-               authorities-by-username-query="select username,id,role from airavata_user where username=?" />				
+				users-by-username-query="select username,password,enabled from airavata_user where username=?"
+               authorities-by-username-query="select username,role from airavata_user where username=?" />				
 		</authentication-provider>
 	</authentication-manager>
 
