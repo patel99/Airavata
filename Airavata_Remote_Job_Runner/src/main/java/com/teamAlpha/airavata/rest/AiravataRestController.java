@@ -189,7 +189,9 @@ public class AiravataRestController {
 	public @ResponseBody void getFile(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(value = "jobId", required = true) String jobId,
 			@RequestParam(value = "status", required = true) String status,
-			@RequestParam(value = "jobName", required = true) String jobName) {
+			@RequestParam(value = "jobName", required = true) String jobName,
+			@RequestParam(value = "jobFolder", required = true) String jobFolder,
+			@RequestParam(value = "hostType", required = true) String hostType) {
 
 		InputStream fis = null;
 		ByteArrayOutputStream bos = null;
@@ -200,7 +202,7 @@ public class AiravataRestController {
 			LOGGER.info("getFile() -> Fetching output file. Job Id : " + jobId);
 		}
 		try {
-			fis = jobManagementService.downloadFile(jobId, status, jobName);
+			fis = jobManagementService.downloadFile(jobId, status, jobName, jobFolder, Integer.parseInt(hostType));
 			if (fis == null) {
 				throw new JobException("Null stream");
 			}
@@ -210,7 +212,7 @@ public class AiravataRestController {
 			ServletOutputStream out = response.getOutputStream();
 			response.setContentType("application/force-download");
 			response.setHeader("Content-Transfer-Encoding", "binary");
-			response.setHeader("Content-Disposition", "attachment;filename=output." + jobId + ".txt");
+			response.setHeader("Content-Disposition", "attachment;filename=output." + jobId + ".tar");
 			bos.writeTo(out);
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("getFile() -> File downlaoded. JobId : " + jobId + ", Status : " + status + ", Job Name : " + jobName);

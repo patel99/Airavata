@@ -19,6 +19,6 @@ public interface JobManagement {
 
 	String cancelJob(String jobID, int hostType) throws FileException, ConnectionException, JobException;
 
-	public InputStream downloadFile(String jobId, String status, String jobName)
+	public InputStream downloadFile(String jobId, String status, String jobName, String jobFolder, int hostType)
 			throws FileException, ConnectionException, JobException;
 }

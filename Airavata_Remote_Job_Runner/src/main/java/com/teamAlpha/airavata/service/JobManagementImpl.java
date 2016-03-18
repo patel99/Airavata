@@ -517,9 +517,15 @@ public class JobManagementImpl implements JobManagement {
 
 	}
 
-	public InputStream downloadFile(String jobId, String status, String jobName)
+	public InputStream downloadFile(String jobId, String status, String jobName, String jobFolder, int hostType)
 			throws FileException, ConnectionException, JobException {
-
+		
+		if(hostType == Constants.KARST_HOST_CODE){
+			hostId = karstHost;
+		}
+		else if(hostType == Constants.BIGRED2_HOST_CODE){
+			hostId = bigred2Host;
+		}
 		ConnectionEssential connectionParameters = new ConnectionEssential();
 		connectionParameters.setHost(hostId);
 		connectionParameters.setUser(userName);
@@ -533,8 +539,9 @@ public class JobManagementImpl implements JobManagement {
 
 		Session s = null;
 		InputStream in = null;
-		String dataFromServer = null;
+		//String dataFromServer = null;
 		InputStream inputFile;
+		String resultFileName = "result.tar";
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("downloadFile() -> Fetching output file. Job Id : " + jobId);
@@ -543,10 +550,34 @@ public class JobManagementImpl implements JobManagement {
 
 			if (null != status && status.equalsIgnoreCase("Completed")) {
 				s = connection.getSession(connectionParameters);
+				execChannel = connection.getExecChannel(s);
+				sftpChannel = connection.getSftpChannel(s);
+				if (LOGGER.isInfoEnabled()) 
+					LOGGER.info("tarFile() -> Generating tar for Job Id : " + jobId);
+				execChannel.setCommand(Constants.CMD_CD + " " + remoteFilePath + "/" + jobFolder+"\n "
+						+ Constants.CMD_TAR +" -cf "+resultFileName+" *" +" \n");
 				
+				in = execChannel.getInputStream();
+
+				execChannel.setInputStream(null);
+				execChannel.setErrStream(System.err);
+				execChannel.connect();
+				
+				if (LOGGER.isInfoEnabled()) 
+					LOGGER.info("downloadFile() -> Fetching output file. Job Id : " + jobId);
+				
+				inputFile = fileManagement.getFile(filePath, remoteFilePath +"/"+ jobFolder + "/" + resultFileName, sftpChannel);
+				
+				if(inputFile == null){
+					if (LOGGER.isDebugEnabled()) 
+						LOGGER.debug("downloadFile() -> Error file content for jobFolder " + jobFolder +" & jobID "+jobId);
+				}
+				
+				return inputFile;
+				/*
 				if (jobName.equalsIgnoreCase(Constants.JOB_GROMAC)) {
 					if (LOGGER.isInfoEnabled()) {
-						LOGGER.info("downloadFile() -> Fetching output file. Job Id : " + jobId + ", Job Name : " + jobName);
+						LOGGER.info("downloadFile() -> Fetching output file Job Id : " + jobId + ", Job Name : " + jobName);
 					}
 					sftpChannel = connection.getSftpChannel(s);
 					inputFile = fileManagement.getFile(filePath,
@@ -600,6 +631,8 @@ public class JobManagementImpl implements JobManagement {
 
 					}
 				}
+				
+				*/
 			}
 		} catch (IOException e) {
 

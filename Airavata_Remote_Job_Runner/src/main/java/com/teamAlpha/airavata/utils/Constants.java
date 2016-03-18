@@ -15,6 +15,7 @@ public class Constants {
 	public final static String CMD_D2U="dos2unix";
 	public final static String CMD_MPICC="mpicc";
 	public final static String CMD_CAT="cat";
+	public final static String CMD_TAR="tar";
 	public final static String JOB_GROMAC="gromacs.job";	
 	public final static int PBS_JOB_CODE = 0;
 	public final static int LAMMPS_JOB_CODE = 1;
