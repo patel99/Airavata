@@ -10,8 +10,8 @@ public class JobDetails {
 	private String queueType;
 	private String jobName;
 	private String sessionId;
-	private String nodes;
-	private String noOfTasks;
+	private int nodes;
+	private int noOfTasks;
 	private String memory;
 	private String time;
 	private Status status;
@@ -19,7 +19,8 @@ public class JobDetails {
 	private Type type;
 	private Timestamp insts;
 	private Timestamp updts;
-	
+	private Host host;
+	private String remotePath;
 	
 	public int getId() {
 		return id;
@@ -78,25 +79,25 @@ public class JobDetails {
 	/**
 	 * @return the nodes
 	 */
-	public String getNodes() {
+	public int getNodes() {
 		return nodes;
 	}
 	/**
 	 * @param nodes the nodes to set
 	 */
-	public void setNodes(String nodes) {
+	public void setNodes(int nodes) {
 		this.nodes = nodes;
 	}
 	/**
 	 * @return the noOfTasks
 	 */
-	public String getNoOfTasks() {
+	public int getNoOfTasks() {
 		return noOfTasks;
 	}
 	/**
 	 * @param noOfTasks the noOfTasks to set
 	 */
-	public void setNoOfTasks(String noOfTasks) {
+	public void setNoOfTasks(int noOfTasks) {
 		this.noOfTasks = noOfTasks;
 	}
 	/**
@@ -161,6 +162,21 @@ public class JobDetails {
 	public void setUpdts(Timestamp updts) {
 		this.updts = updts;
 	}
+		
+	public Host getHost() {
+		return host;
+	}
+	public void setHost(Host host) {
+		this.host = host;
+	}
+	
+	
+	public String getRemotePath() {
+		return remotePath;
+	}
+	public void setRemotePath(String remotePath) {
+		this.remotePath = remotePath;
+	}
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -194,8 +210,11 @@ public class JobDetails {
 		builder.append(insts);
 		builder.append(", updts=");
 		builder.append(updts);
+		builder.append(", host=");
+		builder.append(host);
+		builder.append(", remotePath=");
+		builder.append(remotePath);
 		builder.append("]");
 		return builder.toString();
 	}
-	
 }

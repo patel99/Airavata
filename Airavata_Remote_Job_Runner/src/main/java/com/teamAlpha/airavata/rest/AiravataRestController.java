@@ -104,24 +104,25 @@ public class AiravataRestController {
 		PrintWriter writer = null;
 		JsonArray json = null;
 		JsonObject jsono = new JsonObject();
+		String user = SecurityContextHolder.getContext().getAuthentication().getName();
 		try {
 			writer = response.getWriter();
 			File file = FileUtils.getFileFromMultipartFile(multipartFile);
 			String jobId = jobManagementService.submitJob(file, hostType, jobType, privateKeyPath, privateKeyPassphrase,
-					noOfNodes, procPerNode, wallTime);
+					noOfNodes, procPerNode, wallTime, user);
 			jsono.addProperty("name", file.getName());
 			jsono.addProperty("size", multipartFile.getSize());
 			jsono.addProperty("isFileErrored", false);
 			json = new JsonArray();
 			json.add(jsono);
 		} catch (IOException e) {
-			LOGGER.error("Error uploading file");
+			LOGGER.error("Error uploading file", e);
 		} catch (FileException e) {
-			LOGGER.error("Error uploading file");
+			LOGGER.error("Error uploading file", e);
 		} catch (ConnectionException e) {
-			LOGGER.error("Error uploading file");
+			LOGGER.error("Error uploading file", e);
 		} catch (JobException e) {
-			LOGGER.error("Error uploading file");
+			LOGGER.error("Error uploading file", e);
 		} finally {
 			if (null == json || json.size() == 0) {
 				jsono.addProperty("name", multipartFile.getOriginalFilename());
@@ -212,7 +213,6 @@ public class AiravataRestController {
 			@RequestParam(value = "jobId", required = true) String jobId,
 			@RequestParam(value = "status", required = true) String status,
 			@RequestParam(value = "jobName", required = true) String jobName,
-			@RequestParam(value = "jobFolder", required = true) String jobFolder,
 			@RequestParam(value = "hostType", required = true) String hostType) {
 
 		InputStream fis = null;
@@ -224,7 +224,7 @@ public class AiravataRestController {
 			LOGGER.info("getFile() -> Fetching output file. Job Id : " + jobId);
 		}
 		try {
-			fis = jobManagementService.downloadFile(jobId, status, jobName, jobFolder, Integer.parseInt(hostType));
+			fis = jobManagementService.downloadFile(jobId, status, jobName, Integer.parseInt(hostType));
 			if (fis == null) {
 				throw new JobException("Null stream");
 			}

@@ -11,6 +11,8 @@ public interface JobRepo {
 	int changeStatus(String id, int status);
 	
 	List<JobDetails> getJobs(String userId);
+
+	String getPath(String jobId);
 	
 	
 }

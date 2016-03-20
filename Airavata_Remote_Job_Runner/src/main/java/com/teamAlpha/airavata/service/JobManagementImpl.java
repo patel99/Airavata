@@ -4,8 +4,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -18,8 +22,14 @@ import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
+import com.jcraft.jsch.SftpATTRS;
+import com.jcraft.jsch.SftpException;
 import com.teamAlpha.airavata.domain.ConnectionEssential;
+import com.teamAlpha.airavata.domain.Host;
 import com.teamAlpha.airavata.domain.JobDetails;
+import com.teamAlpha.airavata.domain.Status;
+import com.teamAlpha.airavata.domain.Type;
+import com.teamAlpha.airavata.domain.User;
 import com.teamAlpha.airavata.exception.ConnectionException;
 import com.teamAlpha.airavata.exception.FileException;
 import com.teamAlpha.airavata.exception.JobException;
@@ -46,6 +56,12 @@ public class JobManagementImpl implements JobManagement {
 	
 	@Value("${host.bigred2.id}")
 	String bigred2Host;
+	
+	@Value("${host.karst.id.pk}")
+	int karstHostPk;
+	
+	@Value("${host.bigred2.id.pk}")
+	int bigred2HostPk;
 	
 	@Value("${host.port}")
 	int hostPort;
@@ -92,7 +108,13 @@ public class JobManagementImpl implements JobManagement {
 	@Autowired
 	JobRepo jobRepo;
 	
+	DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+	
+	Date date = null;
+	
 	String hostId = karstHost; // Keeping karst as default host
+	int hostIdPk = karstHostPk; // Keeping karst as default host
+	
 	
 	private static final Logger LOGGER = LogManager.getLogger(JobManagementImpl.class);
 
@@ -125,7 +147,11 @@ public class JobManagementImpl implements JobManagement {
 			s = connection.getSession(connectionParameters);
 			execChannel = connection.getExecChannel(s);
 			cancelStatus = cancelJobImpl(jobID, execChannel, s);
-
+			
+			if(LOGGER.isInfoEnabled()){LOGGER.info("cancelJob() -> Changing job status to cancel. Job Id : " + jobID);}
+			jobRepo.changeStatus(jobID, Constants.JOB_STATUS_CANCELLED);
+			if(LOGGER.isInfoEnabled()){LOGGER.info("cancelJob() -> Changing job status to cancel. Job Id : " + jobID);}
+ 
 		} catch (JSchException e) {
 			LOGGER.error("cancelJob() ->  Error creating session", e);
 			throw new ConnectionException("Error canceling job from remote server.");
@@ -223,12 +249,15 @@ public class JobManagementImpl implements JobManagement {
 
 	@Override
 	public String submitJob(File file, int hostType, int jobType, String pk, String passPhr, String noOfNodes, String procPerNode,
-			String wallTime) throws FileException, ConnectionException, JobException {
+			String wallTime, String username) throws FileException, ConnectionException, JobException {
+		
 		if(hostType == Constants.KARST_HOST_CODE){
 			hostId = karstHost;
+			hostIdPk = karstHostPk;
 		}
 		else if(hostType == Constants.BIGRED2_HOST_CODE){
 			hostId = bigred2Host;
+			hostIdPk = bigred2HostPk;
 		}
 		ConnectionEssential connectionParameters = new ConnectionEssential();
 		connectionParameters.setHost(hostId);
@@ -242,28 +271,84 @@ public class JobManagementImpl implements JobManagement {
 
 		Session s = null;
 		String jobId = null;
-
+		String remotePath = null;
+		ChannelSftp sftpChannel = null;
+		SftpATTRS attrs=null;
+		
+		try{
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("submitJob() -> Submit job to server queue.");
 		}
 
 			s = connection.getSession(connectionParameters);
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("getSftpChannel() -> Channel created successfully.");
+				LOGGER.debug("submitJob() -> Channel created successfully.");
 			}
-
+			
+			remotePath = getRemotePath();
+			sftpChannel = connection.getSftpChannel(s);
+			sftpChannel.connect();
+			try {
+		    	 attrs = sftpChannel.stat(remotePath.substring(0, remotePath.lastIndexOf("/")));
+		    	 sftpChannel.mkdir(remotePath);
+		    	 
+		    } catch (Exception e) {
+		        if(LOGGER.isInfoEnabled()){LOGGER.info("submitJob() -> Creating remote directory. Remote Path : " + remotePath + ", User : " + username);}
+		        if (attrs == null) {			   
+				    sftpChannel.mkdir(remotePath.substring(0, remotePath.lastIndexOf("/")));
+				    sftpChannel.mkdir(remotePath);
+				}
+		        
+		    }
+			sftpChannel.disconnect();
 			if (jobType == Constants.PBS_JOB_CODE) {
-				jobId = submitPBS_Job(file, hostType, hostId, noOfNodes, procPerNode, wallTime, s);
+				jobId = submitPBS_Job(file, hostType, hostId, noOfNodes, procPerNode, wallTime, s, remotePath);
 			} else if (jobType == Constants.LAMMPS_JOB_CODE) {
 				jobId = submitLAMMPS_Job(file, hostType, hostId, noOfNodes, procPerNode, wallTime, s);
 			} else if (jobType == Constants.GROMACS_JOB_CODE) {
 				jobId = submitGROMACS_Job(file, hostType, hostId, noOfNodes, procPerNode, wallTime, s);
 			}
+			s = connection.getSession(connectionParameters);
+			sftpChannel = connection.getSftpChannel(s);
+			sftpChannel.connect();
+			sftpChannel.rename(remotePath, remotePath.substring(0, remotePath.lastIndexOf("/") + 1) + jobId);
+			remotePath = remotePath.substring(0, remotePath.lastIndexOf("/") + 1) + jobId;
+			sftpChannel.disconnect();
+			JobDetails jd = new JobDetails();
+			jd.setJobId(jobId);
+			jd.setNodes(Integer.parseInt(noOfNodes));
+			jd.setNoOfTasks(Integer.parseInt(procPerNode));
+			jd.setTime(wallTime);
+			Type t = new Type();
+			t.setId(jobType);
+			jd.setType(t);
+			Status status = new Status();
+			status.setId(Constants.JOB_STATUS_QUEUED);
+			jd.setStatus(status);
+			Host host = new Host();
+			host.setId(hostIdPk);
+			jd.setHost(host);
+			jd.setRemotePath(remotePath);
+			User user = new User();
+			user.setUsername(username);
+			jd.setUser(user);
+			if(LOGGER.isDebugEnabled()){LOGGER.debug("submitJob() -> Saving job details to database. Job : " + jd.toString());}
+			jobRepo.add(jd);
+			
+			if(LOGGER.isDebugEnabled()){LOGGER.debug("submitJob() -> Job details saved to database. Job : " + jd.toString());}
+			
+		}catch(SftpException | JSchException e){
+			LOGGER.error("Error processing remotedirectory. Remote Path : " + remotePath + ", User : " + username, e);
+			throw new ConnectionException("Error processing remotedirectory.");
+		}catch (DataAccessException e) {
+			LOGGER.error("Error saving job data. Remote Path : " + remotePath + ", User : " + username, e);
+			throw new ConnectionException("Error saving job data.");
+		}
 			return jobId;
 	}
 	 
 	private String submitPBS_Job(File file, int hostType, String hostId, String noOfNodes, String procPerNode,
-			String wallTime, Session s) throws FileException, ConnectionException, JobException{
+			String wallTime, Session s, String remotePath) throws FileException, ConnectionException, JobException{
 		ChannelExec execChannel = null;
 		ChannelSftp sftpChannel = null;
 		String jobId;
@@ -271,7 +356,7 @@ public class JobManagementImpl implements JobManagement {
 		
 		int totalProcess = Integer.parseInt(noOfNodes) * Integer.parseInt(procPerNode);
 		
-		String fileContent = String.format(Constants.get_PBS_Script(hostType), noOfNodes, procPerNode, wallTime, remoteFilePath,
+		String fileContent = String.format(Constants.get_PBS_Script(hostType), noOfNodes, procPerNode, wallTime, remotePath,
 				totalProcess, "./" + file.getName().substring(0, file.getName().length() - 2) + ".out");
 		
 		try{
@@ -282,14 +367,14 @@ public class JobManagementImpl implements JobManagement {
 			fileWriter.write(fileContent);
 			fileWriter.flush();
 			fileWriter.close();
-			fileManagement.putFile(file, remoteFilePath, sftpChannel);
+			fileManagement.putFile(file, remotePath, sftpChannel);
 			sftpChannel = connection.getSftpChannel(s);
-			fileManagement.putFile(jobFile, remoteFilePath, sftpChannel);
+			fileManagement.putFile(jobFile, remotePath, sftpChannel);
 			sftpChannel.disconnect();
 			
 			execChannel = connection.getExecChannel(s);
 			
-			execChannel.setCommand(Constants.CMD_CD + " " + remoteFilePath + "\n" + Constants.get_compile_cmd(hostType) + " "
+			execChannel.setCommand(Constants.CMD_CD + " " + remotePath + "\n" + Constants.get_compile_cmd(hostType) + " "
 					+ file.getName() + " -o " + file.getName().substring(0, file.getName().length() - 2)
 					+ ".out \n " + Constants.CMD_D2U + " " + jobFile.getName() + " \n " + Constants.CMD_QSUB + " "
 					+ jobFile.getName());
@@ -526,7 +611,7 @@ public class JobManagementImpl implements JobManagement {
 
 	}
 
-	public InputStream downloadFile(String jobId, String status, String jobName, String jobFolder, int hostType)
+	public InputStream downloadFile(String jobId, String status, String jobName, int hostType)
 			throws FileException, ConnectionException, JobException {
 		
 		if(hostType == Constants.KARST_HOST_CODE){
@@ -550,7 +635,8 @@ public class JobManagementImpl implements JobManagement {
 		InputStream in = null;
 		//String dataFromServer = null;
 		InputStream inputFile;
-		String resultFileName = "result.tar";
+		String resultFileName = jobId + ".tar";
+		String remotePath = null;
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("downloadFile() -> Fetching output file. Job Id : " + jobId);
@@ -561,9 +647,19 @@ public class JobManagementImpl implements JobManagement {
 				s = connection.getSession(connectionParameters);
 				execChannel = connection.getExecChannel(s);
 				sftpChannel = connection.getSftpChannel(s);
+				
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug(
+							"downloadFile() -> Fetching remote path. Id : " + jobId);
+				}
+				remotePath = jobRepo.getPath(jobId);
+				
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("downloadFile() -> Retrieved remote path. Id : " + jobId + ", Remote path : " + remoteFilePath);
+				}
 				if (LOGGER.isInfoEnabled()) 
-					LOGGER.info("tarFile() -> Generating tar for Job Id : " + jobId);
-				execChannel.setCommand(Constants.CMD_CD + " " + remoteFilePath + "/" + jobFolder+"\n "
+					LOGGER.info("downloadFile() -> Generating tar for Job Id : " + jobId);
+				execChannel.setCommand(Constants.CMD_CD + " " + remotePath +"\n "
 						+ Constants.CMD_TAR +" -cf "+resultFileName+" *" +" \n");
 				
 				in = execChannel.getInputStream();
@@ -575,11 +671,11 @@ public class JobManagementImpl implements JobManagement {
 				if (LOGGER.isInfoEnabled()) 
 					LOGGER.info("downloadFile() -> Fetching output file. Job Id : " + jobId);
 				
-				inputFile = fileManagement.getFile(filePath, remoteFilePath +"/"+ jobFolder + "/" + resultFileName, sftpChannel);
+				inputFile = fileManagement.getFile(filePath, remoteFilePath +"/"+ remotePath + "/" + resultFileName, sftpChannel);
 				
 				if(inputFile == null){
 					if (LOGGER.isDebugEnabled()) 
-						LOGGER.debug("downloadFile() -> Error file content for jobFolder " + jobFolder +" & jobID "+jobId);
+						LOGGER.debug("downloadFile() -> Error file content for jobFolder " + remotePath + ", jobID "+jobId);
 				}
 				
 				return inputFile;
@@ -655,6 +751,16 @@ public class JobManagementImpl implements JobManagement {
 
 		return null;
 
+	}
+	
+	String getRemotePath(){
+		int randNum = 0;
+		Random rand = new Random();
+		randNum = rand.nextInt(Integer.SIZE - 1);
+		String remotePath = null;
+		date = new Date();
+		remotePath = remoteFilePath + dateFormat.format(date)+ "/" + randNum;
+		return remotePath;
 	}
 
 }

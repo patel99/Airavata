@@ -17,9 +17,9 @@ public class Constants {
 	public final static String CMD_CAT="cat";
 	public final static String CMD_TAR="tar";
 	public final static String JOB_GROMAC="gromacs.job";	
-	public final static int PBS_JOB_CODE = 0;
-	public final static int LAMMPS_JOB_CODE = 1;
-	public final static int GROMACS_JOB_CODE = 2;
+	public final static int PBS_JOB_CODE = 1;
+	public final static int LAMMPS_JOB_CODE = 2;
+	public final static int GROMACS_JOB_CODE = 3;
 	public static final int KARST_HOST_CODE = 1;
 	public static final int BIGRED2_HOST_CODE = 2;
 	

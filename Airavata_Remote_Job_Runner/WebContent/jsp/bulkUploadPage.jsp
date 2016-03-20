@@ -69,9 +69,12 @@
 
 				<span class="btn btn-primary fileinput-button"> <i
 					class="icon-plus icon-white"></i><span>Add Job</span> <input
-					type="file" name="file" id="file"> </a>
+					type="file" name="files" id="file"> </a>
 				</span>
-
+				<input
+					type="file" name="file" />
+					<input
+					type="file" name="file" />
 
 				<button type="submit" class="btn btn-primary start" id="submit">
 					<i class="icon-upload icon-white"></i> <span>Submit Job</span>
@@ -201,12 +204,12 @@ for (var i=0, file; file=o.files[i]; i++) {
 </script>
 
 <script type="text/javascript" src="js/custom/bulkUpload.js"></script>
-<script type="text/javascript" src="js/fileupload/tmpl.min.js"></script>
-<script type="text/javascript" src="js/fileupload/load-image.min.js"></script>
-<script type="text/javascript" src="js/fileupload/canvas-to-blob.min.js"></script>
+<!-- <script type="text/javascript" src="js/fileupload/tmpl.min.js"></script> -->
+<!-- <script type="text/javascript" src="js/fileupload/load-image.min.js"></script> -->
+<!-- <script type="text/javascript" src="js/fileupload/canvas-to-blob.min.js"></script> -->
 <!-- 	<script type="text/javascript" src="js/fileupload/bootstrap.min.js"></script> -->
 <!-- 	<script type="text/javascript" src="js/fileupload/bootstrap-image-gallery.min.js"></script> -->
-<script type="text/javascript"
-	src="js/fileupload/jquery.iframe-transport.js"></script>
-<script type="text/javascript" src="js/fileupload/main.scroll.js"></script>
+<!-- <script type="text/javascript" -->
+<!-- 	src="js/fileupload/jquery.iframe-transport.js"></script> -->
+<!-- <script type="text/javascript" src="js/fileupload/main.scroll.js"></script> -->
 

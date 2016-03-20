@@ -30,11 +30,14 @@ public class JobRepoImpl implements JobRepo {
 	NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
 	private static final String INSERT_JOB_DETAILS = " INSERT INTO job_details (user_id, job_type_id, queue_type, job_id, job_name, "
-			+ " session_id, nodes, no_of_tasks, memory, time, elaps_time, job_status_id, updts) " + " VALUES "
-			+ "(:userId, :jobTypeId, :queueType, :jobId, :jobName, "
-			+ " :sessionId, :nodes, :noOfTasks, :memory, :time, :elapsTime, :jobStatusId, :updts)";
+			+ " session_id, nodes, no_of_tasks, memory, time, elaps_time, job_status_id, host_id, remote_path) " + " VALUES "
+			+ "((SELECT id from airavata_user WHERE username = :userId), :jobTypeId, :queueType, :jobId, :jobName, "
+			+ " :sessionId, :nodes, :noOfTasks, :memory, :time, :elapsTime, :jobStatusId, :hostId, :remotePath)";
 
 	private static final String CHANGE_STATUS = "UPDATE job_details SET job_status_id = :status, updts = :NOW()"
+			+ " WHERE job_id = :jobId";
+	
+	private static final String GET_REMOTE_PATH = "SELECT remote_path FROM job_details"
 			+ " WHERE job_id = :jobId";
 
 	@Override
@@ -46,7 +49,7 @@ public class JobRepoImpl implements JobRepo {
 
 		Map<String, Object> params = new HashMap<String, Object>();
 
-		params.put("userId", jobDetails.getUser().getId());
+		params.put("userId", jobDetails.getUser().getUsername());
 		params.put("jobTypeId", jobDetails.getType().getId());
 		params.put("queueType", jobDetails.getQueueType());
 		params.put("jobId", jobDetails.getJobId());
@@ -58,6 +61,8 @@ public class JobRepoImpl implements JobRepo {
 		params.put("time", jobDetails.getTime());
 		params.put("elapsTime", jobDetails.getElapTime());
 		params.put("jobStatusId", jobDetails.getStatus().getId());
+		params.put("hostId", jobDetails.getHost().getId());
+		params.put("remotePath", jobDetails.getRemotePath());
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("add() -> Saving job details. Job Details : " + jobDetails.toString() + ", SQL : "
@@ -139,8 +144,8 @@ public class JobRepoImpl implements JobRepo {
 			jobDetails.setJobId(rs.getString("job_id"));
 			jobDetails.setJobName(rs.getString("job_name"));
 			jobDetails.setSessionId(rs.getString("session_id"));
-			jobDetails.setNodes(rs.getString("nodes"));
-			jobDetails.setNoOfTasks(rs.getString("no_of_tasks"));
+			jobDetails.setNodes(rs.getInt("nodes"));
+			jobDetails.setNoOfTasks(rs.getInt("no_of_tasks"));
 			jobDetails.setMemory(rs.getString("memory"));
 			jobDetails.setTime(rs.getString("time"));
 			jobDetails.setElapTime(rs.getString("elaps_time"));
@@ -157,4 +162,26 @@ public class JobRepoImpl implements JobRepo {
 		}
 	};
 
+	@Override
+	public String getPath(String jobId) {
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("getPath() -> Fetching remote path. Id : " + jobId);
+		}
+
+		Map<String, Object> params = new HashMap<String, Object>();
+
+		params.put("jobId", jobId);
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug(
+					"getPath() -> Fetching remote path. Id : " + jobId + ", SQL : " + GET_REMOTE_PATH);
+		}
+
+		String remoteFilePath = namedParameterJdbcTemplate.queryForObject(GET_REMOTE_PATH, params, String.class);
+		
+
+		return remoteFilePath;
+	}
+	
 }

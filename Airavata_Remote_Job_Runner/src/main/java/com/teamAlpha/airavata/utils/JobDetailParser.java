@@ -79,10 +79,10 @@ public class JobDetailParser {
 				job.setSessionId(st.nextToken());
 				break;
 			case 5:
-				job.setNodes(st.nextToken());
+				job.setNodes(Integer.parseInt(st.nextToken()));
 				break;
 			case 6:
-				job.setNoOfTasks(st.nextToken());
+				job.setNoOfTasks(Integer.parseInt(st.nextToken()));
 				break;
 			case 7:
 				job.setMemory(st.nextToken());

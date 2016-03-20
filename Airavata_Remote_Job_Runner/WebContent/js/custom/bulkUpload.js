@@ -4,9 +4,9 @@ var regex_time =/^\d{1,}:(?:[0-5]\d):(?:[0-5]\d)$/;
 var msg;
 $(document).ready(function(){
 	
-	$("#file").click(function(){
-		$(".template-upload").remove();
-	});
+//	$("#file").click(function(){
+//		$(".template-upload").remove();
+//	});
 	
 	$("#btn-add").click(function(){
 		if($("#downloadLink").attr("onClick") == undefined || !($("#downloadLink").attr("onClick") == "return false")){
