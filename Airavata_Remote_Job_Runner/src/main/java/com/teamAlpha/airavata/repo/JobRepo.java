@@ -10,7 +10,7 @@ public interface JobRepo {
 	
 	int changeStatus(String id, int status);
 	
-	List<JobDetails> getJobs(int userId);
+	List<JobDetails> getJobs(String userId);
 	
 	
 }

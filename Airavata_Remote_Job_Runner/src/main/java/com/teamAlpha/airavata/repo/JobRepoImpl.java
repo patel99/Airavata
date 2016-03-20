@@ -98,19 +98,19 @@ public class JobRepoImpl implements JobRepo {
 	}
 
 	@Override
-	public List<JobDetails> getJobs(int userId) {
+	public List<JobDetails> getJobs(String userId) {
 
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("userId", userId);
 
 		StringBuffer queryForJob = new StringBuffer();
-		queryForJob.append("SELECT u.username, t.name, queue_type, job_id, job_name, session_id, nodes, no_of_tasks, memory, time, elaps_time, s.name, updts ");
+		queryForJob.append("SELECT jd.id, u.username AS uname, t.value AS tvalue, t.name AS tname, queue_type, job_id, job_name, session_id, nodes, no_of_tasks, memory, time, elaps_time, s.name AS sname, s.value AS svalue, insts, updts ");
 		queryForJob.append(" FROM job_details jd ");
-		queryForJob.append(" JOIN airavata_user u u.id = jd.user_id ");
-		queryForJob.append(" JOIN job_status s s.id = jd.job_status_id ");
-		queryForJob.append(" JOIN job_type t t.id = jd.job_type_id ");
+		queryForJob.append(" JOIN airavata_user u ON u.id = jd.user_id ");
+		queryForJob.append(" JOIN job_status s ON s.id = jd.job_status_id ");
+		queryForJob.append(" JOIN job_type t ON t.id = jd.job_type_id ");
 		queryForJob.append(" WHERE 1=1 ");
-		queryForJob.append(" AND user_id= :userId");
+		queryForJob.append(" AND u.username= :userId");
 
 		List<JobDetails> jobDetails = namedParameterJdbcTemplate.query(queryForJob.toString(), params,
 				JobDetailsMapper);
@@ -127,11 +127,12 @@ public class JobRepoImpl implements JobRepo {
 			jobDetails.setId(rs.getInt("id"));
 			
 			User user = new User();
-			user.setUsername(rs.getString("u.username"));
+			user.setUsername(rs.getString("uname"));
 			jobDetails.setUser(user);
 			
 			Type type =new Type();
-			type.setName(rs.getString("t.name"));			
+			type.setName(rs.getString("tname"));	
+			type.setValue(rs.getString("tvalue"));
 			jobDetails.setType(type);
 			
 			jobDetails.setQueueType(rs.getString("queue_type"));
@@ -145,7 +146,8 @@ public class JobRepoImpl implements JobRepo {
 			jobDetails.setElapTime(rs.getString("elaps_time"));
 			
 			Status status = new Status();
-			status.setName(rs.getString("s.name"));			
+			status.setName(rs.getString("sname"));	
+			status.setValue(rs.getString("svalue"));	
 			jobDetails.setStatus(status);
 			
 			jobDetails.setInsts(rs.getTimestamp("insts"));

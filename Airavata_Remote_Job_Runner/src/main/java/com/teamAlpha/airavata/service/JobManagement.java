@@ -15,10 +15,12 @@ public interface JobManagement {
 	String submitJob(File file, int hostType, int jobType, String pk, String passPhr, String noOfNodes, String procPerNode,String wallTime)
 			throws FileException, ConnectionException, JobException;
 
-	List<JobDetails> monitorJob(String pk, String passPhr) throws FileException, ConnectionException, JobException;
 
 	String cancelJob(String jobID, int hostType) throws FileException, ConnectionException, JobException;
 
 	public InputStream downloadFile(String jobId, String status, String jobName, String jobFolder, int hostType)
+			throws FileException, ConnectionException, JobException;
+
+	List<JobDetails> monitorJob(String pk, String passPhr, String userName)
 			throws FileException, ConnectionException, JobException;
 }

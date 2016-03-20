@@ -194,13 +194,13 @@ function fileLisingDataTable(){
 			var buttonHtml = "<div>";
 			var jobId = $("td:first", nRow).closest("tr").attr("id");
 			var jobStatus = $(".job-status", nRow).html();
-            if (aData.status!=null && aData.status.toLowerCase() == "c" && aData.sessionId != "--") {
+            if (aData.status!=null && aData.status.value.toLowerCase() == "c" && aData.sessionId != "--") {
             	$(".job-status", nRow).html("Completed");
             	buttonHtml +='<a href="getFile.htm?jobName='+$(".job-name", nRow).html()+'&jobId='+ $('td:first', nRow).closest('tr').attr('id') + '&status='+$(".job-status", nRow).html()+'"><button type="button" class="btn btn-primary info btn-action-margin-left" title="Download"><i class="fa fa-cloud-download"></i></button></a>' ;
-            }if (aData.status!=null && aData.status.toLowerCase() == "c" && aData.sessionId == "--"){
+            }if (aData.status!=null && aData.status.value.toLowerCase() == "c" && aData.sessionId == "--"){
             	$(".job-status", nRow).html("Cancelled");
             }
-            if (aData.status!=null && aData.status.toLowerCase() == "q"){
+            if (aData.status!=null && aData.status.value.toLowerCase() == "q"){
                 buttonHtml += "<a onclick=cancel('" + $('td:first', nRow).closest('tr').attr('id') + "')><button type='button' class='btn btn-danger info btn-action-margin-left' title='Cancel'><i class='fa fa-ban'></i></button></a>";
             }
             buttonHtml += "</div>";

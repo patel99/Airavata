@@ -186,16 +186,25 @@ public class AiravataRestController {
 		List<JobDetails> jobDetailsList = new ArrayList<JobDetails>();
 		Gson gson = new Gson();
 		JsonObject jsonResponse = new JsonObject();
-		Object user = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String user = SecurityContextHolder.getContext().getAuthentication().getName();
 		try {
-			jobDetailsList = jobManagementService.monitorJob(privateKeyPath, privateKeyPassphrase);
-
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("getJobStatus() -> Fetch job details. User : " + user);
+			}
+			
+			jobDetailsList = jobManagementService.monitorJob(privateKeyPath, privateKeyPassphrase, user);
+			
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("getJobStatus() -> Retrieved job details. User : " + user + ", Job : " + jobDetailsList.toString());
+			}
+			
 			jsonResponse.add("aaData", gson.toJsonTree(jobDetailsList));
+			
 		} catch (FileException | ConnectionException | JobException e) {
 			LOGGER.error("Error monitoring job.", e);
 		}
 		return jsonResponse.toString();
-
+		
 	}
 
 	@RequestMapping(value = { "getFile.htm" }, method = RequestMethod.GET)

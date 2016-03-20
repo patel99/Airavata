@@ -11,6 +11,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import com.jcraft.jsch.ChannelExec;
@@ -448,7 +449,7 @@ public class JobManagementImpl implements JobManagement {
 
 	
 	@Override
-	public List<JobDetails> monitorJob(String pk, String passPhr)
+	public List<JobDetails> monitorJob(String pk, String passPhr, String userName)
 			throws FileException, ConnectionException, JobException {
 
 		ConnectionEssential connectionParameters = new ConnectionEssential();
@@ -478,29 +479,37 @@ public class JobManagementImpl implements JobManagement {
 		}
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("getJobStatus() -> Get job status., Attempt : " + attemptCount);
+			LOGGER.debug("getJobStatus() -> Get job details. User : " + userName);
 		}
 
 		try {
-			session = connection.getSession(connectionParameters);
-			execChannel = connection.getExecChannel(session);
-			execChannel.setCommand(Constants.CMD_QSTAT + " -u " + userName);
+//			session = connection.getSession(connectionParameters);
+//			execChannel = connection.getExecChannel(session);
+//			//execChannel.setCommand(Constants.CMD_QSTAT + " -u " + userName);
+//
+//			in = execChannel.getInputStream();
+//
+//			execChannel.setInputStream(null);
+//			execChannel.setErrStream(System.err);
+//			execChannel.connect();
 
-			in = execChannel.getInputStream();
+			//jobData = Utilities.getStringFromIS(in);
 
-			execChannel.setInputStream(null);
-			execChannel.setErrStream(System.err);
-			execChannel.connect();
-
-			jobData = Utilities.getStringFromIS(in);
-
-			jobs = jobDetails.jobDataParser(jobData);
-		} catch (JSchException e) {
-			LOGGER.error("submitJob() ->  Error creating session", e);
-			throw new ConnectionException("Error submitting job to remote server.");
-		} catch (IOException e) {
+			//jobs = jobDetails.jobDataParser(jobData);
+			
+			jobs = jobRepo.getJobs(userName);
+			
+			
+//		} catch (JSchException e) {
+//			LOGGER.error("submitJob() ->  Error creating session", e);
+//			throw new ConnectionException("Error submitting job to remote server.");
+//		} catch (IOException e) {
+//			LOGGER.error("submitJob() ->  Error in I/O operations", e);
+//			throw new FileException("Error submitting job to remote server.");
+		} 
+		catch (DataAccessException e) {
 			LOGGER.error("submitJob() ->  Error in I/O operations", e);
-			throw new FileException("Error submitting job to remote server.");
+			throw new FileException("Error monitoring job.");
 		} finally {
 			if (null != execChannel && execChannel.isConnected()) {
 				execChannel.disconnect();
