@@ -130,6 +130,7 @@
 									<th>Session Id</th>
 									<th>Nodes</th>
 									<th>#Processes</th>
+									<th>Host</th>
 									<th>Memory</th>
 									<th>Time</th>
 									<th>Status</th>

@@ -33,7 +33,8 @@ var tblColumns = [{"mDataProp": null, sDefaultContent: "", "bSortable": false, "
 	               {"mDataProp": "jobName", sDefaultContent: "", "sClass":"all job-name"},
 	               {"mDataProp": "sessionId", sDefaultContent: "", "sClass": "session-id"},
 	               {"mDataProp": "nodes", sDefaultContent: "", "bSortable": false, "bSortable": false, "sClass": "nodes"},
-	               {"mDataProp": "noOfTasks",sDefaultContent: "", "sClass": "no-of-tasks"},		               
+	               {"mDataProp": "noOfTasks",sDefaultContent: "", "sClass": "no-of-tasks"},
+	               {"mDataProp": "host.name",sDefaultContent: "", "sClass": "host-name"},
 	               {"mDataProp": "memory", sDefaultContent: "","sClass": "memory"},
 	               {"mDataProp": "time", sDefaultContent: "", "bSortable": false, "sClass": "time"},
 	               {"mDataProp": "status.name", sDefaultContent: "", "sClass": "job-status"},
@@ -64,8 +65,8 @@ $(document).ready(function (e) {
 		});
 	
 		$( ".table-hover" ).mousemove(function( event ) {
-			$(".scroll-right").animate({top:event.pageY - $( ".table-hover" ).offset().top},{duration:50,queue:false});
-			$(".scroll-left").animate({top:event.pageY - $( ".table-hover" ).offset().top},{duration:50,queue:false});
+			$(".scroll-right").animate({top:event.pageY - $( ".table-hover" ).offset().top + 30},{duration:50,queue:false});
+			$(".scroll-left").animate({top:event.pageY - $( ".table-hover" ).offset().top + 30},{duration:50,queue:false});
 		});
 		$(".content").hover(function(){
 			if($(".dataTables_wrapper").width() < $(".dataTable").width()){

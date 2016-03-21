@@ -147,7 +147,7 @@ public class JobRepoImpl implements JobRepo {
 
 		StringBuffer queryForJob = new StringBuffer();
 		queryForJob.append(
-				"SELECT jd.id, u.username AS uname, t.value AS tvalue, h.id AS hostid, t.name AS tname, queue_type, job_id, job_name, session_id, nodes, no_of_tasks, memory, time, elaps_time, s.name AS sname, s.value AS svalue, insts, updts ");
+				"SELECT jd.id, u.username AS uname, t.value AS tvalue, h.id AS hostid, h.name AS hname, t.name AS tname, queue_type, job_id, job_name, session_id, nodes, no_of_tasks, memory, time, elaps_time, s.name AS sname, s.value AS svalue, insts, updts ");
 		queryForJob.append(" FROM job_details jd ");
 		queryForJob.append(" JOIN airavata_user u ON u.id = jd.user_id ");
 		queryForJob.append(" JOIN job_status s ON s.id = jd.job_status_id ");
@@ -196,6 +196,7 @@ public class JobRepoImpl implements JobRepo {
 
 			Host h = new Host();
 			h.setId(rs.getInt("hostid"));
+			h.setName(rs.getString("hname"));
 			jobDetails.setHost(h);
 			jobDetails.setInsts(rs.getTimestamp("insts"));
 			jobDetails.setUpdts(rs.getTimestamp("updts"));
