@@ -21,7 +21,7 @@ public interface JobManagement {
 			throws FileException, ConnectionException, JobException;
 
 
-	String submitJob(File file, int hostType, int jobType, String pk, String passPhr, String noOfNodes,
+	String submitJob(List<File> files, int hostType, int jobType, String pk, String passPhr, String noOfNodes,
 			String procPerNode, String wallTime, String userName)
 					throws FileException, ConnectionException, JobException;
 

@@ -125,13 +125,14 @@
 									<th>Sr.</th>
 									<th>Job Id</th>
 									<th>User Name</th>
-									<th>Queue Type</th>
-									<th>Job Name</th>
+									<th class="hide-column">Queue Type</th>
+									<th class="hide-column">Job Name</th>
 									<th>Session Id</th>
 									<th>Nodes</th>
 									<th>#Processes</th>
 									<th>Host</th>
-									<th>Memory</th>
+									<th>Job Type</th>
+									<th class="hide-column">Memory</th>
 									<th>Time</th>
 									<th>Status</th>
 									<th>Elapsed Time</th>

@@ -252,7 +252,7 @@ public class JobManagementImpl implements JobManagement {
 	}
 
 	@Override
-	public String submitJob(File file, int hostType, int jobType, String pk, String passPhr, String noOfNodes,
+	public String submitJob(List<File> files, int hostType, int jobType, String pk, String passPhr, String noOfNodes,
 			String procPerNode, String wallTime, String username)
 					throws FileException, ConnectionException, JobException {
 
@@ -309,11 +309,11 @@ public class JobManagementImpl implements JobManagement {
 			}
 			sftpChannel.disconnect();
 			if (jobType == Constants.PBS_JOB_CODE) {
-				jobId = submitPBS_Job(file, hostType, hostId, noOfNodes, procPerNode, wallTime, s, remotePath);
+				jobId = submitPBS_Job(files.get(0), hostType, hostId, noOfNodes, procPerNode, wallTime, s, remotePath);
 			} else if (jobType == Constants.LAMMPS_JOB_CODE) {
-				jobId = submitLAMMPS_Job(file, hostType, hostId, noOfNodes, procPerNode, wallTime, s);
+				jobId = submitLAMMPS_Job(files.get(0), hostType, hostId, noOfNodes, procPerNode, wallTime, s);
 			} else if (jobType == Constants.GROMACS_JOB_CODE) {
-				jobId = submitGROMACS_Job(file, hostType, hostId, noOfNodes, procPerNode, wallTime, s);
+				jobId = submitGROMACS_Job(files, hostType, hostId, noOfNodes, procPerNode, wallTime, s, remotePath);
 			}
 //			s = connection.getSession(connectionParameters);
 //			sftpChannel = connection.getSftpChannel(s);
@@ -481,8 +481,8 @@ public class JobManagementImpl implements JobManagement {
 
 	}
 
-	private String submitGROMACS_Job(File file, int hostType, String hostId, String noOfNodes, String procPerNode,
-			String wallTime, Session s) throws FileException, ConnectionException, JobException {
+	private String submitGROMACS_Job(List<File> files, int hostType, String hostId, String noOfNodes, String procPerNode,
+			String wallTime, Session s, String remotePath) throws FileException, ConnectionException, JobException {
 		ChannelExec execChannel = null;
 		ChannelSftp sftpChannel = null;
 		String jobId;
@@ -491,7 +491,7 @@ public class JobManagementImpl implements JobManagement {
 		int totalProcess = Integer.parseInt(noOfNodes) * Integer.parseInt(procPerNode);
 
 		String fileContent = String.format(Constants.get_GROMACS_Script(hostType), noOfNodes, procPerNode, wallTime,
-				remoteFilePath, totalProcess, file.getName(), "output.gro");
+				remotePath, totalProcess, files.get(0).getName(), files.get(1).getName());
 
 		try {
 			String tDir = System.getProperty("java.io.tmpdir");
@@ -501,15 +501,17 @@ public class JobManagementImpl implements JobManagement {
 			fileWriter.write(fileContent);
 			fileWriter.flush();
 			fileWriter.close();
-			fileManagement.putFile(file, remoteFilePath, sftpChannel);
+			fileManagement.putFile(files.get(0), remotePath, sftpChannel);
 			sftpChannel = connection.getSftpChannel(s);
-			fileManagement.putFile(jobFile, remoteFilePath, sftpChannel);
+			fileManagement.putFile(files.get(1), remotePath, sftpChannel);
+			sftpChannel = connection.getSftpChannel(s);
+			fileManagement.putFile(jobFile, remotePath, sftpChannel);
 			sftpChannel.disconnect();
 
 			execChannel = connection.getExecChannel(s);
 
 			execChannel.setCommand(
-					Constants.CMD_CD + " " + remoteFilePath + "\n" + Constants.CMD_QSUB + " " + jobFile.getName());
+					Constants.CMD_CD + " " + remotePath + "\n" + Constants.CMD_QSUB + " " + jobFile.getName());
 
 			execChannel.setInputStream(null);
 			execChannel.setErrStream(System.err);
