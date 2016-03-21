@@ -154,7 +154,7 @@ public class JobRepoImpl implements JobRepo {
 		queryForJob.append(" JOIN job_type t ON t.id = jd.job_type_id ");
 		queryForJob.append(" JOIN host h ON h.id = jd.host_id ");
 		queryForJob.append(" WHERE 1=1 ");
-		queryForJob.append(" AND u.username= :userId");
+		queryForJob.append(" AND u.username= :userId ORDER BY insts DESC");
 
 		List<JobDetails> jobDetails = namedParameterJdbcTemplate.query(queryForJob.toString(), params,
 				JobDetailsMapper);

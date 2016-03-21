@@ -225,7 +225,7 @@ public class JobManagementImpl implements JobManagement {
 				break;
 			}
 		}
-		if (job.getStatus().getName().equalsIgnoreCase(completedStatus)) {
+		if (job.getStatus().getValue().equalsIgnoreCase(completedStatus)) {
 
 			LOGGER.error("cancelJob() -> Job Completed error. Job Id : " + jobId + ", Status : " + job.getStatus());
 

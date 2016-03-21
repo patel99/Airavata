@@ -55,9 +55,10 @@ $(document).ready(function(){
 			  if(e.preventDefault) e.preventDefault();
 			  $(".validation-message").removeClass("hide");
 			  $(".validation-message").html(msg);
+		  }else{
+			  e.returnValue = true;
+			  return true;
 		  }
-		  
-		  
 	});
 
 	

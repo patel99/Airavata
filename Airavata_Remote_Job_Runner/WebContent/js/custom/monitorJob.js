@@ -91,7 +91,7 @@ $(document).ready(function (e) {
 	
 	setInterval(function(){
 		fileLisingDataTable();
-	}, 2*60*1000);
+	}, 1*60*1000);
 	$("#search-fileLogs").click(function(){
 		if(!isValidSearchCriteria()){
 			return;
@@ -195,14 +195,14 @@ function fileLisingDataTable(){
 			var buttonHtml = "<div>";
 			var jobId = $("td:first", nRow).closest("tr").attr("id");
 			var jobStatus = $(".job-status", nRow).html();
-            if (aData.status!=null && aData.status.value.toLowerCase() == "c" && aData.sessionId != "--") {
-            	$(".job-status", nRow).html("Completed");
+            if (aData.status!=null && aData.status.name.toLowerCase() == "completed") {
+            	$(".job-status", nRow).html(aData.status.name);
             	buttonHtml +='<a href="getFile.htm?jobName='+$(".job-name", nRow).html()+'&jobId='+ $('.job-id', nRow).html() + '&status='+$(".job-status", nRow).html()+ '&hostType='+$(".host-id", nRow).html()+'"><button type="button" class="btn btn-primary info btn-action-margin-left" title="Download"><i class="fa fa-cloud-download"></i></button></a>' ;
-            }if (aData.status!=null && aData.status.value.toLowerCase() == "c" && aData.sessionId == "--"){
-            	$(".job-status", nRow).html("Cancelled");
+            }if (aData.status!=null && aData.status.name.toLowerCase() == "cancelled"){
+            	$(".job-status", nRow).html(aData.status.name);
             }
             if (aData.status!=null && aData.status.value.toLowerCase() == "q"){
-                buttonHtml += "<a onclick=cancel('" + $('.job-id', nRow).html() + '&hostType='+$(".host-id", nRow).html()+ "')><button type='button' class='btn btn-danger info btn-action-margin-left' title='Cancel'><i class='fa fa-ban'></i></button></a>";
+                buttonHtml += "<a onclick=cancel('" + $('.job-id', nRow).html() + "','" + $(".host-id", nRow).html()+ "')><button type='button' class='btn btn-danger info btn-action-margin-left' title='Cancel'><i class='fa fa-ban'></i></button></a>";
             }
             buttonHtml += "</div>";
             $(".action", nRow).html(buttonHtml);

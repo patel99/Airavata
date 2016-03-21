@@ -67,10 +67,10 @@
 
 				<!-- The fileinput-button span is used to style the file input field as button -->
 
-				<span class="btn btn-primary fileinput-button"> <i
-					class="icon-plus icon-white"></i><span>Add Job</span> <input
-					type="file" name="files" id="file"> </a>
-				</span>
+<!-- 				<span class="btn btn-primary fileinput-button"> <i -->
+<!-- 					class="icon-plus icon-white"></i><span>Add Job</span> <input -->
+<!-- 					type="file" name="files" id="file"> </a> -->
+<!-- 				</span> -->
 				<input
 					type="file" name="file" />
 					<input

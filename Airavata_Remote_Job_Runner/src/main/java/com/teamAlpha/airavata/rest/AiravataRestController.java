@@ -15,6 +15,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,7 +55,7 @@ public class AiravataRestController {
 
 	@Autowired
 	private JobManagement jobManagementService;
-	
+
 	@Autowired
 	private UserManagementService userManagementService;
 
@@ -96,7 +97,7 @@ public class AiravataRestController {
 
 	@RequestMapping(value = { "uploadJob.htm" }, method = RequestMethod.POST)
 	@Produces(MediaType.APPLICATION_JSON)
-	public @ResponseBody ModelAndView uploadUsersFile(HttpServletRequest request, HttpServletResponse response,
+	public void uploadUsersFile(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam("file") MultipartFile multipartFile, @RequestParam("hostType") int hostType,
 			@RequestParam("jobType") int jobType, @RequestParam("noOfNodes") String noOfNodes,
 			@RequestParam("procPerNode") String procPerNode, @RequestParam("wallTime") String wallTime) {
@@ -106,7 +107,7 @@ public class AiravataRestController {
 		JsonObject jsono = new JsonObject();
 		String user = SecurityContextHolder.getContext().getAuthentication().getName();
 		try {
-			writer = response.getWriter();
+			// writer = response.getWriter();
 			File file = FileUtils.getFileFromMultipartFile(multipartFile);
 			String jobId = jobManagementService.submitJob(file, hostType, jobType, privateKeyPath, privateKeyPassphrase,
 					noOfNodes, procPerNode, wallTime, user);
@@ -134,21 +135,25 @@ public class AiravataRestController {
 				}
 				json.add(jsono);
 			}
-			if (request.getHeader("accept").indexOf("application/json") == -1) {
-				// writer.write(StringEscapeUtils.escapeHtml(json.toString()));
-				response.setHeader("X-Frame-Options", "SAMEORIGIN");
-			} else {
-				writer.write(json.toString());
-			}
-			writer.close();
+			// if (request.getHeader("accept").indexOf("application/json") ==
+			// -1) {
+			// writer.write(StringEscapeUtils.escapeHtml(json.toString()));
+			// response.setHeader("X-Frame-Options", "SAMEORIGIN");
+			// } else {
+			// writer.write(json.toString());
+			// }
+			response.setContentType("text/html;charset=UTF-8");
+			response.setHeader("Cache-Control", "no-cache");
+			response.setHeader("Pragma", "No-cache");
+			response.setDateHeader("Expires", 0);
+			response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
+			response.setHeader("Location", getURLWithContextPath(request) + "test.htm");
 		}
-		ModelAndView modelAndView = new ModelAndView("monitorJob");
-		modelAndView.addObject("TYPE_PBS", Constants.PBS_JOB_CODE);
-		modelAndView.addObject("TYPE_LAMMPS", Constants.LAMMPS_JOB_CODE);
-		modelAndView.addObject("TYPE_GROMACS", Constants.GROMACS_JOB_CODE);
-		modelAndView.addObject("HOST_KARST", Constants.KARST_HOST_CODE);
-		modelAndView.addObject("HOST_BIGRED2", Constants.BIGRED2_HOST_CODE);
-		return modelAndView;
+	}
+
+	public static String getURLWithContextPath(HttpServletRequest request) {
+		return request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
+				+ request.getContextPath() +  "/";
 	}
 
 	@RequestMapping(value = { "cancelJob.htm" }, method = RequestMethod.POST)
@@ -199,20 +204,21 @@ public class AiravataRestController {
 			if (LOGGER.isInfoEnabled()) {
 				LOGGER.info("getJobStatus() -> Fetch job details. User : " + user);
 			}
-			
+
 			jobDetailsList = jobManagementService.getJobDetails(privateKeyPath, privateKeyPassphrase, user);
-			
+
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("getJobStatus() -> Retrieved job details. User : " + user + ", Job : " + jobDetailsList.toString());
+				LOGGER.debug("getJobStatus() -> Retrieved job details. User : " + user + ", Job : "
+						+ jobDetailsList.toString());
 			}
-			
+
 			jsonResponse.add("aaData", gson.toJsonTree(jobDetailsList));
-			
+
 		} catch (FileException | ConnectionException | JobException e) {
 			LOGGER.error("Error monitoring job.", e);
 		}
 		return jsonResponse.toString();
-		
+
 	}
 
 	@RequestMapping(value = { "getFile.htm" }, method = RequestMethod.GET)
