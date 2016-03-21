@@ -30,15 +30,22 @@ public class JobRepoImpl implements JobRepo {
 	NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
 	private static final String INSERT_JOB_DETAILS = " INSERT INTO job_details (user_id, job_type_id, queue_type, job_id, job_name, "
-			+ " session_id, nodes, no_of_tasks, memory, time, elaps_time, job_status_id, host_id, remote_path) " + " VALUES "
+			+ " session_id, nodes, no_of_tasks, memory, time, elaps_time, job_status_id, host_id, remote_path) "
+			+ " VALUES "
 			+ "((SELECT id from airavata_user WHERE username = :userId), :jobTypeId, :queueType, :jobId, :jobName, "
 			+ " :sessionId, :nodes, :noOfTasks, :memory, :time, :elapsTime, :jobStatusId, :hostId, :remotePath)";
 
 	private static final String CHANGE_STATUS = "UPDATE job_details SET job_status_id = :status, updts = :NOW()"
 			+ " WHERE job_id = :jobId";
+
+	private static final String GET_REMOTE_PATH = "SELECT remote_path FROM job_details" + " WHERE job_id = :jobId";
+
+	private static final String UPDATE_STATUS = "UPDATE job_details SET queue_type = :queueType, job_id = :jobId, "
+			+ "job_name = :jobName, session_id = :sessionId, job_status_id = :status, "
+			+ "elaps_time=:elapsTime, updts = :NOW()" + " WHERE job_id = :jobId";
 	
-	private static final String GET_REMOTE_PATH = "SELECT remote_path FROM job_details"
-			+ " WHERE job_id = :jobId";
+	private static final String GET_ALL_JOBS = "SELECT jd.job_id, s.value, jd.session_id FROM  job_details jd "
+			+ "JOIN job_status s ON s.id = jd.job_status_id";
 
 	@Override
 	public int add(JobDetails jobDetails) {
@@ -78,6 +85,35 @@ public class JobRepoImpl implements JobRepo {
 	}
 
 	@Override
+	public int updateJob(JobDetails jobDetails) {
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("updateJob() -> Updating job details. Job Details : " + jobDetails.toString());
+		}
+
+		Map<String, Object> params = new HashMap<String, Object>();
+		
+		params.put("queueType", jobDetails.getQueueType());
+		params.put("jobId", jobDetails.getId());
+		params.put("jobName", jobDetails.getJobName());
+		params.put("sessionId", jobDetails.getSessionId());
+		params.put("elapsTime", jobDetails.getElapTime());
+		params.put("jobStatusId", jobDetails.getStatus().getId());
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("updateJob() -> Updating job details. Job Details : " + jobDetails.toString() + ", SQL : "
+					+ UPDATE_STATUS);
+		}
+
+		int rowsUpdated = namedParameterJdbcTemplate.update(UPDATE_STATUS, params);
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("updateJob() -> Job details updated. Job Details : " + jobDetails.toString());
+		}
+
+		return rowsUpdated;
+	}
+
+	@Override
 	public int changeStatus(String jobId, int status) {
 
 		if (LOGGER.isInfoEnabled()) {
@@ -90,8 +126,8 @@ public class JobRepoImpl implements JobRepo {
 		params.put("status", status);
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug(
-					"add() -> Changing job status. Id : " + jobId + ", Status : " + status + ", SQL : " + CHANGE_STATUS);
+			LOGGER.debug("add() -> Changing job status. Id : " + jobId + ", Status : " + status + ", SQL : "
+					+ CHANGE_STATUS);
 		}
 
 		int rowsUpdated = namedParameterJdbcTemplate.update(CHANGE_STATUS, params);
@@ -109,7 +145,8 @@ public class JobRepoImpl implements JobRepo {
 		params.put("userId", userId);
 
 		StringBuffer queryForJob = new StringBuffer();
-		queryForJob.append("SELECT jd.id, u.username AS uname, t.value AS tvalue, t.name AS tname, queue_type, job_id, job_name, session_id, nodes, no_of_tasks, memory, time, elaps_time, s.name AS sname, s.value AS svalue, insts, updts ");
+		queryForJob.append(
+				"SELECT jd.id, u.username AS uname, t.value AS tvalue, t.name AS tname, queue_type, job_id, job_name, session_id, nodes, no_of_tasks, memory, time, elaps_time, s.name AS sname, s.value AS svalue, insts, updts ");
 		queryForJob.append(" FROM job_details jd ");
 		queryForJob.append(" JOIN airavata_user u ON u.id = jd.user_id ");
 		queryForJob.append(" JOIN job_status s ON s.id = jd.job_status_id ");
@@ -126,20 +163,20 @@ public class JobRepoImpl implements JobRepo {
 	private RowMapper<JobDetails> JobDetailsMapper = new RowMapper<JobDetails>() {
 
 		public JobDetails mapRow(ResultSet rs, int arg1) throws SQLException {
-			
+
 			JobDetails jobDetails = new JobDetails();
-			
+
 			jobDetails.setId(rs.getInt("id"));
-			
+
 			User user = new User();
 			user.setUsername(rs.getString("uname"));
 			jobDetails.setUser(user);
-			
-			Type type =new Type();
-			type.setName(rs.getString("tname"));	
+
+			Type type = new Type();
+			type.setName(rs.getString("tname"));
 			type.setValue(rs.getString("tvalue"));
 			jobDetails.setType(type);
-			
+
 			jobDetails.setQueueType(rs.getString("queue_type"));
 			jobDetails.setJobId(rs.getString("job_id"));
 			jobDetails.setJobName(rs.getString("job_name"));
@@ -149,18 +186,20 @@ public class JobRepoImpl implements JobRepo {
 			jobDetails.setMemory(rs.getString("memory"));
 			jobDetails.setTime(rs.getString("time"));
 			jobDetails.setElapTime(rs.getString("elaps_time"));
-			
+
 			Status status = new Status();
-			status.setName(rs.getString("sname"));	
-			status.setValue(rs.getString("svalue"));	
+			status.setName(rs.getString("sname"));
+			status.setValue(rs.getString("svalue"));
 			jobDetails.setStatus(status);
-			
+
 			jobDetails.setInsts(rs.getTimestamp("insts"));
 			jobDetails.setUpdts(rs.getTimestamp("updts"));
-			
+
 			return jobDetails;
 		}
 	};
+	
+	
 
 	@Override
 	public String getPath(String jobId) {
@@ -174,14 +213,41 @@ public class JobRepoImpl implements JobRepo {
 		params.put("jobId", jobId);
 
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug(
-					"getPath() -> Fetching remote path. Id : " + jobId + ", SQL : " + GET_REMOTE_PATH);
+			LOGGER.debug("getPath() -> Fetching remote path. Id : " + jobId + ", SQL : " + GET_REMOTE_PATH);
 		}
 
 		String remoteFilePath = namedParameterJdbcTemplate.queryForObject(GET_REMOTE_PATH, params, String.class);
-		
 
 		return remoteFilePath;
 	}
+
+	@Override
+	public List<JobDetails> getJobs() {
+
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("getJobs() -> Get Job Details.");
+		}
+		
+		List<JobDetails> jobDetails = namedParameterJdbcTemplate.query(GET_ALL_JOBS, GetJobDetailsMapper);
+
+		return jobDetails;
+	}
+
+	private RowMapper<JobDetails> GetJobDetailsMapper = new RowMapper<JobDetails>() {
+
+		public JobDetails mapRow(ResultSet rs, int arg1) throws SQLException {
+
+			JobDetails jobDetails = new JobDetails();
+
+			jobDetails.setJobId(rs.getString("job_id"));
+			jobDetails.setSessionId(rs.getString("session_id"));
+
+			Status status = new Status();
+			status.setValue(rs.getString("value"));
+			jobDetails.setStatus(status);
+
+			return jobDetails;
+		}
+	};
 	
 }

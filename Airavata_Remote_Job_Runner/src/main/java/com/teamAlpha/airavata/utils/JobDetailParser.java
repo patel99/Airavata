@@ -92,7 +92,7 @@ public class JobDetailParser {
 				break;
 			case 9:
 				Status status = new Status();
-				status.setName(st.nextToken());
+				status.setValue(st.nextToken());
 				job.setStatus(status);
 				break;
 			case 10:

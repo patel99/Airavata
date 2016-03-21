@@ -14,5 +14,7 @@ public interface JobRepo {
 
 	String getPath(String jobId);
 	
+	int updateJob(JobDetails jobDetails);
 	
+	List<JobDetails> getJobs();
 }

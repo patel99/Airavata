@@ -193,7 +193,7 @@ public class AiravataRestController {
 				LOGGER.info("getJobStatus() -> Fetch job details. User : " + user);
 			}
 			
-			jobDetailsList = jobManagementService.monitorJob(privateKeyPath, privateKeyPassphrase, user);
+			jobDetailsList = jobManagementService.getJobDetails(privateKeyPath, privateKeyPassphrase, user);
 			
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("getJobStatus() -> Retrieved job details. User : " + user + ", Job : " + jobDetailsList.toString());
