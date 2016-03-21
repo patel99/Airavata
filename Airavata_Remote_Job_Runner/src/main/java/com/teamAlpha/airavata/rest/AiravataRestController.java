@@ -96,7 +96,7 @@ public class AiravataRestController {
 
 	@RequestMapping(value = { "uploadJob.htm" }, method = RequestMethod.POST)
 	@Produces(MediaType.APPLICATION_JSON)
-	public @ResponseBody void uploadUsersFile(HttpServletRequest request, HttpServletResponse response,
+	public @ResponseBody ModelAndView uploadUsersFile(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam("file") MultipartFile multipartFile, @RequestParam("hostType") int hostType,
 			@RequestParam("jobType") int jobType, @RequestParam("noOfNodes") String noOfNodes,
 			@RequestParam("procPerNode") String procPerNode, @RequestParam("wallTime") String wallTime) {
@@ -142,6 +142,13 @@ public class AiravataRestController {
 			}
 			writer.close();
 		}
+		ModelAndView modelAndView = new ModelAndView("monitorJob");
+		modelAndView.addObject("TYPE_PBS", Constants.PBS_JOB_CODE);
+		modelAndView.addObject("TYPE_LAMMPS", Constants.LAMMPS_JOB_CODE);
+		modelAndView.addObject("TYPE_GROMACS", Constants.GROMACS_JOB_CODE);
+		modelAndView.addObject("HOST_KARST", Constants.KARST_HOST_CODE);
+		modelAndView.addObject("HOST_BIGRED2", Constants.BIGRED2_HOST_CODE);
+		return modelAndView;
 	}
 
 	@RequestMapping(value = { "cancelJob.htm" }, method = RequestMethod.POST)

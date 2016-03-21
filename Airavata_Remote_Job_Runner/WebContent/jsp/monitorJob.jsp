@@ -137,6 +137,7 @@
 									<th>Insert TS</th>
 									<th>Update TS</th>
 									<th>Action</th>
+									<th class="hide-column">Host Id</th>
 								</tr>
 							</thead>
 						</table>

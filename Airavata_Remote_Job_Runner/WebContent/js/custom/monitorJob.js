@@ -40,7 +40,8 @@ var tblColumns = [{"mDataProp": null, sDefaultContent: "", "bSortable": false, "
 	               {"mDataProp": "elapTime", sDefaultContent: "", "sClass": "elap-time"},
 	               {"mDataProp": "insts", sDefaultContent: "", "sClass": "insts"},
 	               {"mDataProp": "updts", sDefaultContent: "", "sClass": "updts"},
-	               {"mDataProp": null, sDefaultContent: "", "sClass": "action"}
+	               {"mDataProp": null, sDefaultContent: "", "sClass": "action"},
+	               {"mDataProp": "host.id", sDefaultContent: "", "sClass": "hide-column host-id"}
 	               ];
 	
 
@@ -196,12 +197,12 @@ function fileLisingDataTable(){
 			var jobStatus = $(".job-status", nRow).html();
             if (aData.status!=null && aData.status.value.toLowerCase() == "c" && aData.sessionId != "--") {
             	$(".job-status", nRow).html("Completed");
-            	buttonHtml +='<a href="getFile.htm?jobName='+$(".job-name", nRow).html()+'&jobId='+ $('td:first', nRow).closest('tr').attr('id') + '&status='+$(".job-status", nRow).html()+'"><button type="button" class="btn btn-primary info btn-action-margin-left" title="Download"><i class="fa fa-cloud-download"></i></button></a>' ;
+            	buttonHtml +='<a href="getFile.htm?jobName='+$(".job-name", nRow).html()+'&jobId='+ $('.job-id', nRow).html() + '&status='+$(".job-status", nRow).html()+ '&hostType='+$(".host-id", nRow).html()+'"><button type="button" class="btn btn-primary info btn-action-margin-left" title="Download"><i class="fa fa-cloud-download"></i></button></a>' ;
             }if (aData.status!=null && aData.status.value.toLowerCase() == "c" && aData.sessionId == "--"){
             	$(".job-status", nRow).html("Cancelled");
             }
             if (aData.status!=null && aData.status.value.toLowerCase() == "q"){
-                buttonHtml += "<a onclick=cancel('" + $('td:first', nRow).closest('tr').attr('id') + "')><button type='button' class='btn btn-danger info btn-action-margin-left' title='Cancel'><i class='fa fa-ban'></i></button></a>";
+                buttonHtml += "<a onclick=cancel('" + $('.job-id', nRow).html() + '&hostType='+$(".host-id", nRow).html()+ "')><button type='button' class='btn btn-danger info btn-action-margin-left' title='Cancel'><i class='fa fa-ban'></i></button></a>";
             }
             buttonHtml += "</div>";
             $(".action", nRow).html(buttonHtml);

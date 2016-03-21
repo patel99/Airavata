@@ -315,12 +315,12 @@ public class JobManagementImpl implements JobManagement {
 			} else if (jobType == Constants.GROMACS_JOB_CODE) {
 				jobId = submitGROMACS_Job(file, hostType, hostId, noOfNodes, procPerNode, wallTime, s);
 			}
-			s = connection.getSession(connectionParameters);
-			sftpChannel = connection.getSftpChannel(s);
-			sftpChannel.connect();
-			sftpChannel.rename(remotePath, remotePath.substring(0, remotePath.lastIndexOf("/") + 1) + jobId);
-			remotePath = remotePath.substring(0, remotePath.lastIndexOf("/") + 1) + jobId;
-			sftpChannel.disconnect();
+//			s = connection.getSession(connectionParameters);
+//			sftpChannel = connection.getSftpChannel(s);
+//			sftpChannel.connect();
+//			sftpChannel.rename(remotePath, remotePath.substring(0, remotePath.lastIndexOf("/") + 1) + jobId);
+//			remotePath = remotePath.substring(0, remotePath.lastIndexOf("/") + 1) + jobId;
+//			sftpChannel.disconnect();
 			JobDetails jd = new JobDetails();
 			jd.setJobId(jobId);
 			jd.setNodes(Integer.parseInt(noOfNodes));
@@ -602,7 +602,7 @@ public class JobManagementImpl implements JobManagement {
 			LOGGER.error("monitorJob() ->  Error in I/O operations", e);
 			throw new FileException("Error submitting job to remote server.");
 		} catch (DataAccessException e) {
-			LOGGER.error("monitorJob() ->  Error in I/O operations", e);
+			LOGGER.error("monitorJob() -> Error monitoring job.", e);
 			throw new FileException("Error monitoring job.");
 		} finally {
 			if (null != execChannel && execChannel.isConnected()) {
@@ -647,9 +647,15 @@ public class JobManagementImpl implements JobManagement {
 
 		for (JobDetails temp : jobs) {
 			for (JobDetails dbtemp : jobsDb) {
-				if (temp.getJobId() != dbtemp.getJobId()) {
+				if (temp.getJobId().equals(dbtemp.getJobId())) {
 					if (!temp.getStatus().getValue().toLowerCase()
 							.equalsIgnoreCase(dbtemp.getStatus().getValue().toLowerCase())) {
+						if(!temp.getSessionId().equals("") && 
+								temp.getStatus().getValue().equalsIgnoreCase(Constants.JOB_STATUS_MAP.get(Constants.JOB_STATUS_COMPLETED).getValue())){
+							Status s = new Status();
+							s.setId(Constants.JOB_STATUS_COMPLETED);
+							temp.setStatus(s);
+						}
 						jobRepo.updateJob(temp);
 					}
 				}
@@ -721,7 +727,7 @@ public class JobManagementImpl implements JobManagement {
 				if (LOGGER.isInfoEnabled())
 					LOGGER.info("downloadFile() -> Fetching output file. Job Id : " + jobId);
 
-				inputFile = fileManagement.getFile(filePath, remoteFilePath + "/" + remotePath + "/" + resultFileName,
+				inputFile = fileManagement.getFile(filePath, remotePath + "/" + resultFileName,
 						sftpChannel);
 
 				if (inputFile == null) {
@@ -792,6 +798,9 @@ public class JobManagementImpl implements JobManagement {
 		} catch (JSchException e) {
 			LOGGER.error("downloadFile() ->  Error creating connection.", e);
 			throw new ConnectionException("Error downloading file.");
+		}catch (DataAccessException e) {
+			LOGGER.error("downloadFile() ->  Error fetching remote file path.", e);
+			throw new ConnectionException("Error fetching remote file path.");
 		}
 
 		return null;
@@ -801,7 +810,7 @@ public class JobManagementImpl implements JobManagement {
 	String getRemotePath() {
 		int randNum = 0;
 		Random rand = new Random();
-		randNum = rand.nextInt(Integer.SIZE - 1);
+		randNum = rand.nextInt(Integer.MAX_VALUE);
 		String remotePath = null;
 		date = new Date();
 		remotePath = remoteFilePath + dateFormat.format(date) + "/" + randNum;

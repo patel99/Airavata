@@ -13,6 +13,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.teamAlpha.airavata.domain.Host;
 import com.teamAlpha.airavata.domain.JobDetails;
 import com.teamAlpha.airavata.domain.Status;
 import com.teamAlpha.airavata.domain.Type;
@@ -35,14 +36,14 @@ public class JobRepoImpl implements JobRepo {
 			+ "((SELECT id from airavata_user WHERE username = :userId), :jobTypeId, :queueType, :jobId, :jobName, "
 			+ " :sessionId, :nodes, :noOfTasks, :memory, :time, :elapsTime, :jobStatusId, :hostId, :remotePath)";
 
-	private static final String CHANGE_STATUS = "UPDATE job_details SET job_status_id = :status, updts = :NOW()"
+	private static final String CHANGE_STATUS = "UPDATE job_details SET job_status_id = :status, updts = NOW()"
 			+ " WHERE job_id = :jobId";
 
 	private static final String GET_REMOTE_PATH = "SELECT remote_path FROM job_details" + " WHERE job_id = :jobId";
 
 	private static final String UPDATE_STATUS = "UPDATE job_details SET queue_type = :queueType, job_id = :jobId, "
 			+ "job_name = :jobName, session_id = :sessionId, job_status_id = :status, "
-			+ "elaps_time=:elapsTime, updts = :NOW()" + " WHERE job_id = :jobId";
+			+ "elaps_time=:elapsTime, updts = NOW()" + " WHERE job_id = :jobId";
 	
 	private static final String GET_ALL_JOBS = "SELECT jd.job_id, s.value, jd.session_id FROM  job_details jd "
 			+ "JOIN job_status s ON s.id = jd.job_status_id";
@@ -93,11 +94,11 @@ public class JobRepoImpl implements JobRepo {
 		Map<String, Object> params = new HashMap<String, Object>();
 		
 		params.put("queueType", jobDetails.getQueueType());
-		params.put("jobId", jobDetails.getId());
+		params.put("jobId", jobDetails.getJobId());
 		params.put("jobName", jobDetails.getJobName());
 		params.put("sessionId", jobDetails.getSessionId());
 		params.put("elapsTime", jobDetails.getElapTime());
-		params.put("jobStatusId", jobDetails.getStatus().getId());
+		params.put("status", jobDetails.getStatus().getId());
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("updateJob() -> Updating job details. Job Details : " + jobDetails.toString() + ", SQL : "
@@ -146,11 +147,12 @@ public class JobRepoImpl implements JobRepo {
 
 		StringBuffer queryForJob = new StringBuffer();
 		queryForJob.append(
-				"SELECT jd.id, u.username AS uname, t.value AS tvalue, t.name AS tname, queue_type, job_id, job_name, session_id, nodes, no_of_tasks, memory, time, elaps_time, s.name AS sname, s.value AS svalue, insts, updts ");
+				"SELECT jd.id, u.username AS uname, t.value AS tvalue, h.id AS hostid, t.name AS tname, queue_type, job_id, job_name, session_id, nodes, no_of_tasks, memory, time, elaps_time, s.name AS sname, s.value AS svalue, insts, updts ");
 		queryForJob.append(" FROM job_details jd ");
 		queryForJob.append(" JOIN airavata_user u ON u.id = jd.user_id ");
 		queryForJob.append(" JOIN job_status s ON s.id = jd.job_status_id ");
 		queryForJob.append(" JOIN job_type t ON t.id = jd.job_type_id ");
+		queryForJob.append(" JOIN host h ON h.id = jd.host_id ");
 		queryForJob.append(" WHERE 1=1 ");
 		queryForJob.append(" AND u.username= :userId");
 
@@ -192,6 +194,9 @@ public class JobRepoImpl implements JobRepo {
 			status.setValue(rs.getString("svalue"));
 			jobDetails.setStatus(status);
 
+			Host h = new Host();
+			h.setId(rs.getInt("hostid"));
+			jobDetails.setHost(h);
 			jobDetails.setInsts(rs.getTimestamp("insts"));
 			jobDetails.setUpdts(rs.getTimestamp("updts"));
 

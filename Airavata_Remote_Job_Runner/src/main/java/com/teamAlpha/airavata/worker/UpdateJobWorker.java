@@ -12,6 +12,7 @@ import com.teamAlpha.airavata.exception.ConnectionException;
 import com.teamAlpha.airavata.exception.FileException;
 import com.teamAlpha.airavata.exception.JobException;
 import com.teamAlpha.airavata.service.JobManagement;
+import com.teamAlpha.airavata.utils.Constants;
 
 @Component
 public class UpdateJobWorker {
@@ -40,6 +41,8 @@ public class UpdateJobWorker {
 
 	public void init() {
 		LOGGER.info("Initialize Update Job Worker Thread");
+		Constants.setStatusMap();
+		Constants.setTypeMap();
 		threadPool.execute(new UpdateJobWorkerThread());
 	}
 
