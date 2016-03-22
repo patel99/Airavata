@@ -21,6 +21,8 @@ SET search_path = public, pg_catalog;
 -- Data for Name: airavata_user; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
+\connect airavata_db4
+
 INSERT INTO airavata_user VALUES (1, 'aaa', '47bce5c74f589f4867dbd57e9ca9f808', 'ROLE_USER', 1);
 INSERT INTO airavata_user VALUES (2, 'ajinkya', '47bce5c74f589f4867dbd57e9ca9f808', 'ROLE_USER', 1);
 INSERT INTO airavata_user VALUES (5, 'amruta', '81dc9bdb52d04dc20036dbd8313ed055', 'ROLE_USER', 1);

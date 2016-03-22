@@ -13,18 +13,18 @@ SET standard_conforming_strings = on;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
 
-DROP DATABASE airavata_db;
+DROP DATABASE airavata_db4;
 --
 -- TOC entry 1982 (class 1262 OID 24604)
--- Name: airavata_db; Type: DATABASE; Schema: -; Owner: postgres
+-- Name: airavata_db4; Type: DATABASE; Schema: -; Owner: postgres
 --
 
-CREATE DATABASE airavata_db WITH TEMPLATE = template0 ENCODING = 'UTF8' LC_COLLATE = 'English_United States.1252' LC_CTYPE = 'English_United States.1252';
+CREATE DATABASE airavata_db4 WITH TEMPLATE = template0 ENCODING = 'UTF8';
 
 
-ALTER DATABASE airavata_db OWNER TO postgres;
+ALTER DATABASE airavata_db4 OWNER TO postgres;
 
-\connect airavata_db
+\connect airavata_db4
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
