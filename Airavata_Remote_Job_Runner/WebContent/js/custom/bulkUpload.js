@@ -7,7 +7,9 @@ $(document).ready(function(){
 //	$("#file").click(function(){
 //		$(".template-upload").remove();
 //	});
-	
+	$(".upload").change(function(){
+		$(this).parent('div').parent('div').prev('div').find(".uploadFile").val($(this).val());
+	});
 	$("#btn-add").click(function(){
 		if($("#downloadLink").attr("onClick") == undefined || !($("#downloadLink").attr("onClick") == "return false")){
 			$(".records").removeClass("hide");

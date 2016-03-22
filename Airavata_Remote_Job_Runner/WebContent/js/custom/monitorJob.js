@@ -55,6 +55,22 @@ $(document).ready(function (e) {
 	});
 	$("#dashboardView").closest('li').addClass("active");
 	
+	$("#jobType").change(function(){
+		if($(this).val() == 1){
+			$("#up1").removeClass('hide');
+			$("#up2").addClass('hide');
+			$("#submit").removeClass('hide');
+		}else if($(this).val() == 3){
+			$("#up1").removeClass('hide');
+			$("#up2").removeClass('hide');
+			$("#submit").removeClass('hide');
+		}else{
+			$("#submit").addClass('hide');
+			$("#up1").addClass('hide');
+			$("#up2").addClass('hide');
+		}
+	});
+	
 	if(!jQuery.browser.mobile){
 		//Scroll Buttons
 		$(".scroll-right").on('click' ,function(){

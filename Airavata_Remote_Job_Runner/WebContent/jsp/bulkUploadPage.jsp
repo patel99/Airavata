@@ -54,7 +54,7 @@
 								placeholder="Select JobType">
 								<option value="" disabled selected>Select</option>
 								<option value="${TYPE_PBS}">PBS</option>
-								<option value="${TYPE_LAMMPS}">LAMMPS</option>
+<%-- 								<option value="${TYPE_LAMMPS}">LAMMPS</option> --%>
 								<option value="${TYPE_GROMACS}">GROMACS</option> 
 							</select>
 						</div>
@@ -71,19 +71,63 @@
 <!-- 					class="icon-plus icon-white"></i><span>Add Job</span> <input -->
 <!-- 					type="file" name="files" id="file"> </a> -->
 <!-- 				</span> -->
-				<input
-					type="file" name="file" />
-					<input
-					type="file" name="file" />
+<!-- 					<div class="fileUpld btn btn-primary"> -->
+<!-- 					    <span>Upload</span> -->
+<!-- 					    <input type="file" class="upload" /> -->
+<!-- 					</div> -->
+<!-- 					<div class="fileUpld btn btn-primary"> -->
+<!-- 					    <span>Upload</span> -->
+<!-- 					    <input type="file" class="upload" /> -->
+<!-- 					</div> -->
+					<div id="up1" class="row hide">
+						<div class="col-sm-3">
+							<div class="form-group">
+							    <input type="file" name="file"/>
+						    </div>
+						</div>
+					</div>
+					<div id="up2" class="row hide">
+						<div class="col-sm-3">
+							<div class="form-group">
+							    <input type="file" name="file"/>
+							</div>
+						</div>
+					</div>
+<!-- 					<div id="up1" class="row hide"> -->
+<!-- 						<div class="col-sm-3"> -->
+<!-- 							<input class="form-control uploadFile" placeholder="Choose File" disabled="disabled" /> -->
+<!-- 						</div> -->
+<!-- 						<div class="col-sm-3"> -->
+<!-- 							<div class="fileUpld btn btn-primary"> -->
+<!-- 							    <span>Upload</span> -->
+<!-- 							    <input type="file" name="file" class="upload" /> -->
+<!-- 							</div> -->
+<!-- 						</div> -->
+<!-- 					</div> -->
+<!-- 					<div id="up2" class="row hide"> -->
+<!-- 						<div class="col-sm-3"> -->
+<!-- 							<input class="form-control uploadFile" placeholder="Choose File" disabled="disabled" /> -->
+<!-- 						</div> -->
+<!-- 						<div class="col-sm-3"> -->
+<!-- 							<div class="fileUpld btn btn-primary"> -->
+<!-- 							    <span>Upload</span> -->
+<!-- 							    <input type="file" name="file" class="upload" /> -->
+<!-- 							</div> -->
+<!-- 						</div> -->
+<!-- 					</div> -->
+<!-- 				<input -->
+<!-- 					type="file" name="file" /> -->
+<!-- 					<input -->
+<!-- 					type="file" name="file" /> -->
 
-				<button type="submit" class="btn btn-primary start" id="submit">
+				<button type="submit" class="btn btn-primary start hide" id="submit">
 					<i class="icon-upload icon-white"></i> <span>Submit Job</span>
 				</button>
 
-				<button type="reset" class="btn btn-primary cancel">
-					<i class="icon-ban-circle icon-white"></i> <span>Cancel
-						upload</span>
-				</button>
+<!-- 				<button type="reset" class="btn btn-primary cancel"> -->
+<!-- 					<i class="icon-ban-circle icon-white"></i> <span>Cancel -->
+<!-- 						upload</span> -->
+<!-- 				</button> -->
 
 			</div>
 			<br>
