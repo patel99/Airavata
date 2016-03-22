@@ -83,7 +83,7 @@ public class AiravataRestController {
 		return modelAndView;
 	}
 
-	@RequestMapping(value = { "test.htm" }, method = RequestMethod.GET)
+	@RequestMapping(value = { "monitor.htm" }, method = RequestMethod.GET)
 	public ModelAndView showAuthorizationMatrix() {
 
 		ModelAndView modelAndView = new ModelAndView("monitorJob");
@@ -152,7 +152,7 @@ public class AiravataRestController {
 			response.setHeader("Pragma", "No-cache");
 			response.setDateHeader("Expires", 0);
 			response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
-			response.setHeader("Location", getURLWithContextPath(request) + "test.htm");
+			response.setHeader("Location", getURLWithContextPath(request) + "monitor.htm");
 		}
 	}
 
