@@ -10,6 +10,7 @@ import java.io.InputStream;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
@@ -18,7 +19,7 @@ import com.jcraft.jsch.SftpException;
 import com.teamAlpha.airavata.exception.ConnectionException;
 import com.teamAlpha.airavata.exception.FileException;
 
-@Component
+@Service
 public class FileManagementImpl implements FileManagement {
 
 	private static final Logger LOGGER = LogManager.getLogger(FileManagementImpl.class);

@@ -16,7 +16,9 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.ChannelSftp;
@@ -39,7 +41,7 @@ import com.teamAlpha.airavata.utils.Constants;
 import com.teamAlpha.airavata.utils.JobDetailParser;
 import com.teamAlpha.airavata.utils.Utilities;
 
-@Component
+@Service
 public class JobManagementImpl implements JobManagement {
 
 	@Value("${private.key.path}")
@@ -117,6 +119,7 @@ public class JobManagementImpl implements JobManagement {
 
 	private static final Logger LOGGER = LogManager.getLogger(JobManagementImpl.class);
 
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public String cancelJob(String jobID, int hostType) throws FileException, ConnectionException, JobException {
 		if (hostType == Constants.KARST_HOST_CODE) {
 			hostId = karstHost;
@@ -252,6 +255,7 @@ public class JobManagementImpl implements JobManagement {
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public String submitJob(List<File> files, int hostType, int jobType, String pk, String passPhr, String noOfNodes,
 			String procPerNode, String wallTime, String username)
 					throws FileException, ConnectionException, JobException {
@@ -545,6 +549,7 @@ public class JobManagementImpl implements JobManagement {
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public List<JobDetails> monitorJob(String pk, String passPhr, String userName, String hostId)
 			throws FileException, ConnectionException, JobException {
 
@@ -623,6 +628,7 @@ public class JobManagementImpl implements JobManagement {
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<JobDetails> getJobDetails(String pk, String passPhr, String userName)
 			throws FileException, ConnectionException, JobException {
 
@@ -670,6 +676,7 @@ public class JobManagementImpl implements JobManagement {
 		return true;
 	}
 
+	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public InputStream downloadFile(String jobId, String status, String jobName, int hostType)
 			throws FileException, ConnectionException, JobException {
 
