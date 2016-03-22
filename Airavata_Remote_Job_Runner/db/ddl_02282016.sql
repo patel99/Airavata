@@ -23,7 +23,7 @@ CREATE DATABASE airavata_db WITH TEMPLATE = template0 ENCODING = 'UTF8';
 
 ALTER DATABASE airavata_db OWNER TO postgres;
 
-\connect airavata_db4
+\connect airavata_db
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
