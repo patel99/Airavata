@@ -107,13 +107,14 @@ public class Constants {
 			GROMACS_CONTENT = "#!/bin/bash \n"
 					+ "#PBS -l nodes=%1$s:ppn=%2$s \n"
 					+ "#PBS -l walltime=%3$s \n"
-					+ "#PBS -N gromacs.job \n"
+					+ "#PBS -o out.log \n"
+					+ "#PBS -e err.log \n"
 					+ "module swap PrgEnv-cray PrgEnv-gnu \n"
 					+ "module load fftw  \n"
 					+ "module load cudatoolkit \n"
 					+ "module load gromacs/gnu/gpu/4.6.5 \n"
 					+ "cd %4$s \n"
-					+ "aprun -np %5$s mdrun_mpi_d -s %6$s -c %7$s\n";
+					+ "aprun -n %5$s mdrun_mpi -s %6$s -c %7$s\n";
 		}else{
 			GROMACS_CONTENT = null;
 		}
