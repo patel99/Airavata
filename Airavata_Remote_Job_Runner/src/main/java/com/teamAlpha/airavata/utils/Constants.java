@@ -33,9 +33,7 @@ public class Constants {
 			+ "#PBS -l nodes=%1$s:ppn=%2$s \n"
 			+ "#PBS -l walltime=%3$s \n"
 			+ "#PBS -N gromacs.job \n"
-			+ "module load intel \n"
-			+ "module load openmpi/intel/1.6.3 \n"
-			+ "module load gromacs \n"
+			+ "module load openmpi/intel/1.6.3 gromacs/intel/4.6.5 \n"
 			+ "cd %4$s \n"
-			+ "mpirun -np %5$s mdrun_mpi_d -s %6$s -c %7$s\n";
+			+ "mpirun -np %5$s mdrun_mpi -s %6$s -c %7$s\n";
 }

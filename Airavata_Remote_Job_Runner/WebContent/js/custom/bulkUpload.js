@@ -4,8 +4,12 @@ var regex_time =/^\d{1,}:(?:[0-5]\d):(?:[0-5]\d)$/;
 var msg;
 $(document).ready(function(){
 	
-	$("#file").click(function(){
-		$(".template-upload").remove();
+//	$("#file").click(function(){
+//		$(".template-upload").remove();
+//	});
+	
+	$(".upload").change(function(){
+		$(this).parent('div').parent('div').prev('div').find(".uploadFile").val($(this).val());
 	});
 	
 	$("#btn-add").click(function(){

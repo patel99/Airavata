@@ -1,4 +1,4 @@
-
+<%@taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ page import="com.teamAlpha.airavata.utils.Constants"%>
 
 <link rel="stylesheet" type="text/css"
@@ -6,7 +6,7 @@
 <link rel="stylesheet" type="text/css"
 	href="css/jquery-fileupload/jquery.fileupload-ui.css" />
 
-<form class="navbar-form1" id="fileupload" action="uploadJob.htm"
+<form:form class="navbar-form1" id="fileupload" action="uploadJob.htm" modelAttribute="uploadFile"
 	method="POST" enctype="multipart/form-data" onsubmit="validate()">
 
 	<input id="fileType" name="fileType" type="hidden" />
@@ -42,7 +42,7 @@
 								placeholder="Select JobType">
 								<option value="" disabled selected>Select</option>
 								<option value="${TYPE_PBS}">PBS</option>
-								<option value="${YPE_LAMMPS}">LAMMPS</option>
+<%-- 								<option value="${TYPE_LAMMPS}">LAMMPS</option> --%>
 								<option value="${TYPE_GROMACS}">GROMACS</option> 
 							</select>
 						</div>
@@ -55,20 +55,33 @@
 
 				<!-- The fileinput-button span is used to style the file input field as button -->
 
-				<span class="btn btn-primary fileinput-button"> <i
-					class="icon-plus icon-white"></i><span>Add Job</span> <input
-					type="file" name="file" id="file"> </a>
-				</span>
+<!-- 				<span class="btn btn-primary fileinput-button"> <i -->
+<!-- 					class="icon-plus icon-white"></i><span>Add Job</span> <input -->
+<!-- 					type="file" name="file"> </a> -->
+<!-- 				</span> -->
 
-
-				<button type="submit" class="btn btn-primary start" id="submit">
+					<div id="up1" class="row hide">
+						<div class="col-sm-3">
+							<div class="form-group">
+							    <input type="file" name="file"/>
+						    </div>
+						</div>
+					</div>
+					<div id="up2" class="row hide">
+						<div class="col-sm-3">
+							<div class="form-group">
+							    <input type="file" name="file"/>
+							</div>
+						</div>
+					</div>
+				<button type="submit" class="btn btn-primary start hide" id="submit">
 					<i class="icon-upload icon-white"></i> <span>Submit Job</span>
 				</button>
 
-				<button type="reset" class="btn btn-primary cancel">
-					<i class="icon-ban-circle icon-white"></i> <span>Cancel
-						upload</span>
-				</button>
+<!-- 				<button type="reset" class="btn btn-primary cancel"> -->
+<!-- 					<i class="icon-ban-circle icon-white"></i> <span>Cancel -->
+<!-- 						upload</span> -->
+<!-- 				</button> -->
 
 			</div>
 			<br>
@@ -94,7 +107,7 @@
 
 
 
-</form>
+</form:form>
 
 <!-- The template to display files available for upload -->
 
@@ -189,12 +202,12 @@ for (var i=0, file; file=o.files[i]; i++) {
 </script>
 
 <script type="text/javascript" src="js/custom/bulkUpload.js"></script>
-<script type="text/javascript" src="js/fileupload/tmpl.min.js"></script>
-<script type="text/javascript" src="js/fileupload/load-image.min.js"></script>
-<script type="text/javascript" src="js/fileupload/canvas-to-blob.min.js"></script>
+<!-- <script type="text/javascript" src="js/fileupload/tmpl.min.js"></script> -->
+<!-- <script type="text/javascript" src="js/fileupload/load-image.min.js"></script> -->
+<!-- <script type="text/javascript" src="js/fileupload/canvas-to-blob.min.js"></script> -->
 <!-- 	<script type="text/javascript" src="js/fileupload/bootstrap.min.js"></script> -->
 <!-- 	<script type="text/javascript" src="js/fileupload/bootstrap-image-gallery.min.js"></script> -->
-<script type="text/javascript"
-	src="js/fileupload/jquery.iframe-transport.js"></script>
-<script type="text/javascript" src="js/fileupload/main.scroll.js"></script>
+<!-- <script type="text/javascript" -->
+<!-- 	src="js/fileupload/jquery.iframe-transport.js"></script> -->
+<!-- <script type="text/javascript" src="js/fileupload/main.scroll.js"></script> -->
 

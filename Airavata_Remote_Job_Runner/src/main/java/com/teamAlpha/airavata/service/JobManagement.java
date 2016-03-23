@@ -13,7 +13,7 @@ public interface JobManagement {
 
 	String submitJob() throws FileException, ConnectionException, JobException;
 
-	String submitJob(File file, int jobType, String pk, String passPhr, String noOfNodes, String procPerNode,String wallTime)
+	String submitJob(List<File> files, int jobType, String pk, String passPhr, String noOfNodes, String procPerNode,String wallTime)
 			throws FileException, ConnectionException, JobException;
 
 	List<JobDetails> monitorJob(String pk, String passPhr) throws FileException, ConnectionException, JobException;

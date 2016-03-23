@@ -4,14 +4,14 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
 	id="WebApp_ID" version="3.0">
 	<display-name>Airavata_Remote_Job_Runner</display-name>
-<!-- 	<welcome-file-list> -->
-<!-- 	<welcome-file>login.htm</welcome-file> -->
+	<welcome-file-list>
+	<welcome-file>login.htm</welcome-file>
 	<!-- <welcome-file>index.htm</welcome-file> -->
 	<!-- <welcome-file>index.jsp</welcome-file> -->
 	<!-- <welcome-file>default.html</welcome-file> -->
 	<!-- <welcome-file>default.htm</welcome-file> -->
 	<!-- <welcome-file>default.jsp</welcome-file> -->
-<!-- 	</welcome-file-list> -->
+	</welcome-file-list>
 
 	<!-- The definition of the Root Spring Container shared by all Servlets 
 		and Filters -->

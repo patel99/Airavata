@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,6 +31,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.teamAlpha.airavata.domain.JobDetails;
+import com.teamAlpha.airavata.domain.UploadFile;
 import com.teamAlpha.airavata.exception.ConnectionException;
 import com.teamAlpha.airavata.exception.FileException;
 import com.teamAlpha.airavata.exception.JobException;
@@ -80,34 +82,39 @@ public class AiravataRestController {
 	@RequestMapping(value = { "uploadJob.htm" }, method = RequestMethod.POST)
 	@Produces(MediaType.APPLICATION_JSON)
 	public @ResponseBody void uploadUsersFile(HttpServletRequest request, HttpServletResponse response,
-			@RequestParam("file") MultipartFile multipartFile, @RequestParam("jobType") int jobType,
+			@RequestParam("file") MultipartFile[] multipartFile, @RequestParam("jobType") int jobType,
 			@RequestParam("noOfNodes") String noOfNodes, @RequestParam("procPerNode") String procPerNode, @RequestParam("wallTime") String wallTime) {
 
 		PrintWriter writer = null;
 		JsonArray json = null;
 		JsonObject jsono = new JsonObject();
 		try {
-			writer = response.getWriter();
-			File file = FileUtils.getFileFromMultipartFile(multipartFile);
-			String jobId = jobManagementService.submitJob(file, jobType, privateKeyPath, privateKeyPassphrase,
+//			writer = response.getWriter();
+			List<File> files = new ArrayList<File>();
+			for (MultipartFile mf : multipartFile) {
+				if(mf.getSize()>0){
+					files.add(FileUtils.getFileFromMultipartFile(mf));
+				}
+			}
+			String jobId = jobManagementService.submitJob(files, jobType, privateKeyPath, privateKeyPassphrase,
 					noOfNodes, procPerNode,wallTime);
-			jsono.addProperty("name", file.getName());
-			jsono.addProperty("size", multipartFile.getSize());
+//			jsono.addProperty("name", file.getName());
+//			jsono.addProperty("size", multipartFile.getSize());
 			jsono.addProperty("isFileErrored", false);
 			json = new JsonArray();
 			json.add(jsono);
 		} catch (IOException e) {
-			LOGGER.error("Error uploading file");
+			LOGGER.error("Error uploading file", e);
 		} catch (FileException e) {
-			LOGGER.error("Error uploading file");
+			LOGGER.error("Error uploading file", e);
 		} catch (ConnectionException e) {
-			LOGGER.error("Error uploading file");
+			LOGGER.error("Error uploading file", e);
 		} catch (JobException e) {
-			LOGGER.error("Error uploading file");
+			LOGGER.error("Error uploading file", e);
 		} finally {
 			if (null == json || json.size() == 0) {
-				jsono.addProperty("name", multipartFile.getOriginalFilename());
-				jsono.addProperty("size", multipartFile.getSize());
+//				jsono.addProperty("name", multipartFile.getOriginalFilename());
+//				jsono.addProperty("size", multipartFile.getSize());
 				jsono.addProperty("isFileErrored", true);
 				jsono.addProperty("errorMessage", "File upload failed.");
 				if (null == json) {
@@ -121,10 +128,20 @@ public class AiravataRestController {
 			} else {
 				writer.write(json.toString());
 			}
-			writer.close();
+			response.setContentType("text/html;charset=UTF-8");
+			response.setHeader("Cache-Control", "no-cache");
+			response.setHeader("Pragma", "No-cache");
+			response.setDateHeader("Expires", 0);
+			response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
+			response.setHeader("Location", getURLWithContextPath(request) + "test.htm");
 		}
 	}
 
+	public static String getURLWithContextPath(HttpServletRequest request) {
+		return request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
+				+ request.getContextPath() +  "/";
+	}
+	
 	@RequestMapping(value = { "cancelJob.htm" }, method = RequestMethod.POST)
 	public @ResponseBody String getCancelJobStatus(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam("jobId") String jobId) {

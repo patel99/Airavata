@@ -416,8 +416,8 @@ public class JobManagementImpl implements JobManagement {
 	}
 
 	@Override
-	public String submitJob(File file, int jobType, String pk, String passPhr, String noOfNodes, String procPerNode,
-			String wallTime) throws FileException, ConnectionException, JobException {
+	public String submitJob(List<File> files, int jobType, String pk, String passPhr, String noOfNodes,
+			String procPerNode, String wallTime) throws FileException, ConnectionException, JobException {
 		ConnectionEssential connectionParameters = new ConnectionEssential();
 		connectionParameters.setHost(hostId);
 		connectionParameters.setUser(userName);
@@ -452,13 +452,15 @@ public class JobManagementImpl implements JobManagement {
 			String fileContent = null;
 			if (jobType == Constants.PBS_JOB_CODE) {
 				fileContent = String.format(Constants.PBS_CONTENT, noOfNodes, procPerNode, wallTime, remoteFilePath,
-						totalProcess, "./" + file.getName().substring(0, file.getName().length() - 2) + ".out");
+						totalProcess,
+						"./" + files.get(0).getName().substring(0, files.get(0).getName().length() - 2) + ".out");
 			} else if (jobType == Constants.LAMMPS_JOB_CODE) {
-				fileContent = String.format(Constants.LAMMPS_CONTENT, noOfNodes, procPerNode, wallTime, remoteFilePath,
-						totalProcess, file.getName());
+				// fileContent = String.format(Constants.LAMMPS_CONTENT,
+				// noOfNodes, procPerNode, wallTime, remoteFilePath,
+				// totalProcess, file.getName());
 			} else if (jobType == Constants.GROMACS_JOB_CODE) {
 				fileContent = String.format(Constants.GROMACS_CONTENT, noOfNodes, procPerNode, wallTime, remoteFilePath,
-						totalProcess, file.getName(), "output.gro");
+						totalProcess, files.get(0).getName(), files.get(1).getName());
 			}
 			String tDir = System.getProperty("java.io.tmpdir");
 
@@ -467,7 +469,13 @@ public class JobManagementImpl implements JobManagement {
 			fileWriter.write(fileContent);
 			fileWriter.flush();
 			fileWriter.close();
-			fileManagement.putFile(file, remoteFilePath, sftpChannel);
+
+			fileManagement.putFile(files.get(0), remoteFilePath, sftpChannel);
+
+			if (jobType == Constants.GROMACS_JOB_CODE) {
+				sftpChannel = connection.getSftpChannel(s);
+				fileManagement.putFile(files.get(1), remoteFilePath, sftpChannel);
+			}
 			sftpChannel = connection.getSftpChannel(s);
 			fileManagement.putFile(jobFile, remoteFilePath, sftpChannel);
 			sftpChannel.disconnect();
@@ -477,12 +485,14 @@ public class JobManagementImpl implements JobManagement {
 			execChannel = connection.getExecChannel(s);
 			if (jobType == Constants.PBS_JOB_CODE) {
 				execChannel.setCommand(Constants.CMD_CD + " " + remoteFilePath + "\n" + Constants.CMD_MPICC + " "
-						+ file.getName() + " -o " + file.getName().substring(0, file.getName().length() - 2)
-						+ ".out \n " + Constants.CMD_D2U + " " + jobFile.getName() + " \n " + Constants.CMD_QSUB + " "
+						+ files.get(0).getName() + " -o "
+						+ files.get(0).getName().substring(0, files.get(0).getName().length() - 2) + ".out \n "
+						+ Constants.CMD_D2U + " " + jobFile.getName() + " \n " + Constants.CMD_QSUB + " "
 						+ jobFile.getName());
 			} else if (jobType == Constants.LAMMPS_JOB_CODE) {
-				execChannel.setCommand(
-						Constants.CMD_CD + " " + remoteFilePath + "\n" + Constants.CMD_QSUB + " " + jobFile.getName());
+				// execChannel.setCommand(
+				// Constants.CMD_CD + " " + remoteFilePath + "\n" +
+				// Constants.CMD_QSUB + " " + jobFile.getName());
 			} else if (jobType == Constants.GROMACS_JOB_CODE) {
 				execChannel.setCommand(
 						Constants.CMD_CD + " " + remoteFilePath + "\n" + Constants.CMD_QSUB + " " + jobFile.getName());
@@ -616,62 +626,60 @@ public class JobManagementImpl implements JobManagement {
 
 			if (null != status && status.equalsIgnoreCase("Completed")) {
 				s = connection.getSession(connectionParameters);
-				
+				String errFilePrefix = null;
+				String opFilePrefix = null;
 				if (jobName.equalsIgnoreCase(Constants.JOB_GROMAC)) {
+					errFilePrefix = "gromacs.job.e";
+					opFilePrefix = "gromacs.job.o";
+
+				}else{
+					errFilePrefix = "pbs.sh.e";
+					opFilePrefix = "pbs.sh.o";
+				}
+
+				if (LOGGER.isInfoEnabled()) {
+					LOGGER.info("downloadFile() -> Checking if error generated in error file. Job Id : " + jobId);
+				}
+
+				execChannel = connection.getExecChannel(s);
+				((ChannelExec) execChannel).setCommand(Constants.CMD_CD + " " + remoteFilePath + "\n "
+						+ Constants.CMD_CAT + " " + errFilePrefix + jobId.substring(0, jobId.length() - 3));
+
+				in = execChannel.getInputStream();
+
+				execChannel.setInputStream(null);
+				execChannel.setErrStream(System.err);
+				execChannel.connect();
+
+				dataFromServer = Utilities.getStringFromIS(in);
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("downloadFile() -> Error file content : " + dataFromServer + ", JobId : "
+							+ jobId.substring(0, jobId.length() - 3));
+				}
+				sftpChannel = connection.getSftpChannel(s);
+				if (dataFromServer.trim().equals("")) {
+
 					if (LOGGER.isInfoEnabled()) {
-						LOGGER.info("downloadFile() -> Fetching output file. Job Id : " + jobId + ", Job Name : " + jobName);
+						LOGGER.info("downloadFile() -> Fetching output file. Job Id : " + jobId);
 					}
-					sftpChannel = connection.getSftpChannel(s);
+
 					inputFile = fileManagement.getFile(filePath,
-							remoteFilePath + "/output.gro", sftpChannel);
+							remoteFilePath + "/" + opFilePrefix + jobId.substring(0, jobId.length() - 3), sftpChannel);
+					if (LOGGER.isDebugEnabled()) {
+						LOGGER.debug(
+								"downloadFile() -> Output file content : " + dataFromServer + ", JobId : " + jobId);
+					}
 					return inputFile;
+
 				} else {
 
 					if (LOGGER.isInfoEnabled()) {
-						LOGGER.info("downloadFile() -> Checking if error generated in error file. Job Id : " + jobId);
+						LOGGER.info("downloadFile() -> Fetching error file. Job Id : " + jobId);
 					}
+					inputFile = fileManagement.getFile(filePath,
+							remoteFilePath + "/" + errFilePrefix + jobId.substring(0, jobId.length() - 3), sftpChannel);
+					return inputFile;
 
-					
-					execChannel = connection.getExecChannel(s);
-					((ChannelExec) execChannel).setCommand(Constants.CMD_CD + " " + remoteFilePath + "\n "
-							+ Constants.CMD_CAT + " " + "pbs.sh.e" + jobId.substring(0, jobId.length() - 3));
-
-					in = execChannel.getInputStream();
-
-					execChannel.setInputStream(null);
-					execChannel.setErrStream(System.err);
-					execChannel.connect();
-
-					dataFromServer = Utilities.getStringFromIS(in);
-					if (LOGGER.isDebugEnabled()) {
-						LOGGER.debug("downloadFile() -> Error file content : " + dataFromServer + ", JobId : "
-								+ jobId.substring(0, jobId.length() - 3));
-					}
-					sftpChannel = connection.getSftpChannel(s);
-					if (dataFromServer.trim().equals("")) {
-
-						if (LOGGER.isInfoEnabled()) {
-							LOGGER.info("downloadFile() -> Fetching output file. Job Id : " + jobId);
-						}
-
-						inputFile = fileManagement.getFile(filePath,
-								remoteFilePath + "/pbs.sh.o" + jobId.substring(0, jobId.length() - 3), sftpChannel);
-						if (LOGGER.isDebugEnabled()) {
-							LOGGER.debug(
-									"downloadFile() -> Output file content : " + dataFromServer + ", JobId : " + jobId);
-						}
-						return inputFile;
-
-					} else {
-
-						if (LOGGER.isInfoEnabled()) {
-							LOGGER.info("downloadFile() -> Fetching error file. Job Id : " + jobId);
-						}
-						inputFile = fileManagement.getFile(filePath,
-								remoteFilePath + "/pbs.sh.e" + jobId.substring(0, jobId.length() - 3), sftpChannel);
-						return inputFile;
-
-					}
 				}
 			}
 		} catch (IOException e) {
