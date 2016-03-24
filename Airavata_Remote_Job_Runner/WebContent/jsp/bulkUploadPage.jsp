@@ -42,7 +42,7 @@
 								placeholder="Select JobType">
 								<option value="" disabled selected>Select</option>
 								<option value="${TYPE_PBS}">PBS</option>
-<%-- 								<option value="${TYPE_LAMMPS}">LAMMPS</option> --%>
+<%-- 							<option value="${TYPE_LAMMPS}">LAMMPS</option> --%>
 								<option value="${TYPE_GROMACS}">GROMACS</option> 
 							</select>
 						</div>
