@@ -66,7 +66,7 @@
 	</servlet-mapping>
 
 
-<security-constraint>
+<!-- <security-constraint>
     <web-resource-collection>
         <web-resource-name>Airavata_Remote_Job_Runner</web-resource-name>
         <url-pattern>/*</url-pattern>
@@ -77,6 +77,6 @@
     <user-data-constraint>
         <transport-guarantee>CONFIDENTIAL</transport-guarantee>
     </user-data-constraint>
-</security-constraint>
+</security-constraint> -->
 
 </web-app>
