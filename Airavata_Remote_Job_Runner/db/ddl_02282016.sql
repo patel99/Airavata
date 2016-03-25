@@ -15,15 +15,15 @@ SET client_min_messages = warning;
 
 --
 -- TOC entry 1934 (class 1262 OID 24585)
--- Name: airavata_db; Type: DATABASE; Schema: -; Owner: postgres
+-- Name: airavata_db3; Type: DATABASE; Schema: -; Owner: postgres
 --
 
-CREATE DATABASE airavata_db WITH TEMPLATE = template0 ENCODING = 'UTF8';
+CREATE DATABASE airavata_db3 WITH TEMPLATE = template0 ENCODING = 'UTF8';
 
 
-ALTER DATABASE airavata_db OWNER TO postgres;
+ALTER DATABASE airavata_db3 OWNER TO postgres;
 
-\connect airavata_db
+\connect airavata_db3
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
