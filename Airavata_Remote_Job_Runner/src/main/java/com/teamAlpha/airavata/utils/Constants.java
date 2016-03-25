@@ -30,10 +30,11 @@ public class Constants {
 			+ "cd %4$s \n"
 			+ "mpirun -np %5$s lmp_openmpi -suffix omp < %6$s \n";
 	public static String GROMACS_CONTENT = "#!/bin/bash \n"
+			+ "#PBS -k o \n"
 			+ "#PBS -l nodes=%1$s:ppn=%2$s \n"
 			+ "#PBS -l walltime=%3$s \n"
 			+ "#PBS -N gromacs.job \n"
 			+ "module load openmpi/intel/1.6.3 gromacs/intel/4.6.5 \n"
 			+ "cd %4$s \n"
-			+ "mpirun -np %5$s mdrun_mpi -s %6$s -c %7$s\n";
+			+ "mpirun -hostfile $PBS_NODEFILE -np %5$s mdrun_mpi -nice 0 -v -deffnm %6$s -c %7$s\n";
 }
