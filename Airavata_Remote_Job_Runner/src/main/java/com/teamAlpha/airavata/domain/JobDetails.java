@@ -1,41 +1,44 @@
 package com.teamAlpha.airavata.domain;
 
+import java.sql.Timestamp;
+
 public class JobDetails {
 	
-	private String id;
-	private String userName;
+	private int id;
+	private String jobId;
+	private User user;
 	private String queueType;
 	private String jobName;
 	private String sessionId;
-	private String nodes;
-	private String noOfTasks;
+	private int nodes;
+	private int noOfTasks;
 	private String memory;
 	private String time;
-	private String status;
+	private Status status;
 	private String elapTime;
-	/**
-	 * @return the id
-	 */
-	public String getId() {
+	private Type type;
+	private Timestamp insts;
+	private Timestamp updts;
+	private Host host;
+	private String remotePath;
+	
+	public int getId() {
 		return id;
 	}
-	/**
-	 * @param id the id to set
-	 */
-	public void setId(String id) {
+	public void setId(int id) {
 		this.id = id;
 	}
-	/**
-	 * @return the userName
-	 */
-	public String getUserName() {
-		return userName;
+	public String getJobId() {
+		return jobId;
 	}
-	/**
-	 * @param userName the userName to set
-	 */
-	public void setUserName(String userName) {
-		this.userName = userName;
+	public void setJobId(String jobId) {
+		this.jobId = jobId;
+	}
+	public Type getType() {
+		return type;
+	}
+	public void setType(Type type) {
+		this.type = type;
 	}
 	/**
 	 * @return the queueType
@@ -76,25 +79,25 @@ public class JobDetails {
 	/**
 	 * @return the nodes
 	 */
-	public String getNodes() {
+	public int getNodes() {
 		return nodes;
 	}
 	/**
 	 * @param nodes the nodes to set
 	 */
-	public void setNodes(String nodes) {
+	public void setNodes(int nodes) {
 		this.nodes = nodes;
 	}
 	/**
 	 * @return the noOfTasks
 	 */
-	public String getNoOfTasks() {
+	public int getNoOfTasks() {
 		return noOfTasks;
 	}
 	/**
 	 * @param noOfTasks the noOfTasks to set
 	 */
-	public void setNoOfTasks(String noOfTasks) {
+	public void setNoOfTasks(int noOfTasks) {
 		this.noOfTasks = noOfTasks;
 	}
 	/**
@@ -121,18 +124,7 @@ public class JobDetails {
 	public void setTime(String time) {
 		this.time = time;
 	}
-	/**
-	 * @return the status
-	 */
-	public String getStatus() {
-		return status;
-	}
-	/**
-	 * @param status the status to set
-	 */
-	public void setStatus(String status) {
-		this.status = status;
-	}
+	
 	/**
 	 * @return the elapTime
 	 */
@@ -145,16 +137,55 @@ public class JobDetails {
 	public void setElapTime(String elapTime) {
 		this.elapTime = elapTime;
 	}
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
+	public User getUser() {
+		return user;
+	}
+	public void setUser(User user) {
+		this.user = user;
+	}
+	public Status getStatus() {
+		return status;
+	}
+	public void setStatus(Status status) {
+		this.status = status;
+	}
+	
+	public Timestamp getInsts() {
+		return insts;
+	}
+	public void setInsts(Timestamp insts) {
+		this.insts = insts;
+	}
+	public Timestamp getUpdts() {
+		return updts;
+	}
+	public void setUpdts(Timestamp updts) {
+		this.updts = updts;
+	}
+		
+	public Host getHost() {
+		return host;
+	}
+	public void setHost(Host host) {
+		this.host = host;
+	}
+	
+	
+	public String getRemotePath() {
+		return remotePath;
+	}
+	public void setRemotePath(String remotePath) {
+		this.remotePath = remotePath;
+	}
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("JobDetails [id=");
 		builder.append(id);
-		builder.append(", userName=");
-		builder.append(userName);
+		builder.append(", jobId=");
+		builder.append(jobId);
+		builder.append(", user=");
+		builder.append(user);
 		builder.append(", queueType=");
 		builder.append(queueType);
 		builder.append(", jobName=");
@@ -173,8 +204,17 @@ public class JobDetails {
 		builder.append(status);
 		builder.append(", elapTime=");
 		builder.append(elapTime);
+		builder.append(", type=");
+		builder.append(type);
+		builder.append(", insts=");
+		builder.append(insts);
+		builder.append(", updts=");
+		builder.append(updts);
+		builder.append(", host=");
+		builder.append(host);
+		builder.append(", remotePath=");
+		builder.append(remotePath);
 		builder.append("]");
 		return builder.toString();
 	}
-	
 }

@@ -19,6 +19,7 @@ public class Main {
 	JobManagement jobManagement;
 
 	private static final Logger LOGGER = LogManager.getLogger(Main.class);
+	
 
 	/**
 	 * Entry point
@@ -29,7 +30,7 @@ public class Main {
 		AbstractApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
 		Main main = (Main) context.getBean(Main.class);
 		context.close();
-		main.monitor();
+		//main.monitor();
 	}
 
 	/**
@@ -37,6 +38,7 @@ public class Main {
 	 * @return
 	 * @throws ConnectionException
 	 */
+	/*
 	boolean monitor() throws ConnectionException {
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("monitor() -> Submit and monitor job.");
@@ -55,5 +57,6 @@ public class Main {
 		}
 		return true;
 	}
+	*/
 
 }
