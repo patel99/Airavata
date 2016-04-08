@@ -7,6 +7,6 @@ notifications:
     - aykaranj@umail.iu.edu
 jdk:
   - oraclejdk7
-sudo: false
+sudo: true
 install: true
 script: mvn clean install -DskipTests=true
