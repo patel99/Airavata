@@ -1,0 +1,12 @@
+language: java
+notifications:
+  email:
+    - arkamat@indiana.edu
+    - adhamnas@umail.iu.edu
+    - patelprv@indiana.edu
+    - aykaranj@umail.iu.edu
+jdk:
+  - oraclejdk8
+sudo: false
+install: true
+script: mvn clean install -DskipTests=true
