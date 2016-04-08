@@ -6,7 +6,7 @@ notifications:
     - patelprv@indiana.edu
     - aykaranj@umail.iu.edu
 jdk:
-  - oraclejdk8
+  - oraclejdk7
 sudo: false
 install: true
 script: mvn clean install -DskipTests=true
