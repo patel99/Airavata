@@ -5,6 +5,6 @@ if [ "$?" -gt "0" ]
         sudo apt-get -y update
         sudo apt-get -y install postgresql-client postgresql postgresql-contrib
         sudo -u postgres psql postgres -a -f /opt/scripts/airavata_ddl_20160321.sql
-        sudo -u postgres psql postgres -a -f /opt/scripts/airavata_dml_20160321.sq
+        sudo -u postgres psql postgres -a -f /opt/scripts/airavata_dml_20160321.sql
  fi
 
