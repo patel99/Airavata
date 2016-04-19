@@ -5,3 +5,17 @@ jdk:
 sudo: false
 install: true
 script: cd "Airavata_Remote_Job_Runner" && mvn clean install -DskipTests=true
+deploy:
+    provider: s3
+    access_key_id: $AWS_ACCESS_KEY # declared in Travis repo settings
+    secret_access_key: $AWS_SECRET_KEY
+    bucket: airavata-team-alpha
+    endpoint: airavata-team-alpha.s3-us-west-2.amazonaws.com
+    region: us-west-2
+    skip_cleanup: true
+    acl: public_read
+    detect_encoding: true
+    key: target/SGA_Apex_REST_API_WAR-0.1.0.war
+    on:
+      repo: airavata-courses/TeamAlpha
+      all_branches: true
