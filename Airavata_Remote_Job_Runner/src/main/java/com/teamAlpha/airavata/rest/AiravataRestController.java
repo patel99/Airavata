@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.POST;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
@@ -31,6 +32,8 @@ import org.springframework.web.servlet.ModelAndView;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.core.util.MultivaluedMapImpl;
 import com.teamAlpha.airavata.domain.JobDetails;
 import com.teamAlpha.airavata.domain.User;
 import com.teamAlpha.airavata.exception.ConnectionException;
@@ -38,6 +41,8 @@ import com.teamAlpha.airavata.exception.FileException;
 import com.teamAlpha.airavata.exception.JobException;
 import com.teamAlpha.airavata.exception.UserManagementException;
 import com.teamAlpha.airavata.service.JobManagement;
+import com.teamAlpha.airavata.service.RestClientService;
+import com.teamAlpha.airavata.service.RestClientServiceImpl;
 import com.teamAlpha.airavata.service.UserManagementService;
 import com.teamAlpha.airavata.utils.Constants;
 import com.teamAlpha.airavata.utils.FileUtils;
@@ -109,15 +114,15 @@ public class AiravataRestController {
 			// writer = response.getWriter();
 			List<File> files = new ArrayList<File>();
 			for (MultipartFile mf : multipartFile) {
-				if(mf.getSize()>0){
+				if (mf.getSize() > 0) {
 					files.add(FileUtils.getFileFromMultipartFile(mf));
 				}
 			}
-			
-			String jobId = jobManagementService.submitJob(files, hostType, jobType, privateKeyPath, privateKeyPassphrase,
-					noOfNodes, procPerNode, wallTime, user);
-//			jsono.addProperty("name", file.getName());
-//			jsono.addProperty("size", multipartFile.getSize());
+
+			String jobId = jobManagementService.submitJob(files, hostType, jobType, privateKeyPath,
+					privateKeyPassphrase, noOfNodes, procPerNode, wallTime, user);
+			// jsono.addProperty("name", file.getName());
+			// jsono.addProperty("size", multipartFile.getSize());
 			jsono.addProperty("isFileErrored", false);
 			json = new JsonArray();
 			json.add(jsono);
@@ -131,8 +136,9 @@ public class AiravataRestController {
 			LOGGER.error("Error uploading file", e);
 		} finally {
 			if (null == json || json.size() == 0) {
-//				jsono.addProperty("name", multipartFile.getOriginalFilename());
-//				jsono.addProperty("size", multipartFile.getSize());
+				// jsono.addProperty("name",
+				// multipartFile.getOriginalFilename());
+				// jsono.addProperty("size", multipartFile.getSize());
 				jsono.addProperty("isFileErrored", true);
 				jsono.addProperty("errorMessage", "File upload failed.");
 				if (null == json) {
@@ -158,7 +164,7 @@ public class AiravataRestController {
 
 	public static String getURLWithContextPath(HttpServletRequest request) {
 		return request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
-				+ request.getContextPath() +  "/";
+				+ request.getContextPath() + "/";
 	}
 
 	@RequestMapping(value = { "cancelJob.htm" }, method = RequestMethod.POST)
@@ -283,28 +289,38 @@ public class AiravataRestController {
 	@Produces(MediaType.APPLICATION_JSON)
 	public @ResponseBody ModelAndView addUser(HttpServletRequest request, HttpServletResponse response,
 			@RequestParam("username") String username, @RequestParam("password") String password) {
-		User user = new User();
-		user.setUsername(username);
-		user.setPassword(password);
-		user.setRole("ROLE_USER");
-		user.setEnabled(true);
+
+		MultivaluedMap requestData = new MultivaluedMapImpl();
+		requestData.add("username", username);
+		requestData.add("password", password);
 
 		ModelAndView modelAndView;
 
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("addUser() -> Adding user. User : " + user.toString());
-		}
+		/*
+		 * Calling Micro Service for User Registration
+		 */
 
+		RestClientService restClient = new RestClientServiceImpl();
+
+		ClientResponse restResponse = restClient.post("http://localhost:7890/userManagementService/addUser",
+				requestData);
+		/*
+		 * *****************************************
+		 */
 		int rowsInserted;
 		try {
-			rowsInserted = userManagementService.add(user);
+			if (restResponse == null) {
+				throw new UserManagementException("Error adding user.");
+			}
+			rowsInserted = Integer.parseInt(restResponse.getEntity(String.class));
+
 			if (rowsInserted == 0) {
 				throw new UserManagementException("Error adding user.");
 			}
 			modelAndView = new ModelAndView("login");
 
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("addUser() -> User added. User : " + user.toString());
+				LOGGER.debug("addUser() -> User added. User : " + username.toString());
 			}
 
 		} catch (UserManagementException e) {
