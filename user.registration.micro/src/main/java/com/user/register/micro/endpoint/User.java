@@ -23,7 +23,8 @@ public class User {
 	@Column
 	private String role;
 
-	private boolean enabled;
+	@Column(columnDefinition = "integer DEFAULT 1 NOT NULL")
+	private int enabled;
 
 	public int getId() {
 		return id;
@@ -49,11 +50,11 @@ public class User {
 		this.role = role;
 	}
 
-	public boolean isEnabled() {
+	public int getEnabled() {
 		return enabled;
 	}
 
-	public void setEnabled(boolean enabled) {
+	public void setEnabled(int enabled) {
 		this.enabled = enabled;
 	}
 
