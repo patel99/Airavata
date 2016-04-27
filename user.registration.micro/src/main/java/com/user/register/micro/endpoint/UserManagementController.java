@@ -23,7 +23,7 @@ public class UserManagementController {
 		user.setUsername(username);
 		user.setPassword(password);
 		user.setRole("ROLE_USER");
-		user.setEnabled(true);
+		user.setEnabled(1);
 
 		return userManagementDaoService.add(user);
 	}
