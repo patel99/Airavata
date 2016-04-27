@@ -32,6 +32,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 import com.teamAlpha.airavata.domain.JobDetails;
@@ -211,21 +212,44 @@ public class AiravataRestController {
 		Gson gson = new Gson();
 		JsonObject jsonResponse = new JsonObject();
 		String user = SecurityContextHolder.getContext().getAuthentication().getName();
+		
+		
 		try {
 			if (LOGGER.isInfoEnabled()) {
 				LOGGER.info("getJobStatus() -> Fetch job details. User : " + user);
 			}
+			/*
+			 * Micro services call
+			 */
+			
+			MultivaluedMap requestData = new MultivaluedMapImpl();
+			requestData.add("username", user);
+			
+			
+			RestClientService restClient = new RestClientServiceImpl();
 
-			jobDetailsList = jobManagementService.getJobDetails(privateKeyPath, privateKeyPassphrase, user);
+			ClientResponse restResponse = restClient.post("http://localhost:7891/jobManagementService/retrievJobs",
+					requestData);
+			if (restResponse == null) {
+				throw new JobException("Error adding user.");
+			}
+			
+			String output = restResponse.getEntity(String.class);;
+			
+			/*
+			 * 
+			 */
+
+			//jobDetailsList = jobManagementService.getJobDetails(privateKeyPath, privateKeyPassphrase, user);
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("getJobStatus() -> Retrieved job details. User : " + user + ", Job : "
 						+ jobDetailsList.toString());
 			}
 
-			jsonResponse.add("aaData", gson.toJsonTree(jobDetailsList));
+			jsonResponse.add("aaData", new JsonParser().parse(output));
 
-		} catch (FileException | ConnectionException | JobException e) {
+		} catch (JobException e) {
 			LOGGER.error("Error monitoring job.", e);
 		}
 		return jsonResponse.toString();
