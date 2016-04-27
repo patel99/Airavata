@@ -113,40 +113,66 @@ public class AiravataRestController {
 		String user = SecurityContextHolder.getContext().getAuthentication().getName();
 		try {
 			// writer = response.getWriter();
-			List<File> files = new ArrayList<File>();
-			for (MultipartFile mf : multipartFile) {
-				if (mf.getSize() > 0) {
-					files.add(FileUtils.getFileFromMultipartFile(mf));
-				}
+			/*
+			 * Make Micro service call
+			 */
+			MultivaluedMap requestData = new MultivaluedMapImpl();
+			requestData.add("file", multipartFile);
+			requestData.add("hostType", hostType);
+			requestData.add("jobType", jobType);
+			requestData.add("noOfNodes", noOfNodes);
+			requestData.add("procPerNode", procPerNode);
+			requestData.add("wallTime", wallTime);
+			requestData.add("user", user);
+
+			RestClientService restClient = new RestClientServiceImpl();
+
+			ClientResponse restResponse = restClient.post("http://localhost:7893/jobSubmissionService/submitJobs",
+					requestData);
+			if (restResponse == null) {
+				throw new JobException("Error adding user.");
 			}
 
-			String jobId = jobManagementService.submitJob(files, hostType, jobType, privateKeyPath,
-					privateKeyPassphrase, noOfNodes, procPerNode, wallTime, user);
+			String output = restResponse.getEntity(String.class);
+
+			if (null != output) {
+
+				requestData = new MultivaluedMapImpl();
+				requestData.add("job", output);
+
+				restResponse = restClient.post("http://localhost:7892/jobSaveService/saveJob", requestData);
+				if (restResponse == null) {
+					throw new JobException("Error adding user.");
+				}
+
+				output = restResponse.getEntity(String.class);
+
+			}
+
+			/*
+			 * *************************************
+			 */
+			/*
+			 * List<File> files = new ArrayList<File>(); for (MultipartFile mf :
+			 * multipartFile) { if (mf.getSize() > 0) {
+			 * files.add(FileUtils.getFileFromMultipartFile(mf)); } }
+			 */
+
+			/*
+			 * String jobId = jobManagementService.submitJob(files, hostType,
+			 * jobType, privateKeyPath, privateKeyPassphrase, noOfNodes,
+			 * procPerNode, wallTime, user);
+			 */
 			// jsono.addProperty("name", file.getName());
 			// jsono.addProperty("size", multipartFile.getSize());
-			jsono.addProperty("isFileErrored", false);
-			json = new JsonArray();
-			json.add(jsono);
-		} catch (IOException e) {
-			LOGGER.error("Error uploading file", e);
-		} catch (FileException e) {
-			LOGGER.error("Error uploading file", e);
-		} catch (ConnectionException e) {
-			LOGGER.error("Error uploading file", e);
-		} catch (JobException e) {
+			/*
+			 * jsono.addProperty("isFileErrored", false); json = new
+			 * JsonArray(); json.add(jsono);
+			 */
+		} catch (Exception e) {
 			LOGGER.error("Error uploading file", e);
 		} finally {
-			if (null == json || json.size() == 0) {
-				// jsono.addProperty("name",
-				// multipartFile.getOriginalFilename());
-				// jsono.addProperty("size", multipartFile.getSize());
-				jsono.addProperty("isFileErrored", true);
-				jsono.addProperty("errorMessage", "File upload failed.");
-				if (null == json) {
-					json = new JsonArray();
-				}
-				json.add(jsono);
-			}
+
 			// if (request.getHeader("accept").indexOf("application/json") ==
 			// -1) {
 			// writer.write(StringEscapeUtils.escapeHtml(json.toString()));
@@ -212,8 +238,7 @@ public class AiravataRestController {
 		Gson gson = new Gson();
 		JsonObject jsonResponse = new JsonObject();
 		String user = SecurityContextHolder.getContext().getAuthentication().getName();
-		
-		
+
 		try {
 			if (LOGGER.isInfoEnabled()) {
 				LOGGER.info("getJobStatus() -> Fetch job details. User : " + user);
@@ -221,11 +246,10 @@ public class AiravataRestController {
 			/*
 			 * Micro services call
 			 */
-			
+
 			MultivaluedMap requestData = new MultivaluedMapImpl();
 			requestData.add("username", user);
-			
-			
+
 			RestClientService restClient = new RestClientServiceImpl();
 
 			ClientResponse restResponse = restClient.post("http://localhost:7891/jobManagementService/retrievJobs",
@@ -233,14 +257,17 @@ public class AiravataRestController {
 			if (restResponse == null) {
 				throw new JobException("Error adding user.");
 			}
-			
-			String output = restResponse.getEntity(String.class);;
-			
+
+			String output = restResponse.getEntity(String.class);
+			;
+
 			/*
 			 * 
 			 */
 
-			//jobDetailsList = jobManagementService.getJobDetails(privateKeyPath, privateKeyPassphrase, user);
+			// jobDetailsList =
+			// jobManagementService.getJobDetails(privateKeyPath,
+			// privateKeyPassphrase, user);
 
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("getJobStatus() -> Retrieved job details. User : " + user + ", Job : "
